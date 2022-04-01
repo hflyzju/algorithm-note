@@ -510,3 +510,38 @@ class Solution(object):
 
 
 ```
+
+#### 341 将嵌套的list转成flat的
+
+```python
+
+class NestedIterator(object):
+    """将一个嵌套的list转成flat的
+    方法：利用栈来处理，直到最前面的元素处理好了，就不放入栈里面了
+    # Input: nestedList = [[1,1],2,[1,1]]
+    # Output: [1,1,2,1,1]
+    """
+    def __init__(self, nestedList):
+        # 先倒着放进stack里面
+        self.stack = []
+        for i in range(len(nestedList) - 1, -1, -1):
+            self.stack.append(nestedList[i])
+
+    def next(self):
+        # 取出已经处理好的int值
+        cur = self.stack.pop()
+        return cur.getInteger()
+
+    def hasNext(self):
+        while self.stack:
+            # 如果是整数类型，直接返回true
+            cur = self.stack[-1]
+            if cur.isInteger():
+                return True
+            # 否则把最后一个元素拿出来处理
+            self.stack.pop()
+            # 利用栈，把最前面的元素放到栈顶，知道它为整数了才退出，相当于利用栈来flat list
+            for i in range(len(cur.getList()) - 1, -1, -1):
+                self.stack.append(cur.getList()[i])
+        return False
+```
