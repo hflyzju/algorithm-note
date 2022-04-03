@@ -204,6 +204,37 @@ class Solution(object):
         return True
 ```
 
+#### 98 有效的二叉搜索树-递归检查边界
+
+```python
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def isValidBST(self, root):
+        """验证一棵树是否为搜索二叉树
+        :type root: TreeNode
+        :rtype: bool
+        example:
+            Input: root = [2,1,3]
+            Output: true
+
+        方法1：二叉搜索树的先序遍历结果是从小到大排列的，用先序遍历一下即可
+        方法2：当前节点对左右节点都有限制，限制了左孩子的上限，右孩子的下限，所以可以递归检查边界来解决
+        """
+        def isValid(node, left_boud, right_boud):
+            """检查当前节点是否在给与的边界范围内"""
+            if node is None:
+                return True
+            return left_boud < node.val < right_boud and isValid(node.left, left_boud, node.val) and isValid(node.right, node.val, right_boud)
+
+        return isValid(root, float('-inf'), float('inf'))
+        
+
+```
 
 #### 99 复原二叉搜索树: 二叉搜索树有两个节点swap了，叫你复原二叉树
 
@@ -465,6 +496,40 @@ class Solution(object):
         return search(inorder, postorder)
 ```
 
+#### 114 flatten二叉树
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def flatten(self, root):
+        """将二叉树转化成链表，
+        :type root: TreeNode
+        :rtype: None Do not return anything, modify root in-place instead.
+        方法：直接先序遍历，记录pre结果，完成flatten
+        """
+        if root is None:
+            return
+        cache = [root]
+        pre = TreeNode(-1)
+        head = pre
+        while cache:
+            cur = cache.pop()
+            # print('cur:', cur.val)
+            if cur.right is not None:
+                cache.append(cur.right)
+            if cur.left is not None:
+                cache.append(cur.left)
+            cur.left = None
+            pre.right = cur
+            pre = cur
+        return head.right
+
+```
 
 #### 331 验证是否为二叉树的先序遍历
 
@@ -544,4 +609,82 @@ class NestedIterator(object):
             for i in range(len(cur.getList()) - 1, -1, -1):
                 self.stack.append(cur.getList()[i])
         return False
+```
+
+#### 654 构建最大的二叉树(每次利用最大值将数组分成两半来构建)
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def constructMaximumBinaryTree(self, nums: List[int]) -> TreeNode:
+        def build(l, r):
+            """构建[l,r]子区间里面的最大二叉树"""
+            if l > r:
+                return None
+            if l == r:
+                return TreeNode(nums[l])
+            max_index, max_val = -1, float('-inf')
+            for i in range(l, r + 1):
+                if nums[i] > max_val:
+                    max_index, max_val = i, nums[i]
+            left = build(l, max_index - 1)
+            right = build(max_index + 1, r)
+            cur = TreeNode(nums[max_index])
+            cur.left = left
+            cur.right = right
+            return cur
+        return build(0, len(nums) - 1)
+
+```
+
+#### 1371 找到二进制树中，节点和最大的二进制搜索树
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def maxSumBST(self, root: Optional[TreeNode]) -> int:
+        """find the maxsum bst in an binaray tree
+        example:
+            Input: root = [1,4,3,2,4,2,5,null,null,null,null,null,null,4,6]
+            Output: 20
+        solution:
+            use postOrder traversal to check if child is valide, and then check
+            cur node if valid, meanwhile, we can get the sum after postOrder traversal
+        """
+
+
+        self.max_binary_search_node_sum = 0
+        def isValidBinarySearchTree(node):
+            if node is None:
+                # for an null child, we need use child.maxval and child.minval to check
+                # if fathter is valid, it's min_val = float('inf'), and 
+                # max_val = float('-inf'), so the child.max_val < fater.val < child.min_val
+                # can be true
+                # reuslt = isValidBinarySearchTree, node's sum, cur.min, cur.max
+                return True, 0, float('inf'), float('-inf')
+            
+            left_valid, left_sum, left_l, left_r = isValidBinarySearchTree(node.left)
+            right_valid, right_sum, right_l, right_r = isValidBinarySearchTree(node.right)
+            if left_r < node.val < right_l and left_valid and right_valid:
+                cur_sum = left_sum + right_sum + node.val
+                if cur_sum > self.max_binary_search_node_sum:
+                    self.max_binary_search_node_sum = cur_sum
+                # print('node:',node.val,'valid:',True, 'sum:', cur_sum, 'cur.min:', min(left_l, node.val), 'cur.max:', max(right_r, node.val))
+                # reuslt = isValidBinarySearchTree, node's sum, cur.min, cur.max                
+                return True, cur_sum, min(left_l, node.val), max(right_r, node.val)
+            else:
+                return False, -1, -1, -1
+        isValidBinarySearchTree(root)
+        return self.max_binary_search_node_sum
+
 ```
