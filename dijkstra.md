@@ -95,3 +95,42 @@ class Solution(object):
         return 0.0
 
 ```
+
+#### 1631 最小的体能消耗
+
+
+```python
+class Solution(object):
+    def minimumEffortPath(self, heights):
+        """从0,0到达m-1,n-1花费的最小的力气
+        :type heights: List[List[int]]
+        :rtype: int
+        Example:
+            Input: heights = [[1,2,2],[3,8,2],[5,3,5]]
+            Output: 2
+        Solutions:
+            dijkstra
+            下一个节点更新公式：next_effort = max(cur_effort, abs(heights[x][y] - heights[nx][ny]))
+        """
+        import heapq
+        cache = []
+        m, n = len(heights), len(heights[0])
+        heapq.heappush(cache, [0, 0, 0])
+        min_effort = [float('inf')] * (m * n + 1)
+        min_effort[0] = 0
+        while cache:
+            cur_effort, x, y = heapq.heappop(cache)
+            if x == m - 1 and y == n - 1:
+                return cur_effort
+            if min_effort[x * n + y] < cur_effort:
+                continue
+            for dx, dy in [[-1, 0], [1, 0], [0, -1], [0, 1]]:
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < m and 0 <= ny < n:
+                    next_effort = max(cur_effort, abs(heights[x][y] - heights[nx][ny]))
+                    if next_effort < min_effort[nx * n + ny]:
+                        min_effort[nx * n + ny] = next_effort
+                        heapq.heappush(cache, [next_effort, nx, ny])
+
+
+```
