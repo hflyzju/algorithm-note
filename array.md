@@ -406,6 +406,68 @@ class Solution(object):
 
 ```
 
+#### 46 全排列
+
+```python
+class Solution(object):
+    def permute(self, nums):
+        """返回所有全排列
+        :type nums: List[int]
+        :rtype: List[List[int]]
+        Example:
+            #  Input: nums = [1,2,3]
+            # Output: [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+        Solution:
+            1. 每次遍历从0-n，没有访问过就访问。
+        """
+        result = []
+        n = len(nums)
+        def search(path, visited):
+            if len(path) == n:
+                result.append(path[:])
+                return
+            for i in range(n):
+                if 1 << i & visited == 0:
+                    path.append(nums[i])
+                    visited = visited | 1 << i
+                    search(path, visited)
+                    path.pop()
+                    visited = visited ^ (1 << i)
+        search([], 0)
+        return result
+
+```
+
+#### 48 旋转图像
+
+```python
+class Solution(object):
+    def rotate(self, matrix):
+        """旋转图像
+        :type matrix: List[List[int]]
+        :rtype: None Do not return anything, modify matrix in-place instead.
+
+        Example:
+            # Input: matrix = [[1,2,3],
+                               [4,5,6],
+                               [7,8,9]]
+            # Output:         [[7,4,1],
+                               [8,5,2],
+                               [9,6,3]]
+
+        题解：
+            对于左上1/4的区域内的点，与其他3个1/4区域的对应的点，共4个点做一次旋转即可。
+        """
+        n = len(matrix)
+        # 一次换四个点
+        # 总共只要换1/4的区域就行了,这1/4的区域按下面情况选出来就行
+        for i in range(n//2):
+            for j in range(i, n - i - 1):
+                matrix[i][j],matrix[j][n-i-1],matrix[n-i-1][n-j-1],matrix[n-j-1][i] = \
+                matrix[n-j-1][i], matrix[i][j],matrix[j][n-i-1],matrix[n-i-1][n-j-1]
+
+```
+
 
 #### 164 求排序后数组的最大相邻gap，必须用线性时间-桶排序
 
@@ -583,7 +645,7 @@ class Solution:
 ```python
 class Solution:
     def findUnsortedSubarray(self, nums: List[int]) -> int:
-        """给出一个数组，找出一个连续的字数组，如果对该子数组进行排序，那么整个数组就是排序的了
+        """给出一个数组，找出一个连续的子数组，如果对该子数组进行排序，那么整个数组就是排序的了
         方法（前后遍历）：
             1. 每个前面的数，都要比后面的所有数要小，否则需要替换
             2. 每个后面的数，都需要比前面的数大，否则就要替换
@@ -624,12 +686,12 @@ class Solution:
 class Solution:
     def leastInterval(self, tasks: List[str], n: int) -> int:
         """
-        题目：做一堆任务，每一个任务做了后需要间隔n才能继续做，问最少需要多少时间才能把任务昨晚。
+        题目：做一堆任务，每一个任务做了后需要间隔n才能继续做，问最少需要多少时间才能把任务做完。
         解法：
             1. 统计每个任务的频次
             2. total_time = (max_cnt - 1) * (n + 1)就是前面做的任务的个数
             3. total_time + max_time_cnt
-            4. 注意，如果(tasks)>total_time, 代表有很多其他的任务，最终去len(tasks)
+            4. 注意，如果len(tasks)>total_time, 代表有很多其他的任务，最终取len(tasks)
             详情：https://leetcode-cn.com/problems/task-scheduler/solution/tan-xin-tu-jie-dai-ma-jian-ji-by-chen-we-gnqo/
         """
         task_cnt = defaultdict(int)
