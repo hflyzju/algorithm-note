@@ -350,7 +350,7 @@ class Solution(object):
 
 class Solution:
     def topKFrequent(self, nums: List[int], k: int) -> List[int]:
-        """找到出现频率最小的k个数
+        """找到出现频率最大的k个数
         
         方法1：
             1. 先统计每个数组出现的次数。
@@ -469,6 +469,106 @@ class Solution(object):
 ```
 
 
+
+#### 53 最大子数组和
+
+```python
+class Solution(object):
+    def maxSubArray(self, nums):
+        """最大连续数组和
+        :type nums: List[int]
+        :rtype: int
+
+        Example:
+            # Input: nums = [-2,1,-3,4,-1,2,1,-5,4]
+            # Output: 6
+            # Explanation: [4,-1,2,1] has the largest sum = 6.
+            注意：[-2] -> [-2]
+                 [-3,-2] -> [-2]
+        Solution:
+            dp[i]:包含i在内，可以取得的最大的子数组和
+        """
+        n = len(nums)
+        max_subarray_sum = nums[0]
+        if nums[0] < 0:
+            pre_sum = 0
+        else:
+            pre_sum = nums[0]
+        for i in range(1, n):
+            num = nums[i]
+            cur_sum = pre_sum + num
+            max_subarray_sum = max(max_subarray_sum, cur_sum)
+            if cur_sum > 0:
+                pre_sum = cur_sum
+            else:
+                pre_sum = 0
+        return max_subarray_sum
+
+```
+
+#### 55 跳跃游戏
+
+```python
+class Solution(object):
+    def canJump(self, nums):
+        """能否jump到最后的位置
+        :type nums: List[int]
+        :rtype: bool
+
+        Example:
+            # Input: nums = [2,3,1,1,4]
+            # Output: true
+            # Explanation: Jump 1 step from index 0 to 1, then 3 steps to the last index.
+        """
+        n = len(nums)
+        max_jump_position = 0
+        for i in range(n):
+            # 当前能跳到
+            if max_jump_position >= i:
+                now_jump = i + nums[i]
+                if now_jump > max_jump_position:
+                    max_jump_position = now_jump
+        return max_jump_position >= n - 1
+```
+
+
+#### 56 合并区间
+
+```python
+class Solution(object):
+    def merge(self, intervals):
+        """合并相同的区域
+        :type intervals: List[List[int]]
+        :rtype: List[List[int]]
+
+        Example:
+            # Input: intervals = [[1,3],[2,6],[8,10],[15,18]]
+            # Output: [[1,6],[8,10],[15,18]]
+            # Explanation: Since intervals [1,3] and [2,6] overlaps, merge them into [1,6].
+        """
+
+        intervals.sort(key=lambda x:x[0])
+        cache = []
+        l = 0
+        while l < len(intervals):
+            if not cache:
+                cache.append(intervals[l])
+                l += 1
+            else:
+                cur = intervals[l]
+                pre = cache.pop()
+                if cur[0] <= pre[1]:
+                    # 注意[[1,4],[2,3]]这种合并
+                    cache.append([pre[0], max(cur[1], pre[1])])
+                    l += 1
+                else:
+                    cache.append(pre)
+                    cache.append(cur)
+                    l += 1
+        return cache
+
+```
+
 #### 164 求排序后数组的最大相邻gap，必须用线性时间-桶排序
 
 ```python
@@ -566,41 +666,51 @@ class Solution(object):
 
 #### 436. Find Right Interval- 二分
 ```python
-class Solution:
-    def findRightInterval(self, intervals: List[List[int]]) -> List[int]:
+class Solution(object):
+    def findRightInterval(self, intervals):
         """
         题目：给一堆区间[[x,y], ...]，找到每个区间的下一个区间，注意返回最小的x的区间
         题解：先对x排序，对于每个y, 找到x>y的最小的结果即可
+        Example:
+            # Input: intervals = [[3,4],[2,3],[1,2]]
+            # Output: [-1,0,1]
+            # Explanation: There is no right interval for [3,4].
+            # The right interval for [2,3] is [3,4] since start0 = 3 is the smallest start t
+            # hat is >= end1 = 3.
+            # The right interval for [1,2] is [2,3] since start1 = 2 is the smallest start t
+            # hat is >= end2 = 2.
         """
-        def binarySearch(nums,target):      #二分查找函数
-            n = len(nums)  
-            if nums[n-1] < target:
-                return inf  #刨除特例，返回inf，返回-1遇见区间为负的用例会踩坑
-            l, r = 0, n-1
+
+        def binarySearch(nums, target):  # 二分查找函数
+            """找到最小的大于target的位置"""
+            n = len(nums)
+            if nums[n - 1] < target:
+                return float('inf')  # 刨除特例，返回inf，返回-1遇见区间为负的用例会踩坑
+            l, r = 0, n - 1
             while l < r:
                 mid = l + (r - l) // 2
                 if nums[mid] < target:
                     l = mid + 1
                 else:
                     r = mid
-            #这里返回nums[l],返回的是starts的值而不是下标
-            #例如starts=[1,2,3] binareSearch(starts,2)=2 而不是下标1
-            return nums[l] 
-        
+            # 这里返回nums[l],返回的是starts的值而不是下标
+            # 例如starts=[1,2,3] binareSearch(starts,2)=2 而不是下标1
+            return nums[l]
+
         n = len(intervals)
-        #建立哈希表存储start的下标
+        # 建立哈希表存储start的下标
         starts = []
-        for i in intervals:
-            starts.append(i[0])
-        hashmap={}
+        for interval in intervals:
+            starts.append(interval[0])
+        hashmap = {}
         for i in range(n):
-            hashmap[starts[i]] = i 
-        
-        starts.sort()   #排序，后面二分查找
-        res=[0] * n
+            hashmap[starts[i]] = i
+        starts.sort()  # 排序，后面二分查找
+        #  [[3,4],[2,3],[1,2]]  ->  [[1,2],[2,3],[3,4]]
+        res = [0] * n
         for i in range(n):
-            val = binarySearch(starts,intervals[i][1])
-            res[i] = hashmap[val] if val!=inf else -1
+            val = binarySearch(starts, intervals[i][1])
+            res[i] = hashmap[val] if val != float('inf') else -1
         return res
 
 # 作者：wo-zhao-wo-de-bao-zhen
