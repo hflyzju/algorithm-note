@@ -611,6 +611,93 @@ class NestedIterator(object):
         return False
 ```
 
+#### 543 二叉树的直径
+
+```python
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def diameterOfBinaryTree(self, root):
+        """树的直径
+        :type root: TreeNode
+        :rtype: int
+
+        Solution:
+            1. 记忆化搜索求每个node的深度
+            2. 遍历所有node，求最长直径
+        """
+        cache = dict()
+        def search_depth(node):
+            """记录每个节点的深度"""
+            if node not in cache:
+                if node is None:
+                    cache[node] = 0
+                else:
+                    left_depth = search_depth(node.left)
+                    right_depth = search_depth(node.right)
+                    cache[node] = max(left_depth, right_depth) + 1
+            return cache[node]
+
+        search_depth(root)
+        self.max_diameter = 0
+
+        def dfs(node):
+            """遍历所有节点，找最大直径"""
+            if node is None:
+                return
+            left_depth = search_depth(node.left)
+            right_depth = search_depth(node.right)
+            diameter = left_depth + right_depth
+            # 记录最大深度
+            self.max_diameter = max(self.max_diameter, diameter)
+            dfs(node.left)
+            dfs(node.right)
+        dfs(root)
+        return self.max_diameter
+
+```
+
+#### 543 二叉树的直径-简化版本
+
+```python
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def diameterOfBinaryTree(self, root):
+        """树的直径
+        :type root: TreeNode
+        :rtype: int
+
+        Solution:
+            1. 想办法求每个节点的最大深度
+            2. 树的直径就是每个节点左右的最大深度之和，遍历每个节点的时候，记录最大值即可
+        """
+        result = 0
+        def search(node):
+            """求每个节点node的最大深度"""
+            if node is None:
+                return 0
+            nonlocal result
+            left_depth = search(node.left)
+            right_depth = search(node.right)
+            cur_depth = max(left_depth, right_depth) + 1
+            # 更新直径的最大值
+            result = max(result, left_depth + right_depth)
+            return cur_depth
+        search(root)
+        # 返回直径最大值
+        return result
+```
+
+
 #### 654 构建最大的二叉树(每次利用最大值将数组分成两半来构建)
 
 ```python
@@ -686,5 +773,62 @@ class Solution:
                 return False, -1, -1, -1
         isValidBinarySearchTree(root)
         return self.max_binary_search_node_sum
+
+```
+
+
+#### 2246 相邻字符不同的最长路径
+
+```python
+# 如果没有相邻节点的限制，那么本题求的就是树的直径上的点的个数，见 1245. 树的直径。
+
+# 考虑用树形 DP 求直径。枚举子树 xx 的所有子树 yy，维护从 xx 出发的最长路径 \textit{maxLen}maxLen，那么可以更新答案为从 yy 出发的最长路径加上 \textit{maxLen}maxLen，再加上 11（边 x-yx−y），即合并从 xx 出发的两条路径。递归结束时返回 \textit{maxLen}maxLen。
+
+# 对于本题的限制，我们可以在从子树 yy 转移过来时，仅考虑从满足 s[y]\ne s[x]s[y] 
+# 
+# ​
+#  =s[x] 的子树 yy 转移过来，所以对上述做法加个 if 判断就行了。
+
+# 由于本题求的是点的个数，所以答案为最长路径的长度加一。
+
+# Python3GoC++Java
+
+class Solution:
+    def longestPath(self, parent: List[int], s: str) -> int:
+        """输入一颗树，求满足相邻节点不相等的最大直径
+        Example:
+            输入：parent = [-1,0,0,1,1,2], s = "abacbe"
+            输出：3
+        Solution:
+            1. 所有孩子中，top1_depth+top2_depth就是最大长度
+            2. 需要加上限制条件：相邻节点不相等
+        """
+        n = len(parent)
+        g = [[] for _ in range(n)]
+        for i in range(1, n):
+            g[parent[i]].append(i)
+
+        ans = 0
+        def dfs(x: int) -> int:
+            """记录的是节点的最大深度"""
+            nonlocal ans
+            max_depth = 0
+            for child in g[x]:
+                # 当前的最大深度为y孩子的最大深度+1
+                cur_depth = dfs(child) + 1
+                if s[x] != s[child]:
+                    # 满足条件时, top1_depth + top2_depth就是最大长度
+                    # 因为max_depth一直在更新，可以确保最终最大值包括top1_depth+top2_depth
+                    ans = max(ans, max_depth + cur_depth)
+                    # 更新top1_depth
+                    max_depth = max(max_depth, cur_depth)
+            return max_depth
+        dfs(0)
+        return ans + 1
+
+# 作者：endlesscheng
+# 链接：https://leetcode-cn.com/problems/longest-path-with-different-adjacent-characters/solution/by-endlesscheng-92fw/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 
 ```
