@@ -611,6 +611,60 @@ class NestedIterator(object):
         return False
 ```
 
+#### 437 树的路径和III
+
+```python
+class Solution(object):
+    def pathSum(self, root, targetSum):
+        """树上从上到下的节点中，路径和未targetSum的个数，可以不是从头结点或者叶节点为起始点
+        :type root: TreeNode
+        :type targetSum: int
+        :rtype: int
+        #  Example 1:
+        #
+        #
+        # Input: root = [10,5,-3,3,2,null,11,3,-2,null,1], targetSum = 8
+        # Output: 3
+        # Explanation: The paths that sum to 8 are shown.
+
+        Solution:
+            1. 前缀和频次+树的遍历
+        """
+
+        self.target_sum_cnt = 0
+
+        def search(cur_node, prefix_sum, prefix_sum_cnt_dict):
+            """搜索每一个节点
+            Args:
+                cur_node(Node):当前节点
+                prefix_sum(int): 当前节点之前的路径上的前缀和
+                prefix_sum_cnt_dict(dict):当前节点之前的路径上的前缀和的频次
+            """
+
+            # nonlocal target_sum_cnt
+            if cur_node is None:
+                return
+            cur_sum = prefix_sum + cur_node.val
+            if cur_sum == targetSum:
+                self.target_sum_cnt += 1
+            diff = cur_sum - targetSum
+            if prefix_sum_cnt_dict[diff] > 0:
+                self.target_sum_cnt += prefix_sum_cnt_dict[diff]
+            # print('cur_node:', cur_node.val, 'cur_sum:', cur_sum, 'prefix_sum:', prefix_sum, 'diff:', diff, 'diff cnt:', prefix_sum_cnt_dict[diff])
+            prefix_sum_cnt_dict[cur_sum] += 1
+            search(cur_node.left, cur_sum, prefix_sum_cnt_dict)
+
+            search(cur_node.right, cur_sum, prefix_sum_cnt_dict)
+            prefix_sum_cnt_dict[cur_sum] -= 1
+
+        from collections import defaultdict
+        prefix_sum_cnt_dict = defaultdict(int)
+        search(root, 0, prefix_sum_cnt_dict)
+
+        return self.target_sum_cnt
+
+```
+
 #### 543 二叉树的直径
 
 ```python
