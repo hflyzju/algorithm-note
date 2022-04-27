@@ -25,6 +25,7 @@ class LRUCache:
         self.size = 0
 
     def get(self, key: int) -> int:
+        """查询节点并更新到最前面"""
         if key not in self.cache:
             return -1
         # 如果 key 存在，先通过哈希表定位，再移到头部
@@ -33,6 +34,7 @@ class LRUCache:
         return node.value
 
     def put(self, key: int, value: int) -> None:
+        """添加节点，并更新到最前面"""
         if key not in self.cache:
             # 如果 key 不存在，创建一个新的节点
             node = DLinkedNode(key, value)
@@ -54,7 +56,7 @@ class LRUCache:
             self.moveToHead(node)
     
     def addToHead(self, node):
-        """将节点添加到最前面"""
+        """将节点添加到最前面，更新当前节点和头结点的前后位置"""
         node.prev = self.head
         node.next = self.head.next
         self.head.next.prev = node

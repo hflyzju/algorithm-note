@@ -24,7 +24,7 @@ class Solution:
         min_dis = [float('inf')] * (n + 1)
         min_dis[k] = 0
         cache = []
-        heapq.heappush(cache, [0, k])
+        heapq.heappush(cache, [0, k]) # dis, cur_pos
         while cache:
             # 查找最短路径
             cur_dis, cur = heapq.heappop(cache)
@@ -78,7 +78,7 @@ class Solution(object):
         max_prob = [-1] * n
         max_prob[start] = 1.0
         cache = []
-        heapq.heappush(cache, [-1.0, start])
+        heapq.heappush(cache, [-1.0, start]) # 最小堆
         while cache:
             cur_prob, cur_node = heapq.heappop(cache)
             # 目的是为了找到一个更大的，前面已经比较大了，直接跳过
