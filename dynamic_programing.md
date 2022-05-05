@@ -254,6 +254,82 @@ class Solution:
 ```
 
 
+#### 464 博弈问题，谁能赢
+
+```python
+class Solution(object):
+    def canIWin(self, maxChoosableInteger, desiredTotal):
+        """
+        :type maxChoosableInteger: int
+        :type desiredTotal: int
+        :rtype: bool
+
+        题目：谁先凑到desiredTotal谁就赢了
+        题解：
+            1. 先选，如果这个数直接大于desiredTotal，那么我就赢了
+            2. 先选num, 剩下的先选(used, desiredTotal-num)如果输了，那么当前我也就赢了
+
+输入：maxChoosableInteger = 10, desiredTotal = 11
+输出：false
+解释：
+无论第一个玩家选择哪个整数，他都会失败。
+第一个玩家可以选择从 1 到 10 的整数。
+如果第一个玩家选择 1，那么第二个玩家只能选择从 2 到 10 的整数。
+第二个玩家可以通过选择整数 10（那么累积和为 11 >= desiredTotal），从而取得胜利.
+同样地，第一个玩家选择任意其他整数，第二个玩家都会赢。
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/can-i-win
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+        """
+
+        # 1. 如果一次选择就赢了，直接返回true
+        if maxChoosableInteger >= desiredTotal: 
+            return True
+        # 2. 如果和都小于target，直接返回False
+        if (1 + maxChoosableInteger) * maxChoosableInteger / 2 < desiredTotal: 
+            return False
+        cache = [None]  * (1 << maxChoosableInteger)
+
+        def dfs(state, desiredTotal):
+            """当前state，当前desiredTotal, 先选能否赢
+            Args:
+                state:二进制位，1代表选过了，0代表没选过
+                desiredTotal:目标
+                dp:用于记录，避免重复计算
+            Returns:
+                result:先选能否赢
+            """
+            if cache[state] != None:
+                return cache[state]
+            cache[state] = False
+            for i in range(1, maxChoosableInteger + 1):
+                cur = 1 << (i - 1)
+                # 如果没有用过这个数，那就选一下这个数试试
+                if cur & state != 0:
+                    continue
+                # 如果当前选的数，直接就大于target直接返回true
+                if i >= desiredTotal:
+                    cache[state] = True
+                    return cache[state]
+                # 选了这个后，下一个先选会输，那么选这个就是赢的
+                next_state = cur | state
+                if not dfs(next_state, desiredTotal - i):
+                    cache[state] = True
+                    return cache[state]
+            return cache[state]
+        
+        return dfs(0, desiredTotal)
+
+# 作者：edelweisskoko
+# 链接：https://leetcode-cn.com/problems/can-i-win/solution/464-wo-neng-ying-ma-dai-bei-wang-lu-de-d-qu1t/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+
+```
+
+
 #### 514 最小输出密码的步数-输入字符串环ring和密码key，问需要多少步可以输出密码key，起始位置为0
 
 ```python
@@ -420,5 +496,127 @@ class Solution(object):
                     dp[i][j] = max(dp[i-1][j], dp[i][j-1])
 
         return dp[m][n]
+
+```
+
+
+#### 2222 选择building的方式
+
+```python
+
+class Solution(object):
+    def numberOfWays(self, s):
+        """
+        :type s: str
+        :rtype: int
+
+Input: s = "001101"
+Output: 6
+Explanation: 
+The following sets of indices selected are valid:
+- [0,2,4] from "001101" forms "010"
+- [0,3,4] from "001101" forms "010"
+- [1,2,4] from "001101" forms "010"
+- [1,3,4] from "001101" forms "010"
+- [2,4,5] from "001101" forms "101"
+- [3,4,5] from "001101" forms "101"
+No other selection is valid. Thus, there are 6 total ways.
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/number-of-ways-to-select-buildings
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+
+        思路：
+        1. 搜索->超时
+        2. 统计前面1的个数和后面0的个数
+        3. 动态规划
+
+        010
+
+        a:0的次数，遇到1，+1
+        b:01的次数，遇到1，加上a
+        c:010的次数，遇到0，加上b
+        """
+
+        def search(target):
+            a, b, c = 0, 0, 0
+            for i in range(len(s)):
+                if s[i] == target[0]:
+                    a += 1
+                if s[i] == target[1]:
+                    b += a
+                if s[i] == target[2]:
+                    c += b
+            return c
+
+        return search("010") + search("101")
+
+        # n = len(s)
+        # if n <= 2:
+        #     return 0
+
+        # self.cnt = 0
+        # def search(pre_index, pre_mark, pre_len):
+        #     if pre_len == 3:
+        #         self.cnt += 1
+        #         return
+        #     for i in range(pre_index, n):
+        #         cur_mark = s[i]
+        #         if pre_mark == "" or pre_mark != cur_mark:
+        #             search(i + 1, cur_mark, pre_len + 1)
+
+        # search(0, '', 0)
+        # return self.cnt
+```
+
+#### 6050 子字符串的引力和
+
+```python
+class Solution(object):
+    def appealSum(self, s):
+        """
+        :type s: str
+        :rtype: int
+        题目：字符串的 引力 定义为：字符串中 不同 字符的数量，求所有子串的总引力
+        输入：s = "abbca"
+        输出：28
+        解释："abbca" 的子字符串有：
+        - 长度为 1 的子字符串："a"、"b"、"b"、"c"、"a" 的引力分别为 1、1、1、1、1，总和为 5 。
+        - 长度为 2 的子字符串："ab"、"bb"、"bc"、"ca" 的引力分别为 2、1、2、2 ，总和为 7 。
+        - 长度为 3 的子字符串："abb"、"bbc"、"bca" 的引力分别为 2、2、3 ，总和为 7 。
+        - 长度为 4 的子字符串："abbc"、"bbca" 的引力分别为 3、3 ，总和为 6 。
+        - 长度为 5 的子字符串："abbca" 的引力为 3 ，总和为 3 。
+        引力总和为 5 + 7 + 7 + 6 + 3 = 28 。
+
+        题解：
+            1. dp[i]：代表前i个字符[0,i]所有子字符串的总引力
+            2. dp[i]可以由dp[i-1]变化而来，如果前面没有s[i]，那么相当于所有dp[i-1]的子串都可以+1，否则只有一部分能+1，找到前面出现s[i]的index就行了，这里可以遍历一次记录即可
+
+        """
+        # dp[i]：代表前i个字符[0,i]所有子字符串的总引力
+        n = len(s)
+        if n == 0:
+            return 0
+        dp = [0] * n
+        # 1. 初始化
+        dp[0] = 1
+        total_cnt = 1
+        letter_to_last_index = dict()
+        letter_to_last_index[s[0]] = 0
+        # 2. 遍历
+        for i in range(1, n):
+            cur = s[i]
+            add_cnt = 0
+            if cur not in letter_to_last_index:
+                add_cnt = i
+            else:
+                # print('i:', i, 'cur:', cur,  'letter_to_last_index[cur]:', letter_to_last_index[cur])
+                add_cnt = i - letter_to_last_index[cur] - 1
+            # print('i:', i, 'add_cnt:', add_cnt)
+            dp[i] = dp[i-1] + 1 + add_cnt
+            total_cnt += dp[i]
+            letter_to_last_index[cur] = i
+        # print('dp:', dp)
+        return total_cnt
 
 ```
