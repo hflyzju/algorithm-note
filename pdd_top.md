@@ -442,3 +442,345 @@ s = Solution()
 print(s.judgePoint24([1,3,4,6]))
 
 ```
+
+
+#### 24 k个一组反转链表
+
+```python
+
+# Given the head of a linked list, reverse the nodes of the list k at a time, an
+# d return the modified list. 
+# 
+#  k is a positive integer and is less than or equal to the length of the linked
+#  list. If the number of nodes is not a multiple of k then left-out nodes, in the
+#  end, should remain as it is. 
+# 
+#  You may not alter the values in the list's nodes, only nodes themselves may b
+# e changed. 
+# 
+#  
+#  Example 1: 
+# 
+#  
+# Input: head = [1,2,3,4,5], k = 2
+# Output: [2,1,4,3,5]
+#  
+# 
+#  Example 2: 
+# 
+#  
+# Input: head = [1,2,3,4,5], k = 3
+# Output: [3,2,1,4,5]
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  The number of nodes in the list is n. 
+#  1 <= k <= n <= 5000 
+#  0 <= Node.val <= 1000 
+#  
+# 
+#  
+#  Follow-up: Can you solve the problem in O(1) extra memory space? 
+#  Related Topics 递归 链表 
+#  👍 1622 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+# Definition for singly-linked list.
+class ListNode(object):
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+class Solution(object):
+    # 翻转一个子链表，并且返回新的头与尾
+
+    # 1 -> 2 -> 3 -> 4
+
+    # pre = None
+    # tmp = head.next = 2 -> 3 -> 4
+    # pre = 1 -> None
+    # head = tmp  2 -> 3 -> 4
+    # tmp = 3 -> 4
+    # pre = 2 -> 1 -> None
+    # head = 3 -> 4
+
+
+    def reverse(self, head, tail):
+        """给头尾结点，反转他
+        :param head:
+        :param tail:
+        :return:
+                      pre
+                        p
+                         l              r
+        1 -> 2 -> 3 -> 4
+        """
+
+
+        pre = ListNode(-1)
+        pre.next = head
+        p = head
+        reach_end = False
+        while p is not None:
+            # 到达tail节点了，那么完成后就要退出了
+            if p == tail:
+                reach_end = True
+            next_node = p.next
+            p.next = pre
+            pre = p
+            p = next_node
+            # 完成后退出
+            if reach_end:
+                break
+        return pre, head
+
+    def reverseKGroup(self, head, k):
+        """
+        :type head
+        :type k
+        :rtype
+# Input: head = [1,2,3,4,5], k = 2
+# Output: [2,1,4,3,5]
+
+     l
+          r
+0 -> 1 -> 2 -> 3
+pre = 0
+new_head -> 3 -> 2 -> 1
+        """
+        # 1 2 3 4 5
+        new_head = ListNode(-1)
+        new_head.next = head
+        pre = new_head
+        while pre.next is not None:
+            cur_head = pre.next
+            cur_tail = pre
+            for i in range(k):
+                cur_tail = cur_tail.next
+                if cur_tail is None:
+                    return new_head.next
+            tmp_tail_next = cur_tail.next
+            cur_head, cur_tail = self.reverse(cur_head, cur_tail)
+            pre.next = cur_head
+            pre = cur_tail
+            cur_tail.next = tmp_tail_next
+        return new_head.next
+
+
+
+
+
+        # new_head = ListNode(0)
+        # new_head.next = head
+        # pre = new_head
+        #
+        # while head:
+        #     tail = pre
+        #     print('in head:',head.val, 'tail:', tail.val)
+        #     # 查看剩余部分长度是否大于等于 k
+        #     for i in range(k):
+        #         tail = tail.next
+        #         if not tail:
+        #             return new_head.next
+        #     next_node = tail.next
+        #     head, tail = self.reverse(head, tail)
+        #     # 把子链表重新接回原链表
+        #     pre.next = head
+        #     tail.next = next_node
+        #     pre = tail
+        #     head = tail.next
+        #
+        #     print('out head:',head.val, 'tail:', tail.val)
+        #
+        # return new_head.next
+        
+# leetcode submit region end(Prohibit modification and deletion)
+
+
+# Input: head = [1,2,3,4,5], k = 2
+# Output: [2,1,4,3,5]
+head = ListNode(1)
+# head.next = ListNode(2)
+# head.next.next = ListNode(3)
+# head.next.next.next = ListNode(4)
+# head.next.next.next.next = ListNode(5)
+
+s = Solution()
+new_head = s.reverseKGroup(head, 2)
+
+while new_head:
+    print(new_head.val)
+    new_head = new_head.next
+
+```
+
+
+#### 215 第k大的元素
+
+
+```python
+class Solution(object):
+    def findKthLargest(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: int
+        """
+
+        # 方法二：快速排序思想
+        # [3,2,1,5,6,4]
+        # 1,2,3,4,5,6
+
+        def findKthLargestFromLR(nums, k, left, right):
+            """[left, right]区间里面的第k大"""
+            l, r = left, left
+            while r < right:
+                if nums[r] > nums[right]:
+                    nums[l], nums[r] = nums[r], nums[l]
+                    l += 1
+                r += 1
+            nums[l], nums[right] = nums[right], nums[l]
+            index = l - left + 1
+            if index == k:
+                return nums[l]
+
+            elif index > k:
+                return findKthLargestFromLR(nums, k, left, l - 1)
+            else:
+                return findKthLargestFromLR(nums, k - index, l + 1, right)
+                
+        return findKthLargestFromLR(nums, k, 0, len(nums) - 1)
+
+
+
+
+
+        # 方法一：最小堆保存k个最大的元素
+        # cache = []
+        # for num in nums:
+        #     if len(cache) < k:
+        #         heapq.heappush(cache, num)
+        #     else:
+        #         if cache[0] < num:
+        #             heapq.heappop(cache)
+        #             heapq.heappush(cache, num)
+        # return cache[0]
+
+
+
+```
+
+
+#### 23 合并k个排序链表
+
+
+```python
+
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution:
+    def mergeKLists(self, lists: List[ListNode]) -> ListNode:
+        
+        import heapq
+        dummy = ListNode(0)
+        p = dummy
+        head = []
+        for i in range(len(lists)):
+            if lists[i] :
+                heapq.heappush(head, (lists[i].val, i))
+                lists[i] = lists[i].next
+        while head:
+            val, idx = heapq.heappop(head)
+            p.next = ListNode(val)
+            p = p.next
+            if lists[idx]:
+                heapq.heappush(head, (lists[idx].val, idx))
+                lists[idx] = lists[idx].next
+        return dummy.next
+
+# 作者：powcai
+# 链接：https://leetcode.cn/problems/merge-k-sorted-lists/solution/leetcode-23-he-bing-kge-pai-xu-lian-biao-by-powcai/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+
+    #     n = len(lists)
+    #     if n == 0:
+    #         return
+    #     return self.merge(lists, 0, n-1)
+
+    # def merge(self, lists, left, right):
+    #     """分治法"""
+    #     if left == right:
+    #         return lists[left]
+    #     mid = left + (right - left) // 2
+    #     l1 = self.merge(lists, left, mid)
+    #     l2 = self.merge(lists, mid + 1, right)
+    #     return self.mergeTwoLists(l1, l2)
+    
+    # def mergeTwoLists(self, l1, l2):
+    #     """递归"""
+    #     if l1 is None:
+    #         return l2
+    #     if l2 is None:
+    #         return l1
+    #     if l1.val < l2.val:
+    #         l1.next = self.mergeTwoLists(l1.next, l2)
+    #         return l1
+    #     else:
+    #         l2.next = self.mergeTwoLists(l1, l2.next)
+    #         return l2
+
+```
+
+
+#### 44 通配符匹配
+
+
+```python
+class Solution(object):
+    def isMatch(self, s, p):
+        """
+        :type s: str
+        :type p: str
+        :rtype: bool
+        """
+
+        m, n = len(s), len(p)
+        dp = [[False] * (n+1) for _ in range(m+1)]
+
+        dp[0][0] = True
+
+        for j in range(1, n+1):
+            if p[j-1] == '*' and dp[0][j-1]:
+                dp[0][j] = True
+            else:
+                break
+
+
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                if s[i-1] == p[j-1] or p[j-1] == '?':
+                    if dp[i-1][j-1]:
+                        dp[i][j] = True
+                else:
+                    if p[j-1] == '*':
+                        if dp[i][j-1]:
+                            dp[i][j] = True
+                        if dp[i-1][j]:
+                            dp[i][j] = True
+        
+        # for dpi in dp:
+        #     print(dpi)
+
+        return dp[m][n]
+
+```
