@@ -8,6 +8,7 @@ hot100数组题目: https://leetcode-cn.com/problem-list/2cktkvj/
 5. 子数组去重
 6. 前缀和
 9. 桶排序
+10. index转换，求重复数字
 
 
 
@@ -809,6 +810,36 @@ class Solution(object):
 # 来源：力扣（LeetCode）
 # 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
+#### 442 找到重复出现的数字
+
+```python
+class Solution(object):
+    def findDuplicates(self, nums):
+        """
+
+
+        :type nums: List[int]
+        :rtype: List[int]
+
+输入：nums = [4,3,2,7,8,2,3,1]
+输出：[2,3]
+        题目：给你一个长度为 n 的整数数组 nums ，其中 nums 的所有整数都在范围 [1, n] 内，且每个整数出现 一次 或 两次 。请你找出所有出现 两次 的整数，并以数组形式返回。
+
+        题解：遇到这个数，转换成index，第一次遇见是正数，则转换成负数，否则则输出
+        """
+
+        res = []
+        for i in range(len(nums)):
+            num = nums[i]
+            index = abs(num) - 1
+            if nums[index] > 0:
+                nums[index] *= -1
+            else:
+                res.append(abs(num))
+        return res
+
+```
+
 
 #### 560 返回和为k的子数组的个数-前缀和+两数之和
 

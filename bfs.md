@@ -1,4 +1,61 @@
 
+#### 433. 最小基因变化
+
+```python
+class Solution(object):
+    def minMutation(self, start, end, bank):
+        """从start到end的最小转换次数
+        :type start: str
+        :type end: str
+        :type bank: List[str]
+        :rtype: int
+
+输入：start = "AACCGGTT", end = "AACCGGTA", bank = ["AACCGGTA"]
+输出：1
+
+        方法：bfs
+        """
+
+        graph = dict()
+        bank.append(start)
+        m = len(bank)
+        for k1 in range(m):
+            for k2 in range(k1+1, m):
+                x, y = bank[k1], bank[k2]
+                diff_cnt = 0
+                for i in range(len(x)):
+                    if x[i] != y[i]:
+                        diff_cnt += 1
+                    if diff_cnt >= 2:
+                        break
+                if diff_cnt == 1:
+                    if x not in graph:
+                        graph[x] = set()
+                    if y not in graph:
+                        graph[y] = set()
+                    graph[x].add(y)
+                    graph[y].add(x)
+
+        
+        cache = deque()
+        cache.append([start, 0])
+        visited = set()
+        visited.add(start)
+        while cache:
+            cur, cur_step = cache.popleft()
+            if cur == end:
+                return cur_step
+            if cur in graph:
+                for child in graph[cur]:
+                    if child not in visited:
+                        visited.add(child)
+                        cache.append([child, cur_step + 1])
+
+        return -1
+
+
+```
+
 #### 752 开锁需要的最短步长
 
 ```python

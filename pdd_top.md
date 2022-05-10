@@ -784,3 +784,63 @@ class Solution(object):
         return dp[m][n]
 
 ```
+
+
+#### 面试题 17.24. 最大子矩阵
+
+
+```python
+class Solution(object):
+    def getMaxMatrix(self, matrix):
+        """
+        :type matrix: List[List[int]]
+        :rtype: List[int]
+
+        面试题 17.24. 最大子矩阵
+输入：
+[
+   [-1,0],
+   [0,-1]
+]
+输出：[0,1,0,1]
+解释：输入中标粗的元素即为输出所表示的矩阵
+
+        题解：
+        1. 利用前缀和将行压缩，k1，k2有n**2个选择
+        2. 然后利用dp思想，计算该行的最大数组和
+        3. 利用pre统计之前为0的位置
+        """
+
+        m, n = len(matrix), len(matrix[0])
+
+        # 1. 行维度的前缀和
+        pre_row_sum = [[0] * n for _ in range(m+1)]
+        for i in range(1, m+1):
+            for j in range(n):
+                pre_row_sum[i][j] = pre_row_sum[i-1][j] + matrix[i-1][j]
+
+        max_acc = float('-inf')
+        x1, y1, x2, y2 = -1, -1, -1, -1
+        # m = 2, k1=[0,1]
+        # m = 2, k2=[1,2]  
+        for k1 in range(m+1):
+            for k2 in range(k1+1, m+1):
+                cur_row = [0] * (n)
+                pre_sum = 0
+                pre_j = 0
+                for j in range(n):
+                    cur_row[j] = pre_row_sum[k2][j] - pre_row_sum[k1][j] # [k1, k2]
+                    cur_sum = pre_sum + cur_row[j]
+                    if cur_sum > max_acc:
+                        max_acc = cur_sum
+                        x1, y1, x2, y2 = max(k1, 0), pre_j, k2-1, j
+                    if cur_sum < 0:
+                        pre_j = j + 1
+                        pre_sum = 0
+                    else:
+                        pre_sum = cur_sum
+        return [x1, y1, x2, y2]
+                    
+                
+
+```

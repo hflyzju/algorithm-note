@@ -462,6 +462,69 @@ class Solution(object):
 ```
 
 
+#### 913 猫和老鼠
+
+```python
+class Solution:
+    def catMouseGame(self, graph: List[List[int]]) -> int:
+        """给定猫老鼠洞的位置，看谁会赢
+        """
+        n = len(graph)
+        # search(step,cat,mouse) 表示步数=step，猫到达位置cat，鼠到达位置mouse的情况下最终的胜负情况
+        @lru_cache(None)
+        def search(mouse, cat, step):
+            """给定猫和老鼠的位置，看谁能赢
+            Args:
+                mouse, cat, step
+            Returns:
+                0: 平局
+                1: 老鼠赢
+                2: 猫赢
+            """
+            # mouse到达洞最多需要n步(初始step=1) 说明mouse走n步还没达洞口 且cat也没抓住mouse
+            if step == 2*(n**2): 
+                return 0
+            # cat抓住mouse
+            if cat==mouse: 
+                return 2
+            # mouse入洞
+            if mouse==0: 
+                return 1
+            # 偶数步：mouse走
+            if step % 2 ==0:
+                # 对mouse最优的策略: 先看是否能mouse赢 再看是否能平 如果都不行则cat赢
+                drawFlag = False
+                for nei in graph[mouse]:
+                    ans = search(nei, cat, step+1)
+                    if ans == 1: # 老鼠赢
+                        return 1
+                    elif ans ==0: # 有平局
+                        drawFlag = True
+                if drawFlag:
+                    return 0
+                return 2 # 否则猫赢
+            # 奇数步: cat走
+            if step % 2 == 1:
+                # 对cat最优的策略: 先看是否能cat赢 再看是否能平 如果都不行则mouse赢
+                drawFlag = False
+                for nei in graph[cat]:
+                    if nei == 0: # 不能进洞
+                        continue
+                    ans = search(mouse, nei, step+1)
+                    if ans == 2: # 猫赢
+                        return 2
+                    elif ans == 0: # 平局
+                        drawFlag = True
+                if drawFlag:
+                    return 0
+                return 1 # 老输赢
+        return search(1, 2, 0)
+
+
+
+```
+
+
 #### 1143 最长公共子序列
 
 ```python
@@ -499,6 +562,120 @@ class Solution(object):
 
 ```
 
+#### 1728 猫和老鼠II
+
+```java
+import java.time.Clock;
+class Solution {
+    static int S = 8 * 8 * 8 * 8, K = 1000;
+    static int[][] f = new int[S][K]; // mouse : 0 / cat : 1
+    String[] g;
+    int n, m, a, b, tx, ty;
+    int[][] dirs = new int[][]{{1,0}, {-1,0}, {0,1}, {0,-1}};
+    // mouse : (x, y) / cat : (p, q)
+    int dfs(int x, int y, int p, int q, int k) {
+        /* 
+        Args:
+            x,y: 老鼠的位置
+            p,q: 猫的位置
+            k: 步数
+        Returns:
+            True: 老鼠胜，0
+            False: 猫胜利，1
+        */
+        int state = (x << 9) | (y << 6) | (p << 3) | q;
+        if (k == K - 1) {
+            // 猫胜利
+            return f[state][k] = 1;
+        }
+        if (x == p && y == q) {
+            // 逮到了，猫胜利
+            return f[state][k] = 1;
+        }
+        if (x == tx && y == ty) {
+            // 老鼠走到终点了
+            return f[state][k] = 0;
+        }
+        if (p == tx && q == ty) {
+            // 猫走到终点了
+            return f[state][k] = 1;
+        }
+        if (f[state][k] != -1) {
+            // 有结果，直接返回
+            return f[state][k];
+        }
+        if (k % 2 == 0) { // mouse
+            for (int[] di : dirs) {
+                // 老鼠的步长
+                for (int i = 0; i <= b; i++) {
+                    int nx = x + di[0] * i, ny = y + di[1] * i;
+                    // 到达边界
+                    if (nx < 0 || nx >= n || ny < 0 || ny >= m) {
+                        break;
+                    }
+                    // 遇到墙
+                    if (g[nx].charAt(ny) == '#') {
+                        break;
+                    }
+                    // 老鼠胜利
+                    if (dfs(nx, ny, p, q, k + 1) == 0) {
+                        return f[state][k] = 0;
+                    }
+                }
+            }
+            return f[state][k] = 1;
+        } else { // cat
+            for (int[] di : dirs) {
+                // 猫的步长
+                for (int i = 0; i <= a; i++) {
+                    int np = p + di[0] * i, nq = q + di[1] * i;
+                    // 边界
+                    if (np < 0 || np >= n || nq < 0 || nq >= m) break;
+                    // 墙
+                    if (g[np].charAt(nq) == '#') break;
+                    // 猫胜利
+                    if (dfs(x, y, np, nq, k + 1) == 1) return f[state][k] = 1;
+                }
+            }
+            return f[state][k] = 0;
+        }
+    }
+    public boolean canMouseWin(String[] grid, int catJump, int mouseJump) {
+        g = grid;
+        n = g.length; 
+        m = g[0].length(); 
+        a = catJump; 
+        b = mouseJump;
+        for (int i = 0; i < S; i++) {
+            Arrays.fill(f[i], -1);
+        }
+        
+        // 构建图
+        int x = 0, y = 0, p = 0, q = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                // 找到老鼠的位置
+                if (g[i].charAt(j) == 'M') {
+                    x = i; y = j;
+                // 找到猫的位置
+                } else if (g[i].charAt(j) == 'C') {
+                    p = i; q = j;
+                // 找到食物的位置，最为终点
+                } else if (g[i].charAt(j) == 'F') {
+                    tx = i; ty = j;
+                }
+            }
+        }
+        return dfs(x, y, p, q, 0) == 0;
+    }
+}
+
+// 作者：AC_OIer
+// 链接：https://leetcode.cn/problems/cat-and-mouse-ii/solution/by-ac_oier-gse8/
+// 来源：力扣（LeetCode）
+// 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+```
 
 #### 2222 选择building的方式
 
