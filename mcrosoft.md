@@ -72,3 +72,174 @@ class Solution(object):
         return s
 
 ```
+
+### SDE2020面试
+
+#### 1轮 151. 颠倒字符串中的单词
+
+```python
+class Solution(object):
+    def reverseWords(self, s):
+        """
+        :type s: str
+        :rtype: str
+
+        151. 颠倒字符串中的单词
+
+输入：s = "the sky is blue"
+输出："blue is sky the"
+
+        起始和结束位置都可能存在空格
+
+        解法：
+        1. 先去除首位空格
+        2. 双指针遍历每个word，并push到result里面
+        3. 利用首位指针
+        """
+
+        n = len(s)
+        left, right = 0, n - 1
+
+        while left <= right and s[left] == " ":
+            left += 1
+
+        while left <= right and s[right] == " ":
+            right -= 1
+
+        result = []
+        word = []
+        while left <= right:
+            if s[left] != ' ':
+                word.append(s[left])
+            else:
+                if word:
+                    result.append(''.join(word))
+                    word = []
+            left += 1
+
+        if word:
+            result.append(''.join(word))
+        
+        l, r = 0, len(result) - 1
+        while l < r:
+            result[l], result[r] = result[r], result[l]
+            l += 1
+            r -= 1
+        
+        return ' '.join(result)
+        
+
+```
+
+#### 2轮 顺时针生成矩阵
+
+```python
+
+class Solution:
+    def generateMatrix(self, n: int) -> List[List[int]]:
+        """给你一个正整数 n ，生成一个包含 1 到 n2 所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。
+
+输入：n = 3
+输出：[[1,2,3],[8,9,4],[7,6,5]]
+
+        题解：
+        分层模拟，注意用完一层就更新
+        """
+
+
+
+        l, r, t, b = 0, n - 1, 0, n - 1
+        result = [[0 for _ in range(n)] for _ in range(n)]
+        num, tar = 1, n * n
+        while num <= tar:
+            for i in range(l, r + 1): # left to right
+                result[t][i] = num
+                num += 1
+            # 每次用完就更新
+            t += 1
+            for i in range(t, b + 1): # top to bottom
+                result[i][r] = num
+                num += 1
+            # 每次用完就更新
+            r -= 1
+            for i in range(r, l - 1, -1): # right to left
+                result[b][i] = num
+                num += 1
+            # 每次用完就更新
+            b -= 1
+            for i in range(b, t - 1, -1): # bottom to top
+                result[i][l] = num
+                num += 1
+            # 每次用完就更新
+            l += 1
+        return result
+
+# 作者：jyd
+# 链接：https://leetcode.cn/problems/spiral-matrix-ii/solution/spiral-matrix-ii-mo-ni-fa-she-ding-bian-jie-qing-x/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+#### 3轮 307. 区域和检索 - 数组可修改
+
+```python
+class NumArray:
+    def __init__(self, nums: List[int]):
+        self.nums = nums
+        # 初始化为0
+        self.tree = [0] * (len(nums) + 1)
+        for i, num in enumerate(nums):
+            # 树状数组的index从1开始
+            self.add(i+1, num)
+
+    def lowbit(self, index):
+        """求补码+1
+        lowbit(index) = index & -index
+        -index = ~index + 1, 相当于补码加1
+        """
+        return index & -index
+
+    def add(self, index: int, val: int):
+        """往树状数组里面更新值，index更新后，将其所有父节点相关知识都更新"""
+        while index < len(self.tree):
+            self.tree[index] += val
+            # 树状数组index的父节点为 index + lowbit(index)
+            # lowbit(index) = index & -index
+            # -index = ~index + 1, 相当于补码加1
+            index += self.lowbit(index)
+
+
+    def prefixSum(self, index) -> int:
+        """[1,index]的前缀和
+        index该位置包括lowbit(index)个数字的和
+        上一个需要加上的和就是index - lowbit(x)
+        一直加到0就行
+        """
+        s = 0
+        while index:
+            s += self.tree[index]
+            index -= self.lowbit(index)
+        return s
+
+    def update(self, index: int, val: int) -> None:
+        """更新线段树和备份的nums值"""
+        # 相当于tree的基础上，当前节点和其父节点加上val-self.nums[index]
+        self.add(index + 1, val - self.nums[index])
+        # 这里相当于有个nums的备份，也需要更新
+        self.nums[index] = val
+
+    def sumRange(self, left: int, right: int) -> int:
+        """拿到区间和，right+1才是tree的区间,[left, right]->[left, right+1]"""
+        return self.prefixSum(right + 1) - self.prefixSum(left)
+
+# 作者：LeetCode-Solution
+# 链接：https://leetcode.cn/problems/range-sum-query-mutable/solution/qu-yu-he-jian-suo-shu-zu-ke-xiu-gai-by-l-76xj/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+# Your NumArray object will be instantiated and called as such:
+# obj = NumArray(nums)
+# obj.update(index,val)
+# param_2 = obj.sumRange(left,right)
+
+```
