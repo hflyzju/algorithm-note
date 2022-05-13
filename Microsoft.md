@@ -284,7 +284,7 @@ class NumArray:
 
 
     def update_node(self, node, index, val):
-        """跟新左右孩子中当前节点的值，并根绝左右孩子的sum更新当前sum"""
+        """更新左右孩子中当前节点的值，并根据左右孩子的sum更新当前sum"""
         if node.left == node.right:
             node.val = val
             # 只有一个节点也需要更新sum
