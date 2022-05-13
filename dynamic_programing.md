@@ -562,6 +562,39 @@ class Solution(object):
 
 ```
 
+#### 1641. 统计字典序元音字符串的数目
+
+
+```python
+class Solution(object):
+    def countVowelStrings(self, n):
+        """给你一个整数 n，请返回长度为 n 、仅由元音 (a, e, i, o, u) 组成且按 字典序排列 的字符串数量。
+        :type n: int
+        :rtype: int
+
+输入：n = 1
+输出：5
+解释：仅由元音组成的 5 个字典序字符串为 ["a","e","i","o","u"]
+
+        题解：动态规划
+        a：代表以a为开头的长度为k的字符串的个数，因为a可以加到任何字符的前面，所以a = (a+e+i+o+u), 同理可以得到其他的。
+        """
+
+        a, e, i, o, u = 1, 1, 1, 1, 1
+
+        for k in range(2, n+1):
+            a = (a+e+i+o+u)
+            e = (e+i+o+u)
+            i = (i+o+u)
+            o = (o+u)
+            u = (u)
+            # print('k:', k, 'a:', a, 'e:', e, 'i:', i, 'o:', o, 'u:', u)
+
+        return a + e + i + o + u
+
+```
+
+
 #### 1728 猫和老鼠II
 
 ```java
@@ -676,6 +709,8 @@ class Solution {
 // 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 
 ```
+
+
 
 #### 2222 选择building的方式
 
