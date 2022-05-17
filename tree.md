@@ -611,6 +611,167 @@ class NestedIterator(object):
         return False
 ```
 
+#### 剑指 Offer II 048. 序列化与反序列化二叉树 or 297. 二叉树的序列化与反序列化
+
+```python
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Codec:
+
+    def serialize(self, root):
+        """Encodes a tree to a single string.
+        :type root: TreeNode
+        :rtype: str
+        题解：利用层次遍历，遇到空节点就用#代替
+        """
+        if root is None:
+            return ""
+        cache = deque()
+        cache.append(root)
+        path = []
+        while cache:
+            node = cache.popleft()
+            if node is None:
+                path.append("#")
+            else:
+                path.append(str(node.val))
+                cache.append(node.left)
+                cache.append(node.right)
+        return ','.join(path)
+        
+
+    def deserialize(self, data):
+        """Decodes your encoded data to tree.
+        题解：利用层次遍历，一致消耗节点即可，二叉树一次消耗2个，来构建左右两个节点
+        """
+        if not data:
+            return None
+        data_split = data.split(',')
+        root = TreeNode(data_split[0])
+        cache = deque()
+        cache.append(root)
+        next_data_index = 1
+        while cache:
+            node = cache.popleft()
+            if data_split[next_data_index] == '#':
+                node.left = None
+            else:
+                left = TreeNode(data_split[next_data_index])
+                cache.append(left)
+                node.left = left
+            next_data_index += 1
+
+            if data_split[next_data_index] == '#':
+                node.right = None
+            else:
+                right = TreeNode(data_split[next_data_index])
+                cache.append(right)
+                node.right = right
+            next_data_index += 1
+        return root
+
+        
+
+# Your Codec object will be instantiated and called as such:
+# ser = Codec()
+# deser = Codec()
+# ans = deser.deserialize(ser.serialize(root))
+
+```
+
+#### 428 序列化和反序列化多叉树
+
+```python
+
+from collections import deque
+
+
+class Node:
+    def __init__(self, val):
+        self.val = val
+        self.children = []
+
+
+def creat_multi_children_node():
+    """创建多叉树实例"""
+    # https://zhuanlan.zhihu.com/p/109521420
+    root = Node(1)
+    root.children.append(Node(3))
+    root.children.append(Node(2))
+    root.children.append(Node(4))
+    root.children[0].children.append(Node(5))
+    root.children[0].children.append(Node(6))
+    return root
+
+
+class Solution:
+
+    def serialize(self, root: 'Node') -> str:
+        """Encodes a tree to a single string.
+        :type root: Node
+        :rtype: str
+
+        题解：序列化N叉树，可以直接层次遍历，记录当前值和其孩子节点的个数，来进行序列化
+        """
+        if not root:
+            return ""
+        queue = deque([root])
+        res = []
+        while queue:
+            node = queue.popleft()
+            res.append(str(node.val))
+            res.append(str(len(node.children)))
+            for children in node.children:
+                queue.append(children)
+        data = ",".join(res)
+        print('serialize data:', data)
+        return data
+
+    def deserialize(self, data: str) -> 'Node':
+        """Decodes your encoded data to tree.
+        :type data: str
+        :rtype: Node
+        题解：还是层次遍历来实现，当前节点有N个孩子，我可以消耗N个数据，并把孩子节点和其对应的孩子节点的个数存到cache中，为后续消费提供支持。
+        """
+        from collections import deque
+        if not data:
+            return
+        cache = deque()
+        data_list = data.split(',')
+        data_list = [int(_) for _ in data_list]
+        root = Node(data_list[0])
+        next_data_index = 2
+        cache.append([root, data_list[1]])
+        while cache:
+            cur_node, cur_children_num = cache.popleft()
+            # 持续消耗当前层的数据，并更新next_data_index, 每次加2，因为记录了每个点的val和孩子的个数
+            for _ in range(cur_children_num):
+                tmp, tmp_num = data_list[next_data_index], data_list[next_data_index+1]
+                tmp_node = Node(tmp)
+                cur_node.children.append(tmp_node)
+                cache.append([tmp_node, tmp_num])
+                # 每次消耗两个数据
+                next_data_index += 2
+        print("root:", root)
+        return root
+
+
+if __name__ == '__main__':
+
+    s = Solution()
+    root = creat_multi_children_node()
+    serialize_data = s.serialize(root)
+    print('serialize_data:', serialize_data)
+    print(s.deserialize(serialize_data))
+
+```
+
+
 #### 449 序列化和反序列化搜索二叉树
 
 ```python
@@ -945,5 +1106,67 @@ class Solution:
 # 链接：https://leetcode-cn.com/problems/longest-path-with-different-adjacent-characters/solution/by-endlesscheng-92fw/
 # 来源：力扣（LeetCode）
 # 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+```
+
+
+#### 面试题 04.06. 后继者
+
+
+```python
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def inorderSuccessor(self, root, p):
+        """
+        :type root: TreeNode
+        :type p: TreeNode
+        :rtype: TreeNode
+设计一个算法，找出二叉搜索树中指定节点的“下一个”节点（也即中序后继）。
+
+如果指定节点没有对应的“下一个”节点，则返回null。
+
+输入: root = [2,1,3], p = 1
+
+  2
+ / \
+1   3
+
+输出: 2
+        方法1：中序遍历，查找前一个节点是否为p即可
+        方法2：
+        1. 如果存在右节点，那么直接从当前节点往右边找
+        2. 如果不存在右节点，可以从根节点往下找
+        """
+
+        if  p.right is not None:
+            p = p.right
+            while p.left is not None:
+                p = p.left
+            return p
+        # 没有右节点，需要从根节点往下找
+        successor = None
+        node = root
+        while node:
+            if node.val > p.val:
+                # 缓存一个比较大的值
+                successor = node
+                node = node.left
+            else:
+                node = node.right
+        return successor
+
+# 作者：LeetCode-Solution
+# 链接：https://leetcode.cn/problems/successor-lcci/solution/hou-ji-zhe-by-leetcode-solution-6hgc/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+        
+
+        
 
 ```
