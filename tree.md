@@ -1170,3 +1170,106 @@ class Solution(object):
         
 
 ```
+
+
+#### 236. Lowest Common Ancestor of a Binary Tree - 迭代方法
+
+
+```python
+
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def lowestCommonAncestor(self, root, p, q):
+        """Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree.
+        :type root: TreeNode
+        :type p: TreeNode
+        :type q: TreeNode
+        :rtype: TreeNode
+        
+        Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
+        Output: 3
+        Explanation: The LCA of nodes 5 and 1 is 3.
+        """
+        
+        cache = []
+        cache.append([root, [root]])
+        left_path = None
+        while cache:
+            cur, cur_path = cache.pop()
+            # print("cur:", cur.val)
+            # print("cur_path:", cur_path)
+            if cur.val == p.val:
+                left_path = cur_path
+                break
+            if cur.right:
+                cache.append([cur.right, cur_path + [cur.right]])
+            if cur.left:
+                cache.append([cur.left, cur_path + [cur.left]])
+        right_path = None
+        cache = [[root, [root]]]
+        while cache:
+            cur, cur_path = cache.pop()
+            if cur.val == q.val:
+                right_path = cur_path
+                break
+            if cur.right:
+                cache.append([cur.right, cur_path + [cur.right]])
+            if cur.left:
+                cache.append([cur.left, cur_path + [cur.left]])
+                
+        if left_path is not None and right_path is not None:
+            l = 0
+            result = None
+            while l < len(left_path) and l < len(right_path) and left_path[l].val == right_path[l].val:
+                result = left_path[l]
+                l += 1
+            return result
+        return None
+```
+
+
+#### 236. Lowest Common Ancestor of a Binary Tree - 递归方法
+
+```python
+
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def lowestCommonAncestor(self, root, p, q):
+        """Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree.
+        :type root: TreeNode
+        :type p: TreeNode
+        :type q: TreeNode
+        :rtype: TreeNode
+        
+        Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
+        Output: 3
+        Explanation: The LCA of nodes 5 and 1 is 3.
+
+        题解：https://mp.weixin.qq.com/s/njl6nuid0aalZdH5tuDpqQ
+        """
+        
+        if root is None:
+            return None
+        # 代表该节点下找到了p或者q
+        if root.val == p.val or root.val == q.val:
+            return root
+        left = self.lowestCommonAncestor(root.left, p, q)
+        right = self.lowestCommonAncestor(root.right, p, q)
+        # 如果要从左右两个节点来找数字，那么返回root
+        if left is not None and right is not None:
+            return root
+        return left if left is not None else right
+
+```
