@@ -989,3 +989,130 @@ class Solution(object):
         return s
 
 ```
+
+
+
+#### 41. 缺失的第一个正数
+
+
+```python
+class Solution(object):
+    def firstMissingPositive(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+
+41. 缺失的第一个正数
+给你一个未排序的整数数组 nums ，请你找出其中没有出现的最小的正整数。
+请你实现时间复杂度为 O(n) 并且只使用常数级别额外空间的解决方案。
+输入：nums = [1,2,0]
+输出：3
+        [1, 2, 0]
+        题解1：
+        1. 所有的值肯定会在 1-n之间。
+        2. 先把不在1-n的nums[i]变为1
+        3. 把index=abs(nums[i])-1的位置变为负数，重新遍历数组，不为负数的代表没有这个数字，那么就可以直接输出了
+
+
+        题解2：
+        把每个数字nums[i]移动到目标位置
+        1. 遍历每个数字，对于1-n的数字，把他放到nums[i]-1的位置。
+        2. 再次遍历数字找到缺失的那个位置
+        
+        [1,2,4]
+        [1,2,4]
+        [4,2,1]
+        [9,2,1,6,7,8,3,2]
+        [1,2,9,8,7,6,3,2]
+        # 
+        [-4,2,3,4,5,9,2,3,-1,-8]
+
+        """
+
+        # 方法2
+        n = len(nums)
+        for i in range(n):
+            # print('i:', i)
+            while 1 <= nums[i] <= n:
+                # print('nums:', nums)
+                key = nums[i] - 1
+                if nums[key] != nums[i]:
+                    nums[i], nums[key] = nums[key], nums[i]
+                else:
+                    break
+                # print('nums 2:', nums)
+        for i in range(n):
+            if nums[i] != i + 1:
+                return i + 1
+        return len(nums) + 1
+        # 方法1
+        # n = len(nums)
+        # if 1 not in nums:
+        #     return 1
+
+        # # 1. 先把不在1-n的处理掉
+        # for i in range(n):
+        #     if nums[i] <= 0 or nums[i] > n:
+        #         nums[i] = 1
+        # # 2. 在遍历这个数组，对存在的数据进行标记
+        # # [2,1]
+        # # n=2
+        # # key=2-1=1
+        # # nums[1] = 0 bas(nums)
+        # for i in range(n):
+        #     # 0 = 1 - 1
+        #     # 1 = 2 - 1
+        #     # print('nums:', nums)
+        #     key = abs(nums[i]) - 1
+        #     # print('key:', key)
+        #     nums[key] = -abs(nums[key])
+        #     # print("nums[key]:", nums[key])
+        #     # print('nums:', nums)
+        # # print('nums:', nums)
+
+        # # 找到没有标记的数字
+        # for i in range(n):
+        #     if nums[i] > 0:
+        #         return i + 1
+
+        # return len(nums) + 1
+```
+
+
+#### 268. 丢失的数字
+
+```python
+class Solution(object):
+    def missingNumber(self, nums):
+        """268. 丢失的数字
+        :type nums: List[int]
+        :rtype: int
+
+输入：nums = [3,0,1]
+输出：2
+解释：n = 3，因为有 3 个数字，所以所有的数字都在范围 [0,3] 内。2 是丢失的数字，因为它没有出现在 nums 中。
+
+来源：力扣（LeetCode）
+链接：https://leetcode.cn/problems/missing-number
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+
+        题解：赋值法，把nums[i]放到对应的位置上去，然后再找缺了哪个
+        """
+
+
+        n = len(nums)
+        for i in range(n):
+            while 0 <= nums[i] < n:
+                index = nums[i]
+                if nums[index] == index:
+                    break
+                nums[index], nums[i] = nums[i], nums[index]
+
+
+        for i in range(n):
+            if nums[i] != i:
+                return i
+
+        return n
+
+```

@@ -1,3 +1,550 @@
+https://codetop.cc/home
+
+#### 215 第k大的数
+
+```python
+
+class Solution(object):
+    def findKthLargest(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: int
+        """
+
+        # 方法二：快速排序思想
+        # [3,2,1,5,6,4]
+        # 1,2,3,4,5,6
+
+        def findKthLargestFromLR(nums, k, left, right):
+            """[left, right]区间里面的第k大"""
+            l, r = left, left
+            while r < right:
+                if nums[r] > nums[right]:
+                    nums[l], nums[r] = nums[r], nums[l]
+                    l += 1
+                r += 1
+            nums[l], nums[right] = nums[right], nums[l]
+            index = l - left + 1
+            if index == k:
+                return nums[l]
+
+            elif index > k:
+                return findKthLargestFromLR(nums, k, left, l - 1)
+            else:
+                return findKthLargestFromLR(nums, k - index, l + 1, right)
+                
+        return findKthLargestFromLR(nums, k, 0, len(nums) - 1)
+
+
+
+
+
+        # 方法一：最小堆保存k个最大的元素
+        # cache = []
+        # for num in nums:
+        #     if len(cache) < k:
+        #         heapq.heappush(cache, num)
+        #     else:
+        #         if cache[0] < num:
+        #             heapq.heappop(cache)
+        #             heapq.heappush(cache, num)
+        # return cache[0]
+```
+
+
+#### 124. 二叉树中的最大路径和
+
+
+```python
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def maxPathSum(self, root):
+        """124. 二叉树中的最大路径和
+        :type root: TreeNode
+        :rtype: int
+
+
+输入：root = [1,2,3]
+输出：6
+解释：最优路径是 2 -> 1 -> 3 ，路径和为 2 + 1 + 3 = 6
+
+        思路：
+        1. search函数，计算以该节点为起点(包含该接点)，的最大和。
+        2. 同时每次求最大路径和
+        """
+
+        self.max_path_sum = float('-inf')
+
+        def search(node):
+            """以该节点为起点(包含该接点)，的最大和"""
+            if node is None:
+                return node
+
+            left = search(node.left)
+            right = search(node.right)
+
+            left = max(0, left)
+            right = max(0, right)
+
+            cur_max_path_sum = left + right + node.val
+            self.max_path_sum = max(self.max_path_sum, cur_max_path_sum)
+
+            return max(left, right) + node.val
+
+
+        search(root)
+
+        return self.max_path_sum
+
+```
+
+
+#### 206. 反转链表
+
+```python
+
+# Definition for singly-linked list.
+# class ListNode(object):
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution(object):
+    def reverseList(self, head):
+        """
+        :type head: ListNode
+        :rtype: ListNode
+        """
+
+
+        pre = None
+
+        cur = head
+
+        while cur:
+
+            tmp = cur.next
+            cur.next = pre
+            pre = cur
+            cur = tmp
+
+        return pre
+
+```
+
+#### 236. 二叉树的最近公共祖先
+
+```python
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def lowestCommonAncestor(self, root, p, q):
+        """Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree.
+        :type root: TreeNode
+        :type p: TreeNode
+        :type q: TreeNode
+        :rtype: TreeNode
+        
+        Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
+        Output: 3
+        Explanation: The LCA of nodes 5 and 1 is 3.
+
+        题解：https://mp.weixin.qq.com/s/njl6nuid0aalZdH5tuDpqQ
+        """
+        
+
+        def search(node):
+
+            if node is None:
+                return None
+
+            if node.val == p.val or node.val == q.val:
+                return node
+            
+            left = search(node.left)
+            right = search(node.right)
+
+            if left is not None and right is not None:
+                return node
+            
+            return left if left is not None else right
+
+        return search(root)
+```
+
+#### 450. 删除二叉搜索树中的节点
+
+```python
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+
+    def get_min_val(self, node):
+        while node.left:
+            node = node.left
+        return node.val
+
+
+    def deleteNode(self, root, key):
+        """450. 删除二叉搜索树中的节点
+        :type root: TreeNode
+        :type key: int
+        :rtype: TreeNode
+输入：root = [5,3,6,2,4,null,7], key = 3
+输出：[5,4,6,2,null,null,7]
+解释：给定需要删除的节点值是 3，所以我们首先找到 3 这个节点，然后删除它。
+一个正确的答案是 [5,4,6,2,null,null,7], 如下图所示。
+另一个正确答案是 [5,2,6,null,4,null,7]。
+
+来源：力扣（LeetCode）
+链接：https://leetcode.cn/problems/delete-node-in-a-bst
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+
+        题解：
+        https://www.bilibili.com/video/BV1JQ4y1Z7Sj?spm_id_from=333.337.search-card.all.click
+        1. 如果没有左右节点（叶子节点），直接删除
+        2. 如果左节点不存在，则替换为右节点，否则替换为左节点
+        3. 如果左右节点都存在，用又节点下的最小值替换当前节点，然后直接删除
+        """
+        if root is None:
+            return None
+
+        if root.val == key:
+            if root.left is None and root.right is None:
+                return None
+            elif root.left is None:
+                return root.right
+            elif root.right is None:
+                return root.left
+            else:
+                min_val = self.get_min_val(root.right)
+                root.val = min_val
+                root.right = self.deleteNode(root.right, min_val)
+        elif root.val < key:
+            root.right = self.deleteNode(root.right, key)
+        else:
+            root.left = self.deleteNode(root.left, key)
+
+        return root
+
+```
+
+#### 53. 最大子数组和
+
+```python
+class Solution(object):
+    def maxSubArray(self, nums):
+        """53. 最大子数组和
+        :type nums: List[int]
+        :rtype: int
+
+输入：nums = [-2,1,-3,4,-1,2,1,-5,4]
+输出：6
+解释：连续子数组 [4,-1,2,1] 的和最大，为 6 。
+        """
+        pre = 0
+        max_sum = float('-inf')
+        for num in nums:
+            cur = pre + num
+            max_sum = max(max_sum, cur)
+            pre = max(0, cur)
+        return max_sum
+
+```
+
+#### 3. 无重复字符的最长子串
+
+```python
+
+class Solution(object):
+    def lengthOfLongestSubstring(self, s):
+        """3. 无重复字符的最长子串
+        :type s: str
+        :rtype: int
+给定一个字符串 s ，请你找出其中不含有重复字符的 最长子串 的长度。
+
+输入: s = "abcabcbb"
+输出: 3 
+解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。
+        """
+
+        n = len(s)
+        if n <= 1:
+            return n
+        char_cnt = defaultdict(int)
+        pre_index = dict()
+        l, r = 0, 0
+        max_len = 0
+        while r < n:
+            char_cnt[s[r]] += 1
+            if s[r] in pre_index and pre_index[s[r]] + 1 > l:
+                l = pre_index[s[r]] + 1
+                char_cnt[s[r]] -= 1
+            pre_index[s[r]] = r
+            max_len = max(max_len, r - l + 1)
+            r += 1
+            
+        return max_len
+            
+```
+
+
+#### 207. 课程表
+
+```python
+
+class Solution(object):
+    def canFinish(self, numCourses, prerequisites):
+        """
+        :type numCourses: int
+        :type prerequisites: List[List[int]]
+        :rtype: bool
+
+输入：numCourses = 2, prerequisites = [[1,0]]
+输出：true
+解释：总共有 2 门课程。学习课程 1 之前，你需要完成课程 0 。这是可能的。
+
+来源：力扣（LeetCode）
+链接：https://leetcode.cn/problems/course-schedule
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+        """
+
+        graph = defaultdict(set)
+        indegree = [0] * numCourses
+        for prerequisite in prerequisites:
+            graph[prerequisite[1]].add(prerequisite[0])
+            indegree[prerequisite[0]] += 1
+        
+
+        cache = deque()
+        for i in range(numCourses):
+            if indegree[i] == 0:
+                cache.append(i)
+
+        cnt = 0
+        while cache:
+            # print('cache:', cache)
+            cur = cache.popleft()
+            cnt += 1
+            for child in graph[cur]:
+                indegree[child] -= 1
+                if indegree[child] == 0:
+                    cache.append(child)
+
+        return cnt == numCourses
+```
+
+
+#### 146. LRU 缓存
+
+```python
+class DLinkedNode:
+    """双向链表"""
+    def __init__(self, key=0, value=0):
+        self.key = key
+        self.value = value
+        self.prev = None
+        self.next = None
+
+
+class LRUCache:
+    """
+请你设计并实现一个满足  LRU (最近最少使用) 缓存 约束的数据结构。
+实现 LRUCache 类：
+LRUCache(int capacity) 以 正整数 作为容量 capacity 初始化 LRU 缓存
+int get(int key) 如果关键字 key 存在于缓存中，则返回关键字的值，否则返回 -1 。
+void put(int key, int value) 如果关键字 key 已经存在，则变更其数据值 value ；如果不存在，则向缓存中插入该组 key-value 。如果插入操作导致关键字数量超过 capacity ，则应该 逐出 最久未使用的关键字。
+函数 get 和 put 必须以 O(1) 的平均时间复杂度运行。
+
+来源：力扣（LeetCode）
+链接：https://leetcode.cn/problems/lru-cache
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+
+    """
+
+    def __init__(self, capacity: int):
+        # key到双向节点的cache
+        self.cache = dict()
+        # 使用伪头部和伪尾部节点    
+        # 初始化构建头节点和尾部节点
+        self.head = DLinkedNode()
+        self.tail = DLinkedNode()
+        self.head.next = self.tail
+        self.tail.prev = self.head
+        self.capacity = capacity
+        self.size = 0
+
+    def get(self, key: int) -> int:
+        if key not in self.cache:
+            return -1
+        # 如果 key 存在，先通过哈希表定位，再移到头部
+        node = self.cache[key]
+        self.moveToHead(node)
+        return node.value
+
+    def put(self, key: int, value: int) -> None:
+        if key not in self.cache:
+            # 如果 key 不存在，创建一个新的节点
+            node = DLinkedNode(key, value)
+            # 添加进哈希表
+            self.cache[key] = node
+            # 添加至双向链表的头部
+            self.addToHead(node)
+            self.size += 1
+            if self.size > self.capacity:
+                # 如果超出容量，删除双向链表的尾部节点
+                removed = self.removeTail()
+                # 删除哈希表中对应的项
+                self.cache.pop(removed.key)
+                self.size -= 1
+        else:
+            # 如果 key 存在，先通过哈希表定位，再修改 value，并移到头部
+            node = self.cache[key]
+            node.value = value
+            self.moveToHead(node)
+    
+    def addToHead(self, node):
+        """将节点添加到最前面"""
+        node.prev = self.head
+        node.next = self.head.next
+        self.head.next.prev = node
+        self.head.next = node 
+    
+    def removeNode(self, node):
+        """删除单个节点"""
+        node.prev.next = node.next
+        node.next.prev = node.prev
+
+    def moveToHead(self, node):
+        """将节点移动到最前面
+        1. 删除节点
+        2. 在头节点添加节点
+        """
+        self.removeNode(node)
+        self.addToHead(node)
+
+    def removeTail(self):
+        """删除尾部的节点"""
+        node = self.tail.prev
+        self.removeNode(node)
+        return node
+
+
+# Your LRUCache object will be instantiated and called as such:
+# obj = LRUCache(capacity)
+# param_1 = obj.get(key)
+# obj.put(key,value)
+
+```
+
+
+#### 4. 寻找两个正序数组的中位数
+
+```python
+
+class Solution(object):
+    def findMedianSortedArrays(self, nums1, nums2):
+        """求两个排序数组的中位数
+
+输入：nums1 = [1,3], nums2 = [2]
+输出：2.00000
+解释：合并数组 = [1,2,3] ，中位数 2
+
+        解法：二分法
+        """
+        m = len(nums1)
+        n = len(nums2)
+        # 第一个数组的长度小于第二个数组的长度，这样可以确保k1和k2的值是有效的
+        if m > n:
+            m, n, nums1, nums2 = n, m, nums2, nums1
+        l, r = 0, m
+        while l <= r:
+            k1 = l + (r - l) // 2  # 代表数组1左边的个数
+            k2 = (m + n + 1) // 2 - k1 # 代表数组2左边的个数
+            # k1 [0, m], k2 [0, n]
+            # 只需要看k1是否是有效范围内就行了?
+            # k2一定是有效范围内
+            # [0, k1-1], [k1, m)
+            # [0, k2-1], [k2, n)
+            if k1 < m and nums2[k2-1] > nums1[k1]: # 右边还有空间，需要往右则可以往右移动，nums1[k1]需要存在,。
+                l = k1 + 1
+            elif k1 - 1 >= 0 and nums1[k1-1] > nums2[k2]: # 左边还有空间，需要往左则往左移动，nums[k1-1]存在
+                r = k1 - 1
+            else:
+                if k1 == 0: # 第一个左边为0个
+                    left_max = nums2[k2-1]
+                elif k2 == 0: # 第二个左边为0个
+                    left_max = nums1[k1-1]
+                else: 
+                    left_max = max(nums1[k1-1], nums2[k2-1]) # 都有
+                if (m+n) % 2 == 1:
+                    return left_max
+
+                if k1 == m: # 第一个右边为0
+                    right_min = nums2[k2]
+                elif k2 == n:# 第二个右边为0
+                    right_min = nums1[k1]
+                else: 
+                    right_min = min(nums2[k2], nums1[k1]) # 都有
+
+                return (left_max + right_min) / 2.0
+
+
+# class Solution(object):
+#     def findMedianSortedArrays(self, nums1, nums2):
+#         """
+#         :type nums1: List[int]
+#         :type nums2: List[int]
+#         :rtype: float
+#         """
+
+#         m, n = len(nums1), len(nums2)
+
+#         if m > n:
+#             return self.findMedianSortedArrays(nums2, nums1)
+#         k1, k2 = 0, m
+#         while k1 < k2:
+#             mid = (k1 + k2) >> 1
+#             # [k1, mid) vs [mid, k2)
+#             # [k3, mid2) [mid2, k4)
+#             mid2 = (m + n + 1) // 2 - mid
+#             if mid <= k2 and nums1[mid-1] > nums2[mid2]:
+#                 k2 = mid - 1
+#             elif mid < k2 and nums1[mid] < nums2[mid2-1]:
+#                 k1 = mid + 1
+#             else:
+#                 if mid-1>= 0:
+#                     left_max = max(nums1[mid-1], nums2[mid2-1])
+#                 else:
+#                     left_max = nums2[mid2-1]
+
+#                 if (m + 2) & 1 != 0:
+#                     return left_max
+
+#                 if mid < m:
+#                     right_min = min(nums1[mid], nums2[mid2])
+#                 else:
+#                     right_min = nums2[mid2]
+
+#                 return (left_max + right_min) / 2.0
+
+#         return -1
+```
+
 #### 15 三数之和
 
 ```python
