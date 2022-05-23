@@ -1,3 +1,58 @@
+### 一、模板
+#### 1. 左右递增栈模板1
+```python
+
+        nums = [0] + nums + [0]        
+        # 右边第一个比它小的元素下标
+        right_first_smaller = [None] * len(nums)
+        stack = []
+        for i in range(len(nums)):
+            # 如果当前元素比栈顶元素小，弹栈
+            while stack and nums[i] < nums[stack[-1]]:
+                right_first_smaller[stack.pop()] = i
+            stack.append(i)
+        # 左边第一个比它小的元素下标
+        left_first_smaller = [None] * len(nums)
+        stack = []
+        for i in range(len(nums)-1,-1,-1):
+            # 如果当前元素比栈顶元素小，弹栈
+            while stack and nums[i] < nums[stack[-1]]:
+                left_first_smaller[stack.pop()] = i
+            stack.append(i)
+```
+
+#### 2.左右递增栈模板2
+
+```python
+        n = len(arr)
+        left = [-1] * n
+        cache = []
+        for i in range(n):
+            while cache and arr[cache[-1]] > arr[i]:
+                cache.pop()
+            if not cache:
+                left[i] = 0
+            else:
+                left[i] = cache[-1] + 1
+            cache.append(i)
+
+        right = [-1] * n
+        cache = []
+        for i in range(n-1, -1, -1):
+            while cache and arr[cache[-1]] >= arr[i]: # 需要等于，badcase: [71,55,82,55]
+                cache.pop()
+            if not cache:
+                right[i] = n - 1
+            else:
+                right[i] = cache[-1] - 1
+            cache.append(i)
+
+```
+
+
+### 二、题解
+
+
 
 
 #### 224. 基本计算器 I
@@ -126,4 +181,276 @@ class Solution(object):
             res = max(res, cur_height * cur_width)
         return res
 
-``
+```
+
+
+#### 907. 子数组的最小值之和
+
+
+```python
+class Solution(object):
+    def sumSubarrayMins(self, arr):
+        """907. 子数组的最小值之和
+        :type arr: List[int]
+        :rtype: int
+题目：
+给定一个整数数组 arr，找到 min(b) 的总和，其中 b 的范围为 arr 的每个（连续）子数组。
+由于答案可能很大，因此 返回答案模 10^9 + 7 。
+
+输入：arr = [3,1,2,4]
+输出：17
+解释：
+子数组为 [3]，[1]，[2]，[4]，[3,1]，[1,2]，[2,4]，[3,1,2]，[1,2,4]，[3,1,2,4]。 
+最小值为 3，1，2，4，1，1，2，1，1，1，和为 17。
+
+来源：力扣（LeetCode）
+链接：https://leetcode.cn/problems/sum-of-subarray-minimums
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+
+题解：
+    1. 每个数字影响的范围与它左右两边第一个小于它的位置有关，例如[3, [1], 2 ,4], 这个1，包括1的子数组的个数为2*3=6个，左右两边分别利用单调栈可以解决。
+    2. 重复出现的数字，要注意只往一边扩展可以避免重复计算。[71,55,82,55]
+
+        [3]
+        [1]
+        [1,2]
+        [1,2,4]
+        """
+        mod = 10 ** 9 + 7
+        n = len(arr)
+        left = [-1] * n
+        cache = []
+        for i in range(n):
+            while cache and arr[cache[-1]] > arr[i]:
+                cache.pop()
+            if not cache:
+                left[i] = 0
+            else:
+                left[i] = cache[-1] + 1
+            cache.append(i)
+
+        right = [-1] * n
+        cache = []
+        for i in range(n-1, -1, -1):
+            while cache and arr[cache[-1]] >= arr[i]: # 需要等于，badcase: [71,55,82,55]
+                cache.pop()
+            if not cache:
+                right[i] = n - 1
+            else:
+                right[i] = cache[-1] - 1
+            cache.append(i)
+        # print('cache:', cache)
+        # print('left:',left)
+        # print('right:',right)
+
+        s = 0
+        for i in range(n):
+            left_cnt = i - left[i] + 1
+            right_cnt = right[i] - i + 1
+            cur = left_cnt * right_cnt * arr[i] % mod
+            s += cur
+            # print('left_cnt:', left_cnt)
+            # print('right_cnt:', right_cnt)
+            # print('i:', i, 'cur:', cur)
+            # print('s:', s)
+            # print('='*10)
+            s = s % mod
+        return s
+
+```
+
+
+#### 907. 子数组的最小值之和 - 方法二，dp+单调栈
+
+
+```python
+
+class Solution:
+    def sumSubarrayMins(self, arr: List[int]) -> int:
+        """
+
+输入：arr = [3,1,2,4]
+输出：17
+解释：
+子数组为 [3]，[1]，[2]，[4]，[3,1]，[1,2]，[2,4]，[3,1,2]，[1,2,4]，[3,1,2,4]。 
+最小值为 3，1，2，4，1，1，2，1，1，1，和为 17。
+
+来源：力扣（LeetCode）
+链接：https://leetcode.cn/problems/sum-of-subarray-minimums
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+
+        解法二：动态规划+单调栈
+        result[i]:代表包含i在内的，所有min子数组和。
+        result[i] = result[stack[-1]] + (i - stack[-1]) * arr[i]
+        """
+        stack = []
+        result = [0] * len(arr)
+
+        for i in range(len(arr)):
+            while stack and arr[stack[-1]] > arr[i]:
+                stack.pop()
+            # 如果前面没有更小值，则以arr[i]结尾的所有subarray的minimum都是arr[i]，和为(i+1)*arr[i]
+            # 如果前面有更小值，则在起点在这个更小值之前的subarray的minimum由这个更小值决定，即为result[stack[-1]]，在两者之间开始的subarray的最小值为arr[i]，和为(i-stack[-1])*arr[i]
+            if stack:
+                result[i] = result[stack[-1]] + (i-stack[-1]) * arr[i]
+            else:
+                result[i] = (i+1) * arr[i]
+            stack.append(i)
+        return sum(result) % (10**9+7)
+
+# 作者：haodong-du
+# 链接：https://leetcode.cn/problems/sum-of-total-strength-of-wizards/solution/li-yong-dan-diao-zhan-de-onjie-fa-by-hao-a9i4/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+#### 496. 下一个更大元素 I
+
+```python
+
+class Solution(object):
+    def nextGreaterElement(self, nums1, nums2):
+        """496. 下一个更大元素 I
+        :type nums1: List[int]
+        :type nums2: List[int]
+        :rtype: List[int]
+
+输入：nums1 = [4,1,2], nums2 = [1,3,4,2].
+输出：[-1,3,-1]
+解释：nums1 中每个值的下一个更大元素如下所述：
+- 4 ，用加粗斜体标识，nums2 = [1,3,4,2]。不存在下一个更大元素，所以答案是 -1 。
+- 1 ，用加粗斜体标识，nums2 = [1,3,4,2]。下一个更大元素是 3 。
+- 2 ，用加粗斜体标识，nums2 = [1,3,4,2]。不存在下一个更大元素，所以答案是 -1 
+
+来源：力扣（LeetCode）
+链接：https://leetcode.cn/problems/next-greater-element-i
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+
+        解法：倒着单调栈+逆序+递减栈
+        """
+
+
+        cache = []
+        next_bigger_num = dict()
+
+
+        for i in range(len(nums2)-1, -1, -1):
+            while cache and cache[-1] < nums2[i]:
+                cache.pop()
+            if cache:
+                next_bigger_num[nums2[i]] = cache[-1]
+            cache.append(nums2[i])
+
+        res = []
+        for num in nums1:
+            if num in next_bigger_num:
+                res.append(next_bigger_num[num])
+            else:
+                res.append(-1)
+        return res
+
+```
+
+
+#### 503. 下一个更大元素 II
+
+```python
+class Solution(object):
+    def nextGreaterElements(self, nums):
+        """503. 下一个更大元素 II
+        :type nums: List[int]
+        :rtype: List[int]
+
+输入: nums = [1,2,1]
+输出: [2,-1,2]
+解释: 第一个 1 的下一个更大的数是 2；
+数字 2 找不到下一个更大的数； 
+第二个 1 的下一个最大的数需要循环搜索，结果也是 2。
+
+来源：力扣（LeetCode）
+链接：https://leetcode.cn/problems/next-greater-element-ii
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+
+        题解：拼起来使用单调栈
+        """
+
+        stack = []
+        n = len(nums)
+        res = [-1] * n
+        for i in range(2*n-1, -1, -1):
+            index = i % n
+            while stack and stack[-1] <= nums[index]:
+                stack.pop()
+            if stack and i <= n - 1:
+                res[i] = stack[-1]
+            stack.append(nums[index])
+        return res
+
+                
+
+```
+
+
+
+#### 1856. 子数组最小乘积的最大值
+
+
+```python
+class Solution:
+    def maxSumMinProduct(self, nums: List[int]) -> int:
+
+        """
+
+输入：nums = [1,2,3,2]
+输出：14
+解释：最小乘积的最大值由子数组 [2,3,2] （最小值是 2）得到。
+2 * (2+3+2) = 2 * 7 = 14 。
+
+来源：力扣（LeetCode）
+链接：https://leetcode.cn/problems/maximum-subarray-min-product
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+
+        题解：单调栈
+        """
+        # 左右添加两个哨兵，方便单调栈内的判断
+        nums = [0] + nums + [0]
+        # 前缀和
+        presum = [0]
+        for n in nums:
+            presum.append(presum[-1] + n)
+        
+        # 右边第一个比它小的元素下标
+        right_first_smaller = [None] * len(nums)
+        stack = []
+        for i in range(len(nums)):
+            # 如果当前元素比栈顶元素小，弹栈
+            while stack and nums[i] < nums[stack[-1]]:
+                right_first_smaller[stack.pop()] = i
+            stack.append(i)
+
+        # 左边第一个比它小的元素下标
+        left_first_smaller = [None] * len(nums)
+        stack = []
+        for i in range(len(nums)-1,-1,-1):
+            # 如果当前元素比栈顶元素小，弹栈
+            while stack and nums[i] < nums[stack[-1]]:
+                left_first_smaller[stack.pop()] = i
+            stack.append(i)
+
+        print('left_first_smaller:', left_first_smaller)
+        print('right_first_smaller:', right_first_smaller)
+
+        # 打擂台得到答案
+        res = 0
+        for i in range(1,len(nums)-1):
+            left = left_first_smaller[i]
+            right = right_first_smaller[i]
+            res = max(res, nums[i] * (presum[right] - presum[left+1])) # 因为统计的最大值，所以拿到这两个边界就行了
+        return res % (10 ** 9 + 7)
+
+# 作者：musiala
+# 链接：https://leetcode.cn/problems/maximum-subarray-min-product/solution/python-qian-zhui-he-dan-diao-zhan-qing-x-gow8/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+```
