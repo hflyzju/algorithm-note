@@ -173,3 +173,48 @@ class Solution(object):
         return -1
 
 ```
+
+#### 675. 为高尔夫比赛砍树
+
+```python
+class Solution:
+    def cutOffTree(self, forest: List[List[int]]) -> int:
+        """675. 为高尔夫比赛砍树
+输入：forest = [[1,2,3],[0,0,4],[7,6,5]]
+输出：6
+解释：沿着上面的路径，你可以用 6 步，按从最矮到最高的顺序砍掉这些树。
+        
+        题目：你将从 (0, 0) 点开始工作，你只能从小到大来砍树，返回你砍完所有树需要走的最小步数。 如果你无法砍完所有的树，返回 -1 。
+        题解：1. 先排序。 2.然后再进行bfs搜索两点之间最短距离
+        """
+        def bfs(sx: int, sy: int, tx: int, ty: int) -> int:
+            """bfs搜索两点之间最短距离"""
+            m, n = len(forest), len(forest[0])
+            q = deque([(0, sx, sy)])
+            vis = {(sx, sy)}
+            while q:
+                d, x, y = q.popleft()
+                if x == tx and y == ty:
+                    return d
+                for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+                    if 0 <= nx < m and 0 <= ny < n and forest[nx][ny] and (nx, ny) not in vis:
+                        vis.add((nx, ny))
+                        q.append((d + 1, nx, ny))
+            return -1
+
+        trees = sorted((h, i, j) for i, row in enumerate(forest) for j, h in enumerate(row) if h > 1)
+        ans = preI = preJ = 0
+        for _, i, j in trees:
+            d = bfs(preI, preJ, i, j)
+            if d < 0:
+                return -1
+            ans += d
+            preI, preJ = i, j
+        return ans
+
+# 作者：LeetCode-Solution
+# 链接：https://leetcode.cn/problems/cut-off-trees-for-golf-event/solution/wei-gao-er-fu-bi-sai-kan-shu-by-leetcode-rlrc/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+```

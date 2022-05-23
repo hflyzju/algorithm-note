@@ -454,3 +454,85 @@ class Solution:
 # 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 
 ```
+
+
+
+
+#### 2281. 巫师的总力量和
+
+
+```python
+class Solution:
+    def totalStrength(self, n: List[int]) -> int:
+        """2281. 巫师的总力量和
+输入：strength = [5,4,6]
+输出：213
+解释：以下是所有连续巫师组：
+- [5,4,6] 中 [5] ，总力量值为 min([5]) * sum([5]) = 5 * 5 = 25
+- [5,4,6] 中 [4] ，总力量值为 min([4]) * sum([4]) = 4 * 4 = 16
+- [5,4,6] 中 [6] ，总力量值为 min([6]) * sum([6]) = 6 * 6 = 36
+- [5,4,6] 中 [5,4] ，总力量值为 min([5,4]) * sum([5,4]) = 4 * 9 = 36
+- [5,4,6] 中 [4,6] ，总力量值为 min([4,6]) * sum([4,6]) = 4 * 10 = 40
+- [5,4,6] 中 [5,4,6] ，总力量值为 min([5,4,6]) * sum([5,4,6]) = 4 * 15 = 60
+所有力量值之和为 25 + 16 + 36 + 36 + 40 + 60 = 213 。
+。
+        题解：https://mp.weixin.qq.com/s?__biz=MzI2NzQ3OTQ1Mw==&mid=2247485030&idx=1&sn=b648c8a3c8a9b8fce625765fb345d233&chksm=eaff7694dd88ff825dd71a9b740dcba6711f192220c718361382b70534718b0d98936b5514c4&token=1764672036&lang=zh_CN#rd
+        """
+        MOD = 10 ** 9 + 7
+        # L，R是左右边界数组
+        R = [len(n)] * len(n)
+        L = [0] * len(n)
+        # 单调栈求得左右边界
+        monostack = []
+        for i in range(len(n)):
+            v = n[i]
+            while monostack and monostack[-1][1] > v:
+                R[monostack[-1][0]] = i
+                monostack.pop()
+            monostack.append((i, v))
+
+        monostack = []
+        for i in range(len(n) - 1, -1, -1):
+            v = n[i]
+            while monostack and monostack[-1][1] >= v:
+                L[monostack[-1][0]] = i + 1
+                monostack.pop()
+            monostack.append((i, v))
+
+        # 求前缀和数组，和左右两个三角形前缀和数组
+        prefix = [0]
+        for v in n:
+            prefix.append((prefix[-1] + v) % MOD)
+        l_triangle = [0]
+        for i, v in enumerate(n):
+            l_triangle.append((l_triangle[-1] + v * (i + 1)) % MOD)
+        r_triangle = [0]
+        for i, v in enumerate(n):
+            r_triangle.append((r_triangle[-1] + v * (len(n) - i)) % MOD)
+
+        def prefix_sum(l, r):
+            return prefix[r] - prefix[l]
+
+        def l_triangle_sum(l, r):
+            return l_triangle[r] - l_triangle[l]
+
+        def r_triangle_sum(l, r):
+            return r_triangle[r] - r_triangle[l]
+
+        res = 0
+        for i in range(len(n)):
+            r = R[i]
+            l = L[i]
+            # 求左右三角形的面积
+            l_sum = l_triangle_sum(0, len(n)) - l_triangle_sum(0, l) - \
+                    l_triangle_sum(i + 1, len(n)) - prefix_sum(l, i + 1) * l
+            r_sum = r_triangle_sum(0, len(n)) - r_triangle_sum(0, i) - \
+                    r_triangle_sum(r, len(n)) - prefix_sum(i, r) * (len(n) - r)
+            # 左面积*右行数+右面积*左行数-中间数*左行数*右行数
+            l_r_sum = l_sum * (r - i) + r_sum * (i - l + 1) - (r - i) * (i - l + 1) * n[i]
+            # 根据题目要求再乘以中间数
+            res += l_r_sum * n[i]
+            res %= MOD
+        return res
+
+```
