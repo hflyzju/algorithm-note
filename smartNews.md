@@ -137,6 +137,65 @@ class Solution(object):
 ```
 
 
+#### 235 Lowest Common Ancestor of a Binary Tree  - 递归搜索+栈模拟路径
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        """236. 二叉树的最近公共祖先
+输入：root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
+输出：3
+解释：节点 5 和节点 1 的最近公共祖先是节点 3 。
+
+来源：力扣（LeetCode）
+链接：https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+        题解：找到两个节点的所有路径，用栈模拟经过的路径。
+        """
+        stack = []
+        p_path = []
+        q_path = []
+        def dfs(node):
+            nonlocal p_path # python3中才有
+            nonlocal q_path
+            if node is None:
+                return
+            stack.append(node) # 先序遍历，第一次加入
+            # print('node:', node.val)
+            # print('stack:', stack)
+            if node.val == p.val:
+                # print('find p,stack:', stack)
+                p_path = stack.copy()
+            if node.val == q.val:
+                q_path = stack.copy()
+            if q_path and p_path:
+                return
+            dfs(node.left)
+            dfs(node.right)
+            stack.pop() # 先序遍历，遍历完了弹出
+        dfs(root)
+        # print('p_path:', p_path)
+        # print('q_path:', q_path)
+        cur = 0
+        lowestRoot = None
+        while cur < len(p_path) and cur < len(q_path):
+            if p_path[cur].val == q_path[cur].val:
+                lowestRoot = p_path[cur]
+            cur += 1
+        return lowestRoot
+
+
+
+```
+
+
 #### 236. Lowest Common Ancestor of a Binary Tree - 递归方法
 
 ```python

@@ -1116,3 +1116,50 @@ class Solution(object):
         return n
 
 ```
+
+
+#### 189. 轮转数组
+
+```python
+class Solution:
+    def rotate(self, arr: List[int], m: int) -> None:
+        """189. 轮转数组
+        Do not return anything, modify nums in-place instead.
+
+输入: nums = [1,2,3,4,5,6,7], k = 3
+输出: [5,6,7,1,2,3,4]
+解释:
+向右轮转 1 步: [7,1,2,3,4,5,6]
+向右轮转 2 步: [6,7,1,2,3,4,5]
+向右轮转 3 步: [5,6,7,1,2,3,4]
+
+来源：力扣（LeetCode）
+链接：https://leetcode.cn/problems/rotate-array
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+        题解：1. 模拟移动
+             2. 三次翻转
+        """
+        """将arr往顺时针移动m步"""
+        n = len(arr)
+        # 1. 减少重复移动
+        if m > n:
+            m = m % n
+        # 2. 开始移动
+        start = -1
+        step = 0
+        while step < n:
+            cur_index = start + 1
+            cur_val = arr[cur_index]
+            while step < n:
+                next_index = (cur_index + m) % n
+                next_val = arr[next_index]
+                arr[next_index] = cur_val
+                cur_index = next_index
+                cur_val = next_val
+                step += 1
+                if cur_index == start + 1:
+                    break
+            start += 1
+
+
+```

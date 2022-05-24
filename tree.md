@@ -1,3 +1,83 @@
+#### 11111 非递归总结
+```c++
+        // 栈 先进后出
+        // 前序遍历，出栈顺序：根左右; 入栈顺序：右左根
+        // 中序遍历，出栈顺序：左根右; 入栈顺序：右根左
+        // 后序遍历，出栈顺序：左右根; 入栈顺序：根右左
+
+```
+
+#### 144. 二叉树的前序遍历 - 前序遍历（中左右）非递归
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def preorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+        """144. 二叉树的前序遍历
+输入：root = [1,null,2,3]
+输出：[1,2,3]
+        题解：栈模拟，先右入栈，出来的时候左就会优先出来
+        """
+        if root is None:
+            return []
+        # 中左右
+        stack = []
+        res = []
+        stack.append(root)
+        while stack:
+            # [right, left] 1
+            # 栈里面先放右子树，然后放左子树
+            cur = stack.pop()
+            res.append(cur.val)
+            if cur.right:
+                stack.append(cur.right)
+            if cur.left:
+                stack.append(cur.left)
+        return res
+
+```
+
+
+#### 94. 二叉树的中序遍历
+
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def inorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+        """左中右
+        // 栈 先进后出
+        // 前序遍历，出栈顺序：根左右; 入栈顺序：右左根
+        // 中序遍历，出栈顺序：左根右; 入栈顺序：右根左
+        // 后序遍历，出栈顺序：左右根; 入栈顺序：根右左
+        """
+        if root is None:
+            return []
+        stack = []
+        res = []
+        cur = root
+        while cur or stack:
+            while cur is not None:
+                stack.append(cur)
+                cur = cur.left
+            cur = stack.pop()
+            res.append(cur.val)
+            cur = cur.right
+        return res
+
+```
+
+
 #### 94 中序遍历非递归
 
 ```python
