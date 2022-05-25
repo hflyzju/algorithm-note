@@ -402,3 +402,82 @@ class Solution(object):
 
 
 ```
+
+
+#### 1335. 工作计划的最低难度
+
+
+```python
+class Solution:
+    def minDifficulty(self, J: List[int], d: int) -> int:
+        n = len(J)
+        if n < d: 
+            return -1
+        seg=[[0]*n for _ in range(n)]
+        for i in range(n):
+            mx=J[i]
+            for j in range(i,n):
+                mx=max(mx,J[j])
+                seg[i][j]=mx
+        @cache
+        def dp(i,j,k):
+            if k == 1:
+                return seg[i][j]
+            ans = float("inf")
+            # j-k+1, j -> k -> 至少k个数
+            for p in range(i,j-k+2):
+                ans=min(ans,seg[i][p]+dp(p+1,j,k-1))
+            return ans
+        return dp(0,n-1,d)
+
+# 作者：ak-bot
+# 链接：https://leetcode.cn/problems/minimum-difficulty-of-a-job-schedule/solution/mei-tian-yi-dao-kun-nan-ti-di-48tian-gon-j0ys/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+# class Solution:
+#     def minDifficulty(self, jobDifficulty: List[int], d: int) -> int:
+#         """
+
+
+#         [11,    111,    22,       222,    33,     333,44,444]
+
+#         11 + 111 + 22 + 222 + 33 + 444
+#         399+444
+#         843
+
+
+
+#         7,1,     7,7,1,7,      1
+
+#         """
+
+#         n = len(jobDifficulty)
+#         if 
+#         dp = [[[float('inf')] * (d + 1) for j in range(n)] for i in range(n)]
+
+#         for i in range(n):
+#             dp[i][i][1] = jobDifficulty[i]
+#             for j in range(i+1, n):
+#                 dp[i][j][1] = max(dp[i][j-1][1], jobDifficulty[j])
+
+#         # for dpi in dp:
+#         #     print('='*10)
+#         #     print(dpi)
+        
+#         for i in range(n):
+#             for j in range(i+1, n):
+#                 for k in range(2, d+1):
+#                     # [i, sep], [sep+1,j]
+#                     for sep in range(i, j):
+#                         dp[i][j][k] = min(dp[i][j][k], dp[i][sep][1] + dp[sep+1][j][k-1])
+
+#         for dpi in dp:
+#             print('='*10)
+#             print(dpi)
+
+#         return dp[0][n-1][d]
+
+
+
+```
