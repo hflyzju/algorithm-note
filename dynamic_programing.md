@@ -832,3 +832,43 @@ class Solution(object):
         return total_cnt
 
 ```
+
+
+#### 467. 环绕字符串中唯一的子字符串
+
+```python
+class Solution:
+    def findSubstringInWraproundString(self, p: str) -> int:
+        """467. 环绕字符串中唯一的子字符串
+        题目：
+        1. s已知，是一个【abcdefghijklmnopqrstuvwxyz】【abcdefghijklmnopqrstuvwxyz】循环字符串，然后给一个p，问s中唯一的p的非空子串的数量
+        2. 还要去重
+
+输入: p = "a"
+输出: 1
+解释: 字符串 s 中只有一个"a"子字符。
+
+
+        题解：
+            1. 已知前一个字符结尾的子串的个数为acc，如果和当前连续，那么以当前字符结尾的个数就是acc+1
+            2. 去重的话，累计和取字符最大的个数就行。
+        """
+        n = len(p)
+        acc = 1
+        char_to_max_acc = defaultdict(int)
+        char_to_max_acc[p[0]] = 1
+        for i in range(1, n):
+            # b - a        vs   z a
+            if (ord(p[i]) - ord(p[i-1]) == 1 ) or (p[i] == 'a' and p[i-1] == 'z'):
+                acc += 1
+            else:
+                acc = 1
+            char_to_max_acc[p[i]] = max(char_to_max_acc[p[i]], acc)
+        # print('char_to_max_acc:', char_to_max_acc)
+        # 去重，对于每个不同的p[i]，需要取一个最大值
+        res = 0
+        for k, v in char_to_max_acc.items():
+            res += v
+        return res
+
+```
