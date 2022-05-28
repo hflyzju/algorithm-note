@@ -481,3 +481,80 @@ class Solution:
 
 
 ```
+
+
+####  1335. 工作计划的最低难度-迭代dp
+
+```python
+
+class Solution:
+    def minDifficulty(self, jobDifficulty: List[int], d: int) -> int:
+
+        """
+        题目：对项目分成k组（每组项目必须连续，至少为1个），每组项目的难度取其最大值，问最终的难度和。
+        题解：
+        方法1-超时：求i-j之间分成1-d组的难度和，最终返回dp[0][n-1][d], 时间复杂度n*n*n*k
+            dp[i][j][k] = min(dp[i][sep][1], dp[sep+1][j][k-1])
+        方法2：好像可以利用dp[j][k-1]直接计算dp[i][k], dp[i][k]代表前i个分成k组的最小难度和。
+            dp[i][k] = min(dp[j][k-1] + max(jobDifficulty[j:i]))
+        """
+
+        # 方法2：N*N*k
+        n = len(jobDifficulty)
+        if n < d:
+            return -1
+
+        # 1. 预计算，后续需要直接拿到从j到末尾的最大值
+        max_val_between = [[float('inf')] * n for _ in range(n)]
+        for i in range(n):
+            for j in range(i, n):
+                if i == j:
+                    max_val_between[i][j] = jobDifficulty[i]
+                else:
+                    max_val_between[i][j] = max(max_val_between[i][j-1], jobDifficulty[j])
+        # 2. dp[i][k]:代表前i个数，分成k组的最大值和，可以由dp[j][k-1]推导而来
+        dp = [[float('inf')] * (d + 1) for _ in range(n)] 
+        dp[0][1] = jobDifficulty[0]
+        for k in range(1, d + 1):
+            for i in range(1, n):
+                if k == 1:
+                    dp[i][k] = max(dp[i-1][k], jobDifficulty[i])
+                else:
+                    # i=1, k=2, j=(0,1)
+                    for j in range(k-2, i):# 确保0-j至少有k-1个数，才能进行分组
+                        dp[i][k] = min(dp[i][k], dp[j][k-1] + max_val_between[j+1][i])
+        return dp[n-1][d]
+
+
+        # 方法1：超时
+        # n = len(jobDifficulty)
+        # if n < d:
+        #     return -1
+        # dp = [[[float('inf')] * (d + 1) for _ in range(n)] for __ in range(n)]
+
+
+        # for i in range(n):
+        #     for j in range(i, n):
+        #         if i == j:
+        #             dp[i][j][1] = jobDifficulty[i]
+        #         else:
+        #             dp[i][j][1] = max(dp[i][j - 1][1], jobDifficulty[j])
+        # for k in range(2, d + 1):
+        #     for i in range(n):
+        #         for j in range(i, n):
+        #             # print("=" * 20)
+        #             # print('i:',i,'j:',j,'k:',k)
+        #             for sep in range(i, j):
+        #                 # j - j-1
+        #                 if j - (sep + 1) + 1 < k - 1:
+        #                     continue
+        #                 # print('i:', i, 'j:', j, 'k:', k, 'sep:', sep, [i, sep], [sep + 1, j])
+        #                 # j-3, j-2, j-1,j
+        #                 # print('dp[i][sep][1]:', dp[i][sep][1])
+        #                 # print("dp[sep + 1][j][k - 1]:", dp[sep + 1][j][k - 1])
+        #                 dp[i][j][k] = min(dp[i][j][k], dp[i][sep][1] + dp[sep + 1][j][k - 1])
+        #             # print('dp[i][j][k] :', dp[i][j][k])
+
+        # return dp[0][n - 1][d]
+
+```
