@@ -536,3 +536,53 @@ class Solution:
         return res
 
 ```
+
+
+#### 6080. 使数组按非递减顺序排列
+
+```python
+class Solution(object):
+    
+    
+    def totalSteps(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+给你一个下标从 0 开始的整数数组 nums 。在一步操作中，移除所有满足 nums[i - 1] > nums[i] 的 nums[i] ，其中 0 < i < nums.length 。
+重复执行步骤，直到 nums 变为 非递减 数组，返回所需执行的操作数。
+
+输入：nums = [5,3,4,4,7,3,6,11,8,5,11]
+输出：3
+解释：执行下述几个步骤：
+- 步骤 1 ：[5,3,4,4,7,3,6,11,8,5,11] 变为 [5,4,4,7,6,11,11]
+- 步骤 2 ：[5,4,4,7,6,11,11] 变为 [5,4,7,11,11]
+- 步骤 3 ：[5,4,7,11,11] 变为 [5,7,11,11]
+[5,7,11,11] 是一个非递减数组，因此，返回 3 。
+        """
+        # 5,14,15,2,11,5,13,15
+        n = len(nums)
+        dp = [0] * n # 要把位置在i的数字pop出去，需要多少个操作, inf代表不用pop出去
+        cache = [0] # 存的是index，存的是递减栈
+        dp[0] = float('inf') # 第0个位置，不用pop出去
+        r = 1
+        max_op = 0
+        while r < n:
+            pre_max_op = 0
+            while r < n and cache and nums[r] >= nums[cache[-1]]: # 如果当前的数字大于cache末尾的数字，代表要pop当前位置，需要先把cache末尾的数字pop出去，那么当前位置的op数，为前面的最大值+1 
+                pre_index = cache.pop()
+                # 记录前面最大值
+                pre_max_op = max(pre_max_op, dp[pre_index])
+            # print('r:', r, 'nums[r]:', nums[r], 'cache:', cache)
+            if not cache:
+                # 代表前面没有比当前大的数字，那么当前位置不用pop出去
+                dp[r] = float('inf')
+            else:
+                # 把前面的比他小的数字都pop出去后，如果前面还有比他大的数字，那么当前的位置pop所需要的操作数需要在之前的最大值的基础上再加1
+                dp[r] = pre_max_op + 1
+                max_op = max(dp[r], max_op)
+            cache.append(r)
+            r += 1
+        # print(dp)
+        return max_op
+
+```

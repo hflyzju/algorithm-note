@@ -134,3 +134,113 @@ class Solution(object):
 
 
 ```
+
+
+
+
+#### 6081. 到达角落需要移除障碍物的最小数目
+
+```python
+from heapq import heappop, heappush
+
+
+def dijkstra(graph, start):
+    """ 
+        Uses Dijkstra's algortihm to find the shortest path from node start
+        to all other nodes in a directed weighted graph.
+    """
+    n = len(graph)
+    dist, parents = [float("inf")] * n, [-1] * n
+    dist[start] = 0
+    queue = [(0, start)]
+    while queue:
+        cur_dis, cur_index = heappop(queue)
+        if cur_dis == dist[cur_index]:
+            for w, edge_len in graph[cur_index]:
+                if edge_len + cur_dis < dist[w]:
+                    dist[w], parents[w] = edge_len + cur_dis, cur_index
+                    heappush(queue, (edge_len + cur_dis, w))
+    return dist, parents
+
+
+
+class Solution:
+    def minimumObstacles(self, grid: List[List[int]]) -> int:
+        """
+给你一个下标从 0 开始的二维整数数组 grid ，数组大小为 m x n 。每个单元格都是两个值之一：
+
+0 表示一个 空 单元格，
+1 表示一个可以移除的 障碍物 。
+你可以向上、下、左、右移动，从一个空单元格移动到另一个空单元格。
+
+现在你需要从左上角 (0, 0) 移动到右下角 (m - 1, n - 1) ，返回需要移除的障碍物的 最小 数目。
+        
+输入：grid = [[0,1,1],[1,1,0],[1,1,0]]
+输出：2
+解释：可以移除位于 (0, 1) 和 (0, 2) 的障碍物来创建从 (0, 0) 到 (2, 2) 的路径。
+可以证明我们至少需要移除两个障碍物，所以返回 2 。
+注意，可能存在其他方式来移除 2 个障碍物，创建出可行的路径。
+        
+        """
+        
+        m = len(grid)
+        n = len(grid[0])
+        adj = defaultdict(list)
+         
+        # 相当于拿到每个点，转移到下一个位置需要的损耗
+        # adj[i]:相当于当前位置已经走到了，走到下一个邻居，需要消耗的能量，这里的能量就是下一个位置的grid[i][j]值
+        for i in range(m):
+            for j in range(n):
+                if i > 0:
+                    adj[(i-1)*n+j].append([i*n+j, grid[i][j]])
+                if j > 0:
+                    adj[i*n+j-1].append([i*n+j, grid[i][j]])
+                if i < m - 1:
+                    adj[(i+1)*n+j].append([i*n+j, grid[i][j]])
+                if j < n - 1:
+                    adj[i*n+j+1].append([i*n+j, grid[i][j]])
+        # for k in range(m*n):
+        #     print('='*10)
+        #     v = adj[k]
+        #     print('k:', k)
+        #     print('v:',v)
+        """
+grid:
+[[0,1,1],
+ [1,1,0],
+ [1,1,0]]
+==========
+k: 0
+v: [[1, 1], [3, 1]]
+==========
+k: 1
+v: [[0, 0], [2, 1], [4, 1]]
+==========
+k: 2
+v: [[1, 1], [5, 0]]
+==========
+k: 3
+v: [[0, 0], [4, 1], [6, 1]]
+==========
+k: 4
+v: [[1, 1], [3, 1], [5, 0], [7, 1]]
+==========
+k: 5
+v: [[2, 1], [4, 1], [8, 0]]
+==========
+k: 6
+v: [[3, 1], [7, 1]]
+==========
+k: 7
+v: [[4, 1], [6, 1], [8, 0]]
+==========
+k: 8
+v: [[5, 0], [7, 1]]
+
+        
+        """
+        dist, par = dijkstra(adj, 0)
+        return dist[m*n-1]
+                    
+
+```
