@@ -73,3 +73,60 @@ class Solution(object):
 
 
 ```
+
+#### 37. 解数独
+
+```python
+class Solution:
+    def solveSudoku(self, board: List[List[str]]) -> None:
+        """
+        Do not return anything, modify board in-place instead.
+        """
+        m, n = len(board), len(board[0])
+        row_visited = [[False] * m for _ in range(m)]
+        column_visited = [[False] * m for _ in range(m)]
+        box_visited = [[False] * m for _ in range(m)]
+        for i in range(m):
+            for j in range(n):
+                if board[i][j] != '.':
+                    key = int(board[i][j]) - 1
+                    row_visited[i][key] = True
+                    column_visited[j][key] = True
+                    box_visited[i//3*3 + j//3][key] = True
+
+        def valid(i, j, num):
+            key = int(num) - 1
+            if row_visited[i][key] == True:
+                return False
+            if column_visited[j][key] == True:
+                return False
+            if box_visited[i//3*3 + j//3][key] == True:
+                return False
+            return True
+
+        def backtrack(board, i, j):
+            if j == n:
+                return backtrack(board, i + 1, 0)
+            if i == m:
+                return True
+            if board[i][j] == '.':
+                for num in range(1, 10):
+                    if valid(i, j, num):
+                        board[i][j] = str(num)
+                        row_visited[i][num-1] = True
+                        column_visited[j][num-1] = True
+                        box_visited[i//3*3 + j//3][num-1] = True
+                        if backtrack(board, i, j + 1):
+                            return True
+                        row_visited[i][num-1] = False
+                        column_visited[j][num-1] = False
+                        box_visited[i//3*3 + j//3][num-1] = False
+                        board[i][j] = '.'
+            else:
+                return backtrack(board, i, j + 1)
+            return False
+            
+        return backtrack(board, 0, 0)
+
+
+```
