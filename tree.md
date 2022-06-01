@@ -1190,6 +1190,44 @@ class Solution:
 ```
 
 
+- 方法2
+
+```python
+class Solution:
+    def longestPath(self, parent: List[int], s: str) -> int:
+        n = len(parent)
+        if n == 1:
+            return 1
+        g = [[] for _ in range(n)]
+        for i in range(1, n):
+            g[parent[i]].append(i)
+        
+        self.ans = 0
+        def dfs(x: int) -> int:
+            """记录的是节点的最大深度"""
+            child_results = []
+            for child in g[x]:
+                # 当前的最大深度为y孩子的最大深度+1
+                child_depth = dfs(child)
+                if s[x] != s[child]:
+                    child_results.append(child_depth)
+                else:
+                    child_results.append(0)
+            # print('x:', x, 'child_results:', child_results)
+            if not child_results:
+                return 1
+            child_results.sort()
+            if len(child_results) == 1:
+                self.ans = max(self.ans, child_results[0] + 1)
+            else:
+                self.ans = max(self.ans, child_results[-1] + child_results[-2] + 1)
+            return child_results[-1] + 1
+        dfs(0)
+        return self.ans
+
+```
+
+
 #### 面试题 04.06. 后继者
 
 

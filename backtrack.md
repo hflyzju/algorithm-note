@@ -130,3 +130,90 @@ class Solution:
 
 
 ```
+
+
+#### 473 火柴能否组合成正方形
+
+```python
+class Solution(object):
+    def makesquare(self, matchsticks):
+        """
+        :type matchsticks: List[int]
+        :rtype: bool
+        """
+        """
+输入: matchsticks = [1,1,2,2,2]
+输出: true
+解释: 能拼成一个边长为2的正方形，每边两根火柴。
+        """
+        # 方法2：时间复杂度2**n
+        s = sum(matchsticks)
+        if s % 4 != 0:
+            return False
+        mean = s // 4
+        for num in matchsticks:
+            if num > mean:
+                return False
+        # matchsticks.sort()
+        print(matchsticks)
+        print('s:', s, 'mean:', mean)
+        cache = dict()
+
+        def get_mark_des(mark):
+            dp = [0] * len(matchsticks)
+            for i in range(len(matchsticks)):
+                if (1 << i) & mark != 0:
+                    dp[i] = 1
+            return dp
+
+        def search(start, mark, cur_sum, cnt):
+            # if cnt > 2:
+            print(get_mark_des(mark))
+            print('mark, cur_sum, cnt:', mark, cur_sum, cnt)
+            if (cnt == 4) :
+                return True
+            if mark in cache:
+                return cache[mark]
+            if cur_sum <= mean:
+                for i in range(start, len(matchsticks)):
+                    if mark & (1 << i) == 0:
+                        if cur_sum + matchsticks[i] == mean:
+                            # start=0, mark, cur_sum, cnt=cnt+1
+                            # 这里start=0，代表装完一个桶了，下次从前遍历装第二个桶
+                            if search(0, mark | (1 << i), 0, cnt + 1):
+                                return True
+                        elif cur_sum + matchsticks[i] < mean:
+                            # 这里代表当前桶没装满，后续从后面看，是否要把后面的数字装到当前桶，start=start+1
+                            # 避免重复来检查
+                            if search(i + 1, mark | (1 << i), cur_sum + matchsticks[i], cnt):
+                                return True
+            cache[(mark, cur_sum)] = False
+            return False
+        return search(0, 0, 0, 0)
+        
+        # 方法一：复杂度4**n
+        # totalLen = sum(matchsticks)
+        # if totalLen % 4:
+        #     return False
+        # matchsticks.sort(reverse=True)
+
+        # edges = [0] * 4
+        # def dfs(idx):
+        #     if idx == len(matchsticks):
+        #         return True
+        #     for i in range(4):
+        #         edges[i] += matchsticks[idx]
+        #         if edges[i] <= totalLen // 4 and dfs(idx + 1):
+        #             return True
+        #         edges[i] -= matchsticks[idx]
+        #     return False
+        # return dfs(0)
+
+
+
+s = Solution()
+print(s.makesquare([5,5,5,5,4,4,4,4,3,3,3,3]))
+# print(s.makesquare([5,4,3,5,4,3,5,4,3,5,4,3]))
+
+
+```
