@@ -545,6 +545,174 @@ class Solution(object):
 #         return -1
 ```
 
+#### 48. 旋转图像
+
+```python
+
+class Solution(object):
+    def rotate(self, matrix):
+        """旋转图像
+        :type matrix: List[List[int]]
+        :rtype: None Do not return anything, modify matrix in-place instead.
+
+        Example:
+            # Input: matrix = [[1,2,3],
+                               [4,5,6],
+                               [7,8,9]]
+            # Output:         [[7,4,1],
+                               [8,5,2],
+                               [9,6,3]]
+
+        题解：
+            1. 对于左上1/4的区域内的点，与其他3个1/4区域的对应的点，共4个点做一次旋转即可。
+            2. n为偶数，旋转左上四分之一，n为奇数，旋转x:[0, n/2], y:[0, n/2+1]的区域就行
+        """
+        m, n = len(matrix), len(matrix[0])
+        for i in range(m / 2):
+            for j in range((n + 1) / 2):
+                tmp = matrix[i][j]
+                # i=0, j = 1 from i = 2, j = 0
+                matrix[i][j] = matrix[n-j-1][i]
+                # i = 2, j = 0 from i = 3, j = 2
+                matrix[n-j-1][i] = matrix[n-i-1][n-j-1]
+                # i = 3, j = 2 from i = 1, j = 3
+                matrix[n-i-1][n-j-1] = matrix[j][n-i-1]
+                matrix[j][n-i-1] = tmp
+
+        # n = len(matrix)
+        # # 一次换四个点
+        # # 总共只要换1/4的区域就行了,这1/4的区域按下面情况选出来就行
+        # for i in range(n//2):
+        #     for j in range(i, n - i - 1):
+        #         matrix[i][j],matrix[j][n-i-1],matrix[n-i-1][n-j-1],matrix[n-j-1][i] = \
+        #         matrix[n-j-1][i], matrix[i][j],matrix[j][n-i-1],matrix[n-i-1][n-j-1]
+        # #print(matrix)
+```
+
+
+#### 103. 二叉树的锯齿形层序遍历
+
+```python
+
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def zigzagLevelOrder(self, root):
+        """z字型层次遍历
+        :type root: TreeNode
+        :rtype: List[List[int]]
+        """
+        if not root:
+            return []
+
+        zflag = False
+        cur_cache = deque()
+        cur_cache.append(root)
+        rt = []
+        while cur_cache:
+            cur_res = []
+            next_cache = deque()
+            while cur_cache:
+                cur = cur_cache.popleft()
+                cur_res.append(cur.val)
+                if cur.left:
+                    next_cache.append(cur.left)
+                if cur.right:
+                    next_cache.append(cur.right)
+            cur_cache = next_cache
+            if not zflag:
+                rt.append(cur_res)
+            else:
+                rt.append(cur_res[::-1])
+            zflag = not zflag
+        return rt
+```
+
+
+#### 8 字符串转整数
+
+```python
+class Solution(object):
+    def myAtoi(self, s):
+        """
+        :type s: str
+        :rtype: int
+        """
+
+        MAX_VAL = ((1 << 31) - 1)
+        MIN_VAL = -2 ** 31
+        # print('MAX_VAL:', MAX_VAL)
+        # print('MIN_VAL:', MIN_VAL)
+        n = len(s)
+        if n == 0:
+            return 0
+        start = 0
+        while start < n and s[start] == ' ':
+            start += 1
+
+        # 1. 处理前面的符号
+        sign = 1
+        if start < n and s[start] == '-':
+            sign = -1
+            start += 1
+
+        # badcase：-+12 
+        if start < n and sign != -1 and s[start] == '+':
+            start += 1
+
+        # 2. 收集后面的数字
+        res = 0
+        while start < n:
+            if s[start].isdigit():
+                res = res * 10 + int(s[start]) * sign
+                # print('res:', res)
+                if res >= MAX_VAL:
+                    return MAX_VAL
+                if res <= MIN_VAL:
+                    return MIN_VAL
+            else:
+                break
+            start += 1
+
+        return res
+
+```
+
+#### 56. 合并区间
+
+```python
+class Solution(object):
+    def merge(self, intervals):
+        """
+        :type intervals: List[List[int]]
+        :rtype: List[List[int]]
+
+
+        [[1,5],[1,3],[1,2][2,6],[8,10],[15,18]]
+
+        """
+        intervals.sort(key=lambda x: [x[0], -x[1]])
+        # print(intervals)
+        result = []
+        for i in range(len(intervals)):
+            if not result:
+                result.append(intervals[i])
+            else:
+                pre_x, pre_y = result[-1]
+                cur_x, cur_y = intervals[i]
+                if cur_x > pre_y:
+                    result.append(intervals[i])
+                else:
+                    result[-1][1] = max(pre_y, cur_y)
+        return result
+
+```
+
+
 #### 15 三数之和
 
 ```python

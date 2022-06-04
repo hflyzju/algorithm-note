@@ -558,3 +558,139 @@ class Solution:
         # return dp[0][n - 1][d]
 
 ```
+
+
+#### 974. 和可被 K 整除的子数组
+
+
+```python
+
+
+class Solution(object):
+    def subarraysDivByK(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: int
+
+974. 和可被 K 整除的子数组
+输入：nums = [4,5,0,-2,-3,1], k = 5
+输出：7
+解释：
+有 7 个子数组满足其元素之和可被 k = 5 整除：
+[4, 5, 0, -2, -3, 1], [5], [5, 0], [5, 0, -2, -3], [0], [0, -2, -3], [-2, -3]
+
+        题解：
+        1. 对于前缀和，pre_sum[j] % k == pre_sum[i] % k, 那么sum[i -> j]可以整除k，线性同余法。
+        2. 统计方法1：对于每个pre_sum[j] % k, 可以与他前面pre_sum[i] % k相等的两两组合，拿到以j为结束位置的满足条件子数组的个数。
+        3. 统计方法2：直接统计每个pre_sum[i] % k的个数，2的组合的个数就是结果, 即cnt*(cnt-1)//2
+        """
+        mod_cnt = defaultdict(int)
+        cur_sum = 0
+        for num in nums:
+            cur_sum += num
+            mod_cnt[cur_sum % k] += 1
+        total_ways = 0
+        for mod, cnt in mod_cnt.items():
+            # print('mod:', mod, 'cnt:', cnt)
+            # 为0的时候，单个就算的
+            if mod == 0:
+                total_ways += cnt
+            if cnt >= 2:
+                total_ways += (cnt * (cnt - 1) // 2)
+        return total_ways
+```
+
+#### oa3轮 实习
+
+https://www.1point3acres.com/bbs/forum.php?mod=viewthread&tid=876329&highlight=smartnews
+##### oa1 palindrome改编
+
+``` python
+class Solution:
+    """给一个包含“？”字符串，判断是否可以通过将“？”变成'a'等字符来形成palindrome，若不能则return no，若能 return 回文字符串"""
+    # https://www.1point3acres.com/bbs/forum.php?mod=viewthread&tid=876329&highlight=smartnews
+    def can_convert_to_palindrome(self, s):
+
+
+        l, r = 0, len(s) - 1
+        while l < r:
+            if s[l] == '?' or s[r] == "?":
+                l += 1
+                r -= 1
+                continue
+            else:
+                if s[l] != s[r]:
+                    return False
+                l += 1
+                r -= 1
+
+        return True
+
+s1 = "ab?"
+s2 = "a?"
+s = Solution()
+print(s.can_convert_to_palindrome(s1))
+print(s.can_convert_to_palindrome(s2))
+
+```
+
+
+#### 面经 2019(7-9月) 码农类General 硕士 全职@SmartNews 
+
+
+https://www.1point3acres.com/bbs/forum.php?mod=viewthread&tid=560617&extra=&highlight=smartnews&page=1
+
+```python
+class Solution(object):
+    """
+
+题目：
+给你一个整数数组 nums ，设计算法来打乱一个没有重复元素的数组。打乱后，数组的所有排列应该是 等可能 的。
+
+输入
+["Solution", "shuffle", "reset", "shuffle"]
+[[[1, 2, 3]], [], [], []]
+输出
+[null, [3, 1, 2], [1, 2, 3], [1, 3, 2]]
+
+
+题解：
+思路. 要想办法把任意一个数放到任意位置的概率都是相同的。
+
+方法1：暴力解法，每次随机挑出一个数，然后删除该元素，然后又重复1-2步骤。
+方法2：对方法1的优化，对n个数，第一次随机挑一个元素放到index=0的位置，概率为1/n, 然后随机挑一个元素放到第二个位置[(n-1)/n] * [1/(n-1)]
+    """
+    def __init__(self, nums):
+        """
+        :type nums: List[int]
+        """
+
+        self.copy = nums[:]
+        self.nums = nums
+
+
+    def reset(self):
+        """
+        :rtype: List[int]
+        """
+        self.nums = self.copy[:]
+        return self.nums
+
+
+    def shuffle(self):
+        """
+        :rtype: List[int]
+        """
+
+        for i in range(len(self.nums)):
+            rand_index = random.randint(i, len(self.nums) - 1)
+            self.nums[i], self.nums[rand_index] = self.nums[rand_index], self.nums[i]
+        return self.nums
+
+# Your Solution object will be instantiated and called as such:
+# obj = Solution(nums)
+# param_1 = obj.reset()
+# param_2 = obj.shuffle()
+
+```
