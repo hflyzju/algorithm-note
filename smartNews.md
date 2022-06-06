@@ -559,6 +559,48 @@ class Solution:
 
 ```
 
+#### 1335. 这种写法也可以ac
+```python
+class Solution:
+    def minDifficulty(self, jobDifficulty: List[int], d: int) -> int:
+
+        """
+        题目：对项目分成k组（每组项目必须连续，至少为1个），每组项目的难度取其最大值，问最终的难度和。
+        题解：
+        方法1-超时：求i-j之间分成1-d组的难度和，最终返回dp[0][n-1][d], 时间复杂度n*n*n*k
+            dp[i][j][k] = min(dp[i][sep][1], dp[sep+1][j][k-1])
+        方法2：好像可以利用dp[j][k-1]直接计算dp[i][k], dp[i][k]代表前i个分成k组的最小难度和。
+            dp[i][k] = min(dp[j][k-1] + max(jobDifficulty[j:i]))
+        """
+
+        # 方法2：N*N*k
+        n = len(jobDifficulty)
+        if n < d:
+            return -1
+
+        # 1. 预计算，后续需要直接拿到从j到末尾的最大值
+        max_val_between = [[float('inf')] * n for _ in range(n)]
+        for i in range(n):
+            for j in range(i, n):
+                if i == j:
+                    max_val_between[i][j] = jobDifficulty[i]
+                else:
+                    max_val_between[i][j] = max(max_val_between[i][j-1], jobDifficulty[j])
+        # 2. dp[i][k]:代表前i个数，分成k组的最大值和，可以由dp[j][k-1]推导而来
+        dp = [[float('inf')] * (d + 1) for _ in range(n)] 
+        dp[0][1] = jobDifficulty[0]
+        for i in range(1, n):
+            for k in range(1, d + 1):
+                if k == 1:
+                    dp[i][k] = max(dp[i-1][k], jobDifficulty[i])
+                else:
+                    # i=1, k=2, j=(0,1)
+                    for j in range(k-2, i):# 确保0-j至少有k-1个数，才能进行分组
+                        dp[i][k] = min(dp[i][k], dp[j][k-1] + max_val_between[j+1][i])
+        return dp[n-1][d]
+
+```
+
 
 #### 974. 和可被 K 整除的子数组
 
@@ -754,6 +796,52 @@ https://leetcode.com/problems/valid-triangle-number/discuss/128135/A-similar-O(n
         return cnt
 ```
 
+
+#### 611 follow up, 找到不重复的三角形的结果
+
+```python
+class Solution:
+    def triangleNumber(self, nums: List[int]) -> int:
+
+
+        nums.sort()
+
+
+        n = len(nums)
+
+        total_ways = 0
+        results = []
+        for k3 in range(n-1, 1, -1):
+            # 跳过重复的k3
+            if k3 < n - 1 and nums[k3] == nums[k3+1]:
+                continue
+            k1, k2 = 0, k3 - 1
+            while k1 < k2:
+                if nums[k1] + nums[k2] > nums[k3]:
+                    # 跳过重复的k2
+                    if k2 < k3 - 1 and nums[k2] == nums[k2 + 1]:
+                        k2 -= 1
+                        continue
+                    total_ways += k2 - k1
+                    for k11 in range(k1, k2):
+                        # 跳过重复的k1
+                        if k11 > k1 and nums[k11] == nums[k11-1]:
+                            continue
+                        results.append([nums[k11], nums[k2], nums[k3]])
+                    k2 -= 1
+                else:
+                    k1 += 1
+        print('results:', results)
+        print('len(results):', len(results))
+        return total_ways
+
+nums: [2,2,2,2,2,3,3,3,3,3,4,4,4,4,4]
+results: [[2, 4, 4], [3, 4, 4], [4, 4, 4], [2, 3, 4], [3, 3, 4], [2, 3, 3], [3, 3, 3], [2, 2, 3], [2, 2, 2]]
+len(results): 9
+
+
+```
+
 #### 215 第k大
 
 ```python
@@ -902,5 +990,81 @@ Explanation: The subarray [4,3] has the minimal length under the problem constra
         if min_dis == float('inf'):
             return 0
         return min_dis
+
+```
+
+
+#### 209 follow up 数组可以为负数（待解决）
+
+
+- 错误解法，badcase
+
+target=28
+nums = [-2,-3,6,-1,6,-2,24,-4,3]
+需要返回3
+
+```python
+from curses import curs_set
+from typing import List
+
+class Solution:
+    def minSubArrayLen(self, target: int, nums: List[int]) -> int:
+        """
+题目：
+target=28
+nums = [-2,-3,6,-1,6,-2,24,-4,3]
+nums里面可以为正数或者负数，为最短的能组合成target的子数组（连续）
+题解：
+1. 设max_acc[i]表示以nums[i]结尾的最大连续和，如果为负数，那么没啥用，需要跳过。
+        """
+
+        min_length = float('inf')
+        l, r = 0, 0
+        n = len(nums)
+
+        pre_sum = [0] * (n+1) # 前缀和
+        max_acc = [float('-inf')] * n # 以nums[i]结尾的最大连续和
+
+        for i in range(n):
+            if i == 0:
+                pre_sum[i+1] = nums[i]
+                max_acc[i] = nums[i]
+            else:
+                pre_sum[i+1] = pre_sum[i] + nums[i]
+                max_acc[i] = max(0, max_acc[i-1]) + nums[i]
+
+        while r < n:
+            while pre_sum[r+1] - pre_sum[l] >= target:
+                min_length = min(min_length, r - l + 1)
+                l += 1
+            if r >= 1 and max_acc[r - 1] < 0 :
+                l = r
+            r += 1
+        
+
+        # while r < n:
+        #     print('1111 l:',l,'r:',r, 'max_acc[r]:', max_acc[r], "pre_sum[r+1] - pre_sum[l]:", pre_sum[r+1] - pre_sum[l])
+        #     if max_acc[r] <= 0:
+        #         r += 1
+        #         l = r
+        #         continue
+        #     # import pdb;pdb.set_trace()
+        #     while r < n and l <= r and pre_sum[r+1] - pre_sum[l] >= target:
+        #         min_length = min(min_length, r - l + 1)
+        #         l += 1
+        #         print('2222 l:',l,'r:',r, 'max_acc[r]:', max_acc[r], "pre_sum[r+1] - pre_sum[l]:", pre_sum[r+1] - pre_sum[l])
+        #     r += 1 
+        if min_length == float('inf'):
+            return 0
+
+        return min_length
+
+
+s = Solution()
+
+target=28
+nums = [-2,-3,6,-1,6,-2,24,-4,3]
+
+print(s.minSubArrayLen(target=target, nums=nums))
 
 ```
