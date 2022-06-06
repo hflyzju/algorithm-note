@@ -636,10 +636,22 @@ print(s.can_convert_to_palindrome(s2))
 ```
 
 
-#### 面经 2019(7-9月) 码农类General 硕士 全职@SmartNews 
 
+### 面经 2019(7-9月) 码农类General 硕士 全职@SmartNews 
 
+- 题目
 https://www.1point3acres.com/bbs/forum.php?mod=viewthread&tid=560617&extra=&highlight=smartnews&page=1
+
+```
+第一轮：算法1，shuffle一个数组同时提供证明。
+https://www.cnblogs.com/Dylan-Java-NYC/p/7929891.html
+算法2，给一组数，找出3个数可以组成三角形，follow up找出所有的不重复的组合
+https://leetcode.com/problems/va ... 123/Java-3-pointers
+第二轮：算法1，k largest in array，需要用快排的方法做。
+https://leetcode.com/problems/kt ... array-java-solution
+```
+
+#### shuffle数组
 
 ```python
 class Solution(object):
@@ -692,5 +704,203 @@ class Solution(object):
 # obj = Solution(nums)
 # param_1 = obj.reset()
 # param_2 = obj.shuffle()
+
+```
+
+#### 611. Valid Triangle Number
+
+```python
+
+class Solution(object):
+    def triangleNumber(self, nums):
+        """Given an integer array nums, return the number of triplets chosen from the array that can make triangles if we take them as side lengths of a triangle.
+
+        :type nums: List[int]
+        :rtype: int
+Example 1:
+
+Input: nums = [2,2,3,4]
+Output: 3
+Explanation: Valid combinations are: 
+2,3,4 (using the first 2)
+2,3,4 (using the second 2)
+2,2,3
+
+题解：
+1. 目的是找到k1+k2 > k3有多少种满足条件。
+2. 选k1=0, k2=k3-1为初始状态，如果小了只能移动k1,如果大了，可以移动k2
+3. 满足状态的时候，可以持续统计累计可能个数，相当于固定了k2,k3,问[?, k2, k3]有多少种可能，然后继续移动。
+https://leetcode.com/problems/valid-triangle-number/discuss/128135/A-similar-O(n2)-solution-to-3-Sum
+        """
+        cnt = 0
+        nums.sort()
+        n = len(nums)
+        for k3 in range(n-1, 1, -1):
+            # 优先固定k3
+            k1, k2 = 0, k3 - 1
+            while k1 < k2:      
+                # 然后尝试固定k2
+                # 如果k1 + k2 > k3，则可以统计[?, k2, k3]的个数了，因为k1<=?<k2都满足要求，如果满足要求，可以尝试固定下一个k2, k2 -= 1
+                if nums[k1] + nums[k2] > nums[k3]:
+                    # [k1, k2, k3]
+                    # [k1+1, k2, k3]
+                    # [k1+?, k2, k3]
+                    # 共k2-k1总可能
+                    cnt += k2 - k1
+                    k2 -= 1
+                else:
+                    # 不满足就只能继续调大k1
+                    k1 += 1
+        return cnt
+```
+
+#### 215 第k大
+
+```python
+
+class Solution(object):
+    def findKthLargest(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: int
+        """
+
+        # 方法二：快速排序思想
+        # [3,2,1,5,6,4]
+        # 1,2,3,4,5,6
+
+        def findKthLargestFromLR(nums, k, left, right):
+            """[left, right]区间里面的第k大"""
+            l, r = left, left
+            while r < right:
+                if nums[r] > nums[right]:
+                    nums[l], nums[r] = nums[r], nums[l]
+                    l += 1
+                r += 1
+            nums[l], nums[right] = nums[right], nums[l]
+            index = l - left + 1
+            if index == k:
+                return nums[l]
+
+            elif index > k:
+                return findKthLargestFromLR(nums, k, left, l - 1)
+            else:
+                return findKthLargestFromLR(nums, k - index, l + 1, right)
+                
+        return findKthLargestFromLR(nums, k, 0, len(nums) - 1)
+
+
+
+
+
+        # 方法一：最小堆保存k个最大的元素
+        # cache = []
+        # for num in nums:
+        #     if len(cache) < k:
+        #         heapq.heappush(cache, num)
+        #     else:
+        #         if cache[0] < num:
+        #             heapq.heappop(cache)
+        #             heapq.heappush(cache, num)
+        # return cache[0]
+```
+
+### 店面coding
+1 找出数组元素右侧第一个比它大的。
+2 地里有人发过, 找到树中最近的k个node。
+
+https://www.1point3acres.com/bbs/thread-879905-1-1.html
+
+#### 1. 496. 下一个更大元素 I
+
+
+```python
+class Solution(object):
+    def nextGreaterElement(self, nums1, nums2):
+        """496. 下一个更大元素 I, 找到num1中的每个数字，在nums2中对应位置的下一个值是多少。
+        :type nums1: List[int]
+        :type nums2: List[int]
+        :rtype: List[int]
+
+输入：nums1 = [4,1,2], nums2 = [1,3,4,2].
+输出：[-1,3,-1]
+解释：nums1 中每个值的下一个更大元素如下所述：
+- 4 ，用加粗斜体标识，nums2 = [1,3,4,2]。不存在下一个更大元素，所以答案是 -1 。
+- 1 ，用加粗斜体标识，nums2 = [1,3,4,2]。下一个更大元素是 3 。
+- 2 ，用加粗斜体标识，nums2 = [1,3,4,2]。不存在下一个更大元素，所以答案是 -1 
+
+来源：力扣（LeetCode）
+链接：https://leetcode.cn/problems/next-greater-element-i
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+
+        解法：倒着单调栈+逆序+递减栈
+        """
+
+
+        cache = []
+        next_bigger_num = dict()
+
+
+        for i in range(len(nums2)-1, -1, -1):
+            while cache and cache[-1] < nums2[i]:
+                cache.pop()
+            if cache:
+                next_bigger_num[nums2[i]] = cache[-1]
+            cache.append(nums2[i])
+
+        res = []
+        for num in nums1:
+            if num in next_bigger_num:
+                res.append(next_bigger_num[num])
+            else:
+                res.append(-1)
+        return res
+
+
+```
+
+
+### 本科General
+1.coding: 类似尔灵久 不同的是target和num都可以是负数
+https://www.1point3acres.com/bbs/thread-843400-1-1.html
+#### 209. 长度最小的子数组
+
+
+```python
+class Solution(object):
+    def minSubArrayLen(self, target, nums):
+        """209. Minimum Size Subarray Sum
+        :type target: int
+        :type nums: List[int]
+        :rtype: int
+        
+Given an array of positive integers nums and a positive integer target, return the minimal length of a contiguous subarray [numsl, numsl+1, ..., numsr-1, numsr] of which the sum is greater than or equal to target. If there is no such subarray, return 0 instead.
+
+
+
+Example 1:
+
+Input: target = 7, nums = [2,3,1,2,4,3]
+Output: 2
+Explanation: The subarray [4,3] has the minimal length under the problem constraint.
+
+题解：滑动窗口
+        """
+        l, r = 0, 0
+        n = len(nums)
+        cur = 0
+        min_dis = float('inf')
+        while r < n:
+            # [l, r]
+            cur += nums[r]
+            while cur >= target:
+                min_dis = min(r - l + 1, min_dis)
+                cur -= nums[l]
+                l += 1
+            r += 1
+        if min_dis == float('inf'):
+            return 0
+        return min_dis
 
 ```
