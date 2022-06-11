@@ -950,3 +950,103 @@ class Solution:
         # return dp[0][n - 1][d]
 
 ```
+
+
+
+#### 730. 统计不同回文子序列
+
+```python
+class Solution(object):
+    def countPalindromicSubsequences(self, s):
+        """
+        :type s: str
+        :rtype: int
+给定一个字符串 s，返回 s 中不同的非空「回文子序列」个数 。
+输入：s = 'bccb'
+输出：6
+解释：6 个不同的非空回文子字符序列分别为：'b', 'c', 'bb', 'cc', 'bcb', 'bccb'。
+注意：'bcb' 虽然出现两次但仅计数一次。
+        """ 
+
+        mod = 1000000007
+        n = len(s)
+        dp = [[0] * n for _ in range(n)]
+        for i in range(n): dp[i][i] = 1
+
+        for cur_len in range(2, n+1):  # 从长度为2的子串开始计算
+        # 挨个计算长度为len的子串的回文子序列个数
+            for i in range(0, n-cur_len+1):
+                j = i+ cur_len -1
+                # 情况(1) 相等
+                if s[i] == s[j]:
+                    l, r = i+1, j-1
+                    while l <= r and s[l] != s[i]:
+                        l += 1
+                    while l <= r and s[r] != s[j]:
+                        r -= 1
+                    if l > r:  # 情况① 没有重复字符
+                        dp[i][j] = 2 * dp[i+1][j-1] + 2
+                    elif l == r:   # 情况② 出现一个重复字符
+                        dp[i][j] = 2 * dp[i+1][j-1] + 1
+                    else:  # 情况③ 有两个及两个以上
+                        dp[i][j] = 2 * dp[i+1][j-1] - dp[l+1][r-1]
+                else:
+                    dp[i][j] = dp[i][j-1] + dp[i+1][j] - dp[i+1][j-1]
+                dp[i][j] = dp[i][j] % mod  # Python直接取模也没有问题
+        return dp[0][n-1]
+
+# 作者：jiang-hui-4
+# 链接：https://leetcode.cn/problems/count-different-palindromic-subsequences/solution/tong-ji-butong-by-jiang-hui-4-q5xf/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+```
+
+
+#### 926. 将字符串翻转到单调递增
+
+```python
+class Solution(object):
+    def minFlipsMonoIncr(self, s):
+        """926. 将字符串翻转到单调递增
+        :type s: str
+        :rtype: int
+
+输入：s = "00110"
+输出：1
+解释：翻转最后一位得到 00111.
+
+输入：s = "00011000"
+输出：2
+解释：翻转得到 00000000。
+
+        # dp[i][0]:代表第i为需要改为0，需要的改动的代价
+        # dp[i][1]:代表第i为需要改为1，需要的改动的代价
+
+        根据当前s[i]的结果来拿到dp[i][0]和dp[i][1]的结果
+        """
+        n = len(s)
+        if n <= 0:
+            return 0
+        if s[0] == '1':
+            pre0 = 1
+            pre1 = 0
+        else:
+            pre0 = 0
+            pre1 = 1
+        for i in range(1, len(s)):
+            if s[i] == '1':
+                cur0 = pre0 + 1
+                cur1 = min(pre0, pre1)
+            else:
+                cur0 = pre0
+                cur1 = min(pre0 + 1, pre1 + 1)
+            pre0, pre1 = cur0, cur1
+        return min(pre0, pre1)
+
+# 作者：LeetCode-Solution
+# 链接：https://leetcode.cn/problems/flip-string-to-monotone-increasing/solution/jiang-zi-fu-chuan-fan-zhuan-dao-dan-diao-stjd/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+```
