@@ -3,12 +3,98 @@
 |  类型   | 编号  | 题目 | 题解 |
 |  ----  | ----  | --- | --- |
 | 1d数组中找数字  | leetcode33, leetcode81 | 旋转数组搜索 | 找到有序的那一半，与当前数字进行比较，然后搜索 |
-| 2d数组中找第k小  | leetcode 668 | 乘法表中第k小的数 | 首先确定边界[1, m*n]，每次找到mid，对于每个1d的行，可以常数时间得到该行小于等于mid的个数，这样可以逐渐缩小边界，输出r即可。|
-| 1d数组找出第 K 小的数对距离 | leetcode719 |找出第 K 小的数对距离 | 数对距离边界[0, 10e9], 对于每一个mid, 可以O(n)时间找到nums中小于mid的间隔的个数(nums已经排序，可以用双指针在O(n)时间拿到结果)，这样可以逐渐缩小边界，输出r即可。|
+| 2d数组中找第k小  | leetcode 668 | 乘法表中第k小的数(隐藏2分) | 首先确定边界[1, m*n]，每次找到mid，对于每个1d的行，可以常数时间得到该行小于等于mid的个数，这样可以逐渐缩小边界，输出r即可。|
+| 1d数组找出第 K 小的数对距离 | leetcode719 |找出第 K 小的数对距离(隐藏2分) | 数对距离边界[0, 10e9], 对于每一个mid, 可以O(n)时间找到nums中小于mid的间隔的个数(nums已经排序，可以用双指针在O(n)时间拿到结果)，这样可以逐渐缩小边界，输出r即可。|
+|找左右边界|leetcode34| 从数组中找到第一个出现或者最后一个出现的位置|找左边界的话，当nums[mid]==target, 缩短右边界继续找, 让r=mid-1, 同时记录res=mid，找右边界也一样，反过来就行。 |
+|找插入得的位置|leetcode35| 从数组中找到插入排序需要插入的最小的位置, 不同点是target可能不存在|还是可以用之前的模板，不断缩小位置，记录可能的候选位置，当nums[mid]==target, 以及nums[mid] > target， 都是可能的插入位置，另外如果target>nums[-1]这里没有合适的插入位置，需要提前处理。|
+|最长递增子序列(1d+2d)|leetcode354| 满足w和h都大，才能套进去，问最多能套多少个|w从小到大排序，w相等，h不能套，所以此时h按降序排列，然后求h的最长递增子序列即可, 最长递增子序列最关键的是找到插入的位置，和上面一致|
 
+### 二、模板
+#### 2.1 模板1:找数字(simple)
 
+```python
+l, r = 0, n - 1
+while l <= r:
+  mid = l + r >> 1
+  if nums[mid] == target:
+    return mid
+  elif nums[mid] > target:
+    r = mid - 1
+  else:
+    l = mid + 1
+```
 
-### 二、题解
+#### 2.2 模板2:找一定条件(hard)，用res记录可能的候选，l和r不断逼近最终位置
+
+```python
+l, r, res = 0, 10**6, -1
+while l <= r:
+    mid = (l + r) >> 1
+    val = check(nums, mid)
+    if val == k:
+        res = mid
+        r = mid - 1
+    elif val > k:
+        res = mid
+        r = mid - 1 
+    else:
+        l = mid + 1
+return res
+```
+
+#### 2.3 模板3:找左右边界(mid)
+
+```python
+    def find_left_bound(self, nums, target):
+        """找左边界"""
+        l, r, res = 0, len(nums) - 1, -1
+        while l <= r:
+            mid = l + r >> 1
+            if nums[mid] == target:
+                res = mid
+                r = mid - 1
+            elif nums[mid] > target:
+                r = mid - 1
+            else:
+                l = mid + 1
+        return res
+
+    def find_right_bound(self, nums, target):
+        """找右边界"""
+        l, r, res = 0, len(nums) - 1, -1
+        while l <= r:
+            mid = l + r >> 1
+            if nums[mid] == target:
+                res = mid
+                l = mid + 1
+            elif nums[mid] > target:
+                r = mid - 1
+            else:
+                l = mid + 1
+        return res
+```
+
+#### 2.4 找插入位置
+
+```python
+        if nums[-1] < target:
+            return len(nums) + 1
+        l, r, res = 0, len(nums) - 1, -1
+        while l <= r:
+            mid = l + r >> 1
+            if nums[mid] == target:
+                res = mid # 可能的候选
+                r = mid - 1
+            elif nums[mid] > target:
+                res = mid  # 可能的候选
+                r = mid - 1
+            else:
+                # nums[mid] < target, 一定要插在后面
+                l = mid + 1
+        return res
+```
+
+### 三、题解
 
 #### 668. 乘法表中第k小的数-二分
 
@@ -68,12 +154,14 @@ class Solution(object):
 
 #### Shifted Array Search
 
+```
 input:  shiftArr = [9, 12, 17, 2, 4, 5], num = 2 # shiftArr is the
                                                  # outcome of shifting
                                                  # [2, 4, 5, 9, 12, 17]
                                                  # three times to the left
 
 output: 3 # since it’s the index of 2 in arr
+```
 
 
 
@@ -142,16 +230,247 @@ class Solution:
             return cnt
 
         nums.sort()
-        l, r = 0, 10**6
-        
-        while l < r:
-            # print('l:', l, 'r:', r)
+        l, r, res = 0, 10**6, -1
+        while l <= r:
             mid = (l + r) >> 1
-            if check(nums, mid) >= k:
-                r = mid
+            val = check(nums, mid)
+            if val == k:
+                res = mid
+                r = mid - 1
+            elif val > k:
+                res = mid
+                r = mid - 1 
             else:
                 l = mid + 1
-        return r
+        return res
 
+
+```
+
+
+#### leetcode34:从数组中找到第一个出现或者最后一个出现的位置
+
+```python
+
+
+class Solution(object):
+
+    def find_left_bound(self, nums, target):
+        """找左边界"""
+        l, r, res = 0, len(nums) - 1, -1
+        while l <= r:
+            mid = l + r >> 1
+            if nums[mid] == target:
+                res = mid
+                r = mid - 1
+            elif nums[mid] > target:
+                r = mid - 1
+            else:
+                l = mid + 1
+        return res
+
+    def find_right_bound(self, nums, target):
+        """找右边界"""
+        l, r, res = 0, len(nums) - 1, -1
+        while l <= r:
+            mid = l + r >> 1
+            if nums[mid] == target:
+                res = mid
+                l = mid + 1
+            elif nums[mid] > target:
+                r = mid - 1
+            else:
+                l = mid + 1
+        return res
+
+    def searchRange(self, nums, target):
+        """leetcode34:从数组中找到第一个出现或者最后一个出现的位置
+Example:
+nums = [5,7,7,8,8,10], target = 8
+[3,4]
+
+题解：利用res记录访问过的边界，然后持续调整l和r缩短范围
+        """
+        return [self.find_left_bound(nums, target), self.find_right_bound(nums, target)]
+
+
+# nums = [5,7,7,8,8,10]
+# target = 8
+
+nums = [8,8,8,8,8,8,8,8,8,8]
+target = 8
+
+s = Solution()
+print(s.searchRange(nums, target))
+
+```
+
+#### leetcode35 搜索插入的位置
+
+
+```python
+
+class Solution(object):
+
+    def find_left_bound(self, nums, target):
+        """leetcode35 搜索插入的位置
+        nums = [1,3,5,6], target = 5
+        result:2
+        题解：还是可以用之前的模板，不断缩小位置，记录可能的候选位置，当nums[mid]==target, 以及nums[mid] > target， 都是可能的插入位置，另外如果target>nums[-1]这里没有合适的插入位置，需要提前处理。
+        """
+        if nums[-1] < target:
+            return len(nums) + 1
+        l, r, res = 0, len(nums) - 1, -1
+        while l <= r:
+            mid = l + r >> 1
+            if nums[mid] == target:
+                res = mid # 可能的候选
+                r = mid - 1
+            elif nums[mid] > target:
+                res = mid  # 可能的候选
+                r = mid - 1
+            else:
+                # nums[mid] < target, 一定要插在后面
+                l = mid + 1
+        return res
+
+
+nums = [5,7,7,8,8,10]
+target = 5
+
+# nums = [8,8,8,8,8,8,8,8,8,8]
+# target = 8
+
+s = Solution()
+print(s.find_left_bound(nums, target))
+
+```
+
+
+#### leetcode354 俄罗斯套娃信封问题
+
+```python
+
+
+class Solution(object):
+
+    def LIS(self, nums):
+        """求1d数组nums的最长递增子序列"""
+        n = len(nums)
+        dp = [0] * n
+        end = -1 # 最长递增数组的右边界
+        for i in range(n):
+            target = nums[i]
+            if end == -1:
+                end += 1
+                dp[0] = target
+            elif target > dp[end]:
+                end += 1
+                dp[end] = target
+            else:
+                l, r = 0, end
+                target_index = -1
+                while l <= r:
+                    mid = l + r >> 1
+                    if dp[mid] > target:
+                        target_index = mid
+                        r = mid - 1
+                    elif dp[mid] < target:
+                        l = mid + 1
+                    else:
+                        target_index = mid
+                        r = mid - 1
+                dp[target_index] = target
+        return end + 1
+
+    def maxEnvelopes(self, nums):
+        """leetcode354 俄罗斯套娃信封问题
+        如果信封的w和h都比上一个大，那么上一个可以放到当前这个里面，问做多能套多少个。
+        题解：2d最长递增子序列，先对w从小到大排序，由于w相等时候，是不能套进去的，所以对h这个维度计算最长递增子序列的时候，将w相同的h按降序排列即可完成。
+        """
+        nums.sort(key=lambda x:[x[0], -x[1]])
+        heights = [_[1] for _ in nums]
+        return self.LIS(heights)
+
+
+nums = [[5,4],[6,4],[6,7],[2,3]]
+
+s = Solution()
+print(s.maxEnvelopes(nums))
+
+```
+
+
+#### 793. 阶乘函数后 K 个零
+
+```python
+class Solution(object):
+
+    def ending_zero_number(self, n):
+        """n的阶乘末尾有多少个零"""
+        base = 5
+        cnt = 0
+        while n // base > 0:
+            cnt += n // base
+            base *= 5
+        return cnt
+
+    def right_bound(self, k):
+        """末尾有k个零的最大n(右边界)"""
+        l, r, res = 0, 1 << 32, -1
+        while l <= r:
+            mid = l + r >> 1
+            cnt = self.ending_zero_number(mid)
+            if cnt == k:
+                res = mid
+                l = mid + 1
+            elif cnt > k:
+                r = mid - 1
+            else:
+                l = mid + 1
+        return res
+
+    def left_bound(self, k):
+        """末尾有k个零的最小n(左边界)"""
+        l, r, res = 0, 1 << 32, -1
+        while l <= r:
+            mid = l + r >> 1
+            cnt = self.ending_zero_number(mid)
+            if cnt == k:
+                res = mid
+                r = mid - 1
+            elif cnt > k:
+                r = mid - 1
+            else:
+                l = mid + 1
+        return res
+
+
+    def preimageSizeFZF(self, k):
+        """阶乘后为k个零的条件的个数
+        k=0
+        0!, 1!, 2!, 3!, 4!末尾都没有0，共有5个数。
+        输出：5
+        """
+        r = self.right_bound(k)
+        l = self.left_bound(k)
+        if r == -1:
+            return 0
+        # print('r:', r, 'l:', l)
+        return r - l + 1
+
+
+
+
+
+# s = Solution()
+
+# print(s.ending_zero_number(0))
+# print(s.ending_zero_number(1))
+# print(s.ending_zero_number(2))
+# print(s.ending_zero_number(3))
+# print(s.ending_zero_number(4))
+# print(s.ending_zero_number(5))
+# print(s.preimageSizeFZF(0))
 
 ```
