@@ -174,3 +174,106 @@ second = "ple"
 
 
 ```
+
+
+#### 468. 验证IP地址
+
+```python
+class Solution:
+
+    """
+输入：queryIP = "172.16.254.1"
+输出："IPv4"
+解释：有效的 IPv4 地址，返回 "IPv4"
+
+输入：queryIP = "2001:0db8:85a3:0:0:8A2E:0370:7334"
+输出："IPv6"
+解释：有效的 IPv6 地址，返回 "IPv6"
+
+输入：queryIP = "256.256.256.256"
+输出："Neither"
+解释：既不是 IPv4 地址，又不是 IPv6 地址
+
+题解：
+1. 注意前置零 01.02.03.04 => False
+2. 注意连续空格 0..1.2，0::2:2:1:1:2
+    """
+
+    def is_valid_number(self, ip, l, r):
+        #print(ip[l:r+1])
+        if not ip[l:r+1].isdigit():
+            return False
+        if r - l >= 1 and ip[l] == '0':
+            return False
+        if not 0 <= int(ip[l:r+1]) <= 255:
+            return False
+        return True
+
+    def validateIPV4(self, ip):
+        l, r = 0, 0
+        n = len(ip)
+        dot_cnt = 0
+        number_cnt = 0
+        while r < n:
+            if ip[r] == '.':
+                dot_cnt += 1
+                if not self.is_valid_number(ip, l, r-1):
+                    return False
+                l = r + 1
+                number_cnt += 1
+            if r == n-1:
+                if not self.is_valid_number(ip, l, r):
+                    return False
+                number_cnt += 1
+            r += 1
+            if dot_cnt > 3:
+                return False
+        if dot_cnt != 3 or number_cnt != 4:
+            return False
+        return True
+
+
+    def is_valid_number_v6(self, ip, l, r):
+        #print(ip[l:r+1])
+        if l > r:
+            return False
+        if r - l + 1 > 4:
+            return False
+        for k in range(l, r+1):
+            if not ('0' <= ip[k] <= '9' or 'a' <= ip[k] <= 'f' or 'A' <= ip[k] <= 'F'):
+                return False
+        return True
+
+
+    def validateIPV6(self, ip):
+        l, r = 0, 0
+        n = len(ip)
+        dot_cnt = 0
+        number_cnt = 0
+        while r < n:
+            if ip[r] == ':':
+                dot_cnt += 1
+                if not self.is_valid_number_v6(ip, l, r-1):
+                    return False
+                l = r + 1
+                number_cnt += 1
+            if r == n-1:
+                if not self.is_valid_number_v6(ip, l, r):
+                    return False
+                number_cnt += 1
+            r += 1
+            if dot_cnt > 7:
+                return False
+        if dot_cnt != 7 or number_cnt != 8:
+            return False
+        return True
+
+    def validIPAddress(self, queryIP: str) -> str:
+        if self.validateIPV4(queryIP):
+            return "IPv4"
+        elif self.validateIPV6(queryIP):
+            return "IPv6"
+        else:
+            return "Neither"
+
+```
