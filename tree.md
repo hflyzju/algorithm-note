@@ -1,12 +1,16 @@
 ## 一、总结
-|  类型   | 编号  | 题目 | 题解 | 
-|  ----  | ----  | --- | --- |
-| 非递归遍历  | 144,94 | 二叉树的非递归遍历 |1. 前序遍历：栈，[当前, 右节点, 左节点]的形式入栈。 2. 中序遍历：栈先一直放左孩子，为空后，弹出，此时切换成右孩子，继续尝试放左孩子。  |
-| 二叉树构建  | 95,96 |构建所有二叉树，可能二叉搜索树的数量 | 递归，递归或者dp，dp的思想求数量，因为每个树可以由前面的树组合而来 |
-| 二叉树搜索  | 98 |验证二叉搜索树 | 1. 范围验证。 2. 中序遍历验证 |
-| 两科二叉树关系  | 100，101 | 是否等价，是否镜像 | 1. 检验当前节点，然后递归检验左右孩子。 2. 同1 |
-| 序列化和反序列化  | 剑指offer 48序列化反序列化二叉树, 428多叉树,449二叉搜索树 | 序列化和反序列化 | 1. 检验当前节点，然后递归检验左右孩子。 2. 同1 |
-| 树形dp  | 100,101 | 是否等价，是否镜像 | 1. 检验当前节点，然后递归检验左右孩子。 2. 同1 |
+|  类型   | 编号| 难度  | 题目 | 题解 | 
+|  ----  | ----  | ----  | --- | --- |
+| 非递归遍历  | 144,94 | 中等|二叉树的非递归遍历 |1. 前序遍历：栈，[当前, 右节点, 左节点]的形式入栈。 2. 中序遍历：栈先一直放左孩子，为空后，弹出，此时切换成右孩子，继续尝试放左孩子。  |
+|非递归遍历|102,103|中等|层次遍历+z型遍历|1. 层次遍历直接双端队列，每次pop出上一层的个数。 2. z形遍历，偶数次先从左pop出来，从右append进去。奇数次先从右pop出来，从左append进去，并且要注意append的孩子节点的顺序是相反的|
+| 二叉树构建  | 95,96,654 |中等|构建所有二叉树，可能二叉搜索树的数量,最大二叉树 | 递归，递归或者dp，dp的思想求数量，因为每个树可以由前面的树组合而来 |
+| 二叉树搜索  | 98,99 |验证二叉搜索树，复原二叉搜索树(两个节点swap了) |中等| 1. 范围验证。 2. 中序遍历验证,中序遍历非递归，记录上一个值，然后与当前值比较。 |
+| 两棵二叉树关系  | 100，101 |简单| 是否等价，是否镜像 | 1. 检验当前节点，然后递归检验左右孩子。 2. 同1 |
+| 序列化和反序列化  | 剑指offer 48序列化反序列化二叉树, 428多叉树（hard）,449二叉搜索树 |hard,mid| 序列化和反序列化 | 二叉树，多叉树：层次遍历，decode时候，每一层消耗2个或者n棵树即可。二叉搜索树： 前序遍历序列化，然后利用二分法查找每个头结点的左边和右边子数组，然后递归构建即可，这种方法可以省一些序列化的开销|
+|二叉树直径，相邻不相等最长直径|543,2246|中等，困难|树的深度|1. dfs(返回的是从当前节点出发的最大的深度) 2. 直径以及相邻不相等的直径是由1可以计算出来|
+|后继者&共同祖先|04.06， 236|中等| 后序遍历 | 1. 后继者：二分。 2. 共同祖先：后续遍历思想，先检查左右两个子树有没有包含两个节点，如果分别在左和右中，那么当前节点就是祖先，否则是在左孩子或者右孩子中。
+| 树形dp |437，1371 |困难  |1. 树的路径和(树的遍历+前缀和) 2. 节点和最大的二进制搜索树（子树） |1.思想：先序遍历+前缀和。 2.思想：后续遍历+dp|
+|其他|114（二叉树转链表），331（验证是否是二叉树的前序序列化）|中等|前序遍历，栈|1. 直接前序遍历指定下一个节点即可。 2. 栈消除val##，替换成一个#|
 
 ## 二、模板
 
@@ -47,6 +51,29 @@ while cur or stack:
     cur = cur.right
 return res
 
+```
+
+- 层次
+
+```python
+if not root:
+    return []
+queue = deque()
+queue.append(root)
+res = []
+while queue:
+    size = len(queue)
+    level = []
+    for _ in range(size):
+        cur = queue.popleft()
+        level.append(cur.val)
+        if cur.left:
+            queue.append(cur.left)
+        if cur.right:
+            queue.append(cur.right)
+    if level:
+        res.append(level)
+return res
 ```
 
 ### 2.2 树的构建
@@ -93,6 +120,64 @@ return build_trees(1, n)
         return dp[n]
 ```
 
+### 2.3 直径
+
+```python
+result = 0
+def search(node):
+    """求每个节点node的最大深度"""
+    if node is None:
+        return 0
+    nonlocal result
+    left_depth = search(node.left)
+    right_depth = search(node.right)
+    cur_depth = max(left_depth, right_depth) + 1
+    # 更新直径的最大值
+    result = max(result, left_depth + right_depth)
+    return cur_depth
+search(root)
+# 返回直径最大值
+return result
+```
+
+
+### 2.4 后续遍历+dp
+```python
+
+class Solution:
+    def maxSumBST(self, root: Optional[TreeNode]) -> int:
+        """find the maxsum bst in an binaray tree
+        example:
+            Input: root = [1,4,3,2,4,2,5,null,null,null,null,null,null,4,6]
+            Output: 20
+        solution:
+            use postOrder traversal to check if child is valide, and then check
+            cur node if valid, meanwhile, we can get the sum after postOrder traversal
+        """
+
+
+        self.max_binary_search_node_sum = 0
+        def isValidBinarySearchTree(node):
+            if node is None:
+                # for an null child, we need use child.maxval and child.minval to check
+                # if fathter is valid, it's min_val = float('inf'), and 
+                # max_val = float('-inf'), so the child.max_val < fater.val < child.min_val
+                # can be true
+                # reuslt = isValidBinarySearchTree, node's sum, cur.min, cur.max
+                return True, 0, float('inf'), float('-inf')
+            
+            left_valid, left_sum, left_l, left_r = isValidBinarySearchTree(node.left)
+            right_valid, right_sum, right_l, right_r = isValidBinarySearchTree(node.right)
+            if left_r < node.val < right_l and left_valid and right_valid:
+                cur_sum = left_sum + right_sum + node.val
+                if cur_sum > self.max_binary_search_node_sum:
+                    self.max_binary_search_node_sum = cur_sum             
+                return True, cur_sum, min(left_l, node.val), max(right_r, node.val)
+            else:
+                return False, -1, -1, -1
+        isValidBinarySearchTree(root)
+        return self.max_binary_search_node_sum
+```
 ## 三、题解
 
 ### 3.1 树的遍历
@@ -261,8 +346,49 @@ class Solution:
 ```
 
 #### 102 树的层次遍历
+- 优化版本
 
+```python
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def levelOrder(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[List[int]]
+        层次遍历
+        """
+        if not root:
+            return []
+        queue = deque()
+        queue.append(root)
+        res = []
+        while queue:
+            size = len(queue)
+            level = []
+            for _ in range(size):
+                cur = queue.popleft()
+                level.append(cur.val)
+                if cur.left:
+                    queue.append(cur.left)
+                if cur.right:
+                    queue.append(cur.right)
+            if level:
+                res.append(level)
+        return res
 
+# 作者：fuxuemingzhu
+# 链接：https://leetcode.cn/problems/binary-tree-level-order-traversal/solution/tao-mo-ban-bfs-he-dfs-du-ke-yi-jie-jue-by-fuxuemin/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+```
+
+- 原始版本
 ```python
 class Solution(object):
     def levelOrder(self, root):
@@ -294,7 +420,59 @@ class Solution(object):
 
 #### 103 z字形层次遍历
 
+- 优化后（双端队列的使用）
+  
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def zigzagLevelOrder(self, root: TreeNode) -> List[List[int]]:
+        ans = []
+        if not root:
+            return ans
+        queue = collections.deque()
+        queue.append(root)
+        while queue:
+            # 处理奇数层 从左向右打印 从左向右添加下层节点
+            length = len(queue)
+            result = list()
+            for i in range(length):
+                p = queue.popleft()
+                result.append(p.val)
+                if p.left:
+                    queue.append(p.left)
+                if p.right:
+                    queue.append(p.right) 
+            ans.append(list(result))
+            if not queue:
+                break
+            
+            # 处理偶数层 从右向左打印 从右向左添加下层节点
+            length = len(queue)
+            result = list()
+            for i in range(length):
+                p = queue.pop()
+                result.append(p.val)
+                if p.right:
+                    queue.appendleft(p.right)
+                if p.left:
+                    queue.appendleft(p.left)
+            ans.append(list(result))
+        return ans
 
+
+# 作者：huifangshuyuan
+# 链接：https://leetcode.cn/problems/binary-tree-zigzag-level-order-traversal/solution/-by-huifangshuyuan-dgre/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+```
+
+- 优化前（面试可能存在问题）
 ```python
 
 class Solution(object):
@@ -483,33 +661,37 @@ class Solution:
 #### 98 有效的二叉搜索树-非递归中序遍历
 
 ```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def isValidBST(self, root: Optional[TreeNode]) -> bool:
+        """98. 验证二叉搜索树
+输入：root = [5,1,4,null,null,3,6]
+输出：false
+解释：根节点的值是 5 ，但是右子节点的值是 4 。
 
-class Solution(object):
-    def isValidBST(self, root):
-        """给定一个数，判断是不是二叉搜索树
-        Args:
-            root: TreeNode
-        Returns:
-            bool
-        解法1：非递归遍历+中序遍历：如果一直都是递减的，那么就是对的
+题解：中序遍历
         """
-        if root is None:
+        if not root:
             return True
-        init = False
-        small = -(2<<31)
-        stack = []
-        while( root is not  None or stack != []):
-            # 先一直往左走
-            while(root is not None):
-                stack.append(root)
+        cache = []
+        init, pre_val = False, float('-inf') # init代表是否是第一个数，pre_val代表上一个值
+        while root is not None or cache:
+            while root:
+                cache.append(root)
                 root = root.left
-            # 左边走完了，拿出一个节点来
-            root = stack.pop()
-            # 中序遍历是否是递减
-            if init and root.val <= small:
-                return False
-            init = True
-            small = root.val
+            root = cache.pop()
+            # print('root.val:', root.val)
+            if not init:
+                init = True
+            else:
+                if root.val <= pre_val:
+                    return False
+            pre_val = root.val
             root = root.right
         return True
 ```
@@ -1054,7 +1236,7 @@ class Codec:
 
 
 
-### 3.6 二叉树直径&路径和
+### 3.6 二叉树直径&相邻字符不相同的时候的最长直径
 
 #### 543 二叉树的直径-简化版本
 
@@ -1094,6 +1276,55 @@ class Solution(object):
 
 
 #### 2246 相邻字符不同的最长路径
+
+- 方法2:
+
+```python
+        a
+     b     a
+  c    b  e
+输入：parent = [-1,0,0,1,1,2], s = "abacbe"
+输出：3
+解释：任意一对相邻节点字符都不同的最长路径是：0 -> 1 -> 3 。该路径的长度是 3 ，所以返回 3 。
+可以证明不存在满足上述条件且比 3 更长的路径。 
+
+```
+
+```python
+class Solution:
+    def longestPath(self, parent: List[int], s: str) -> int:
+        n = len(parent)
+        if n == 1:
+            return 1
+        g = [[] for _ in range(n)]
+        for i in range(1, n):
+            g[parent[i]].append(i)
+        self.ans = 0
+        def dfs(x: int) -> int:
+            """记录的是节点的最大深度:从x出发的最长路径"""
+            child_results = []
+            for child in g[x]:
+                # 当前的最大深度为y孩子的最大深度+1
+                child_depth = dfs(child)
+                if s[x] != s[child]:
+                    child_results.append(child_depth)
+                else:
+                    child_results.append(0)
+            # print('x:', x, 'child_results:', child_results)
+            if not child_results:
+                return 1
+            child_results.sort()
+            if len(child_results) == 1:
+                self.ans = max(self.ans, child_results[0] + 1)
+            else:
+                self.ans = max(self.ans, child_results[-1] + child_results[-2] + 1)
+            return child_results[-1] + 1
+        dfs(0)
+        return self.ans
+
+```
+
+
 
 ```python
 # 如果没有相邻节点的限制，那么本题求的就是树的直径上的点的个数，见 1245. 树的直径。
@@ -1146,44 +1377,6 @@ class Solution:
 # 链接：https://leetcode-cn.com/problems/longest-path-with-different-adjacent-characters/solution/by-endlesscheng-92fw/
 # 来源：力扣（LeetCode）
 # 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
-
-```
-
-
-- 方法2
-
-```python
-class Solution:
-    def longestPath(self, parent: List[int], s: str) -> int:
-        n = len(parent)
-        if n == 1:
-            return 1
-        g = [[] for _ in range(n)]
-        for i in range(1, n):
-            g[parent[i]].append(i)
-        
-        self.ans = 0
-        def dfs(x: int) -> int:
-            """记录的是节点的最大深度"""
-            child_results = []
-            for child in g[x]:
-                # 当前的最大深度为y孩子的最大深度+1
-                child_depth = dfs(child)
-                if s[x] != s[child]:
-                    child_results.append(child_depth)
-                else:
-                    child_results.append(0)
-            # print('x:', x, 'child_results:', child_results)
-            if not child_results:
-                return 1
-            child_results.sort()
-            if len(child_results) == 1:
-                self.ans = max(self.ans, child_results[0] + 1)
-            else:
-                self.ans = max(self.ans, child_results[-1] + child_results[-2] + 1)
-            return child_results[-1] + 1
-        dfs(0)
-        return self.ans
 
 ```
 
