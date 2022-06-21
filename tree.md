@@ -1,3 +1,102 @@
+## 一、总结
+|  类型   | 编号  | 题目 | 题解 | 
+|  ----  | ----  | --- | --- |
+| 非递归遍历  | 144,94 | 二叉树的非递归遍历 |1. 前序遍历：栈，[当前, 右节点, 左节点]的形式入栈。 2. 中序遍历：栈先一直放左孩子，为空后，弹出，此时切换成右孩子，继续尝试放左孩子。  |
+| 二叉树构建  | 95,96 |构建所有二叉树，可能二叉搜索树的数量 | 递归，递归或者dp，dp的思想求数量，因为每个树可以由前面的树组合而来 |
+| 二叉树搜索  | 98 |验证二叉搜索树 | 1. 范围验证。 2. 中序遍历验证 |
+| 两科二叉树关系  | 100，101 | 是否等价，是否镜像 | 1. 检验当前节点，然后递归检验左右孩子。 2. 同1 |
+| 序列化和反序列化  | 剑指offer 48序列化反序列化二叉树, 428多叉树,449二叉搜索树 | 序列化和反序列化 | 1. 检验当前节点，然后递归检验左右孩子。 2. 同1 |
+| 树形dp  | 100,101 | 是否等价，是否镜像 | 1. 检验当前节点，然后递归检验左右孩子。 2. 同1 |
+
+## 二、模板
+
+### 2.1 非递归遍历
+- 先序
+```python
+if root is None:
+    return []
+# 中左右
+stack = []
+res = []
+stack.append(root)
+while stack:
+    # [right, left] 1
+    # 栈里面先放右子树，然后放左子树
+    cur = stack.pop()
+    res.append(cur.val)
+    if cur.right:
+        stack.append(cur.right)
+    if cur.left:
+        stack.append(cur.left)
+return res
+```
+- 中序
+
+```python
+if root is None:
+    return []
+stack = []
+res = []
+cur = root
+while cur or stack:
+    while cur is not None:
+        stack.append(cur)
+        cur = cur.left
+    cur = stack.pop()
+    res.append(cur.val)
+    cur = cur.right
+return res
+
+```
+
+### 2.2 树的构建
+
+```python
+def build_trees(left, right):
+    """生成[left, right]区间内的所有可能的二叉搜索树"""
+    all_trees = []
+    if left > right:
+        return [None]
+    # 遍历所有左右区间
+    for i in range(left, right+1):
+        # 1. 先把孩子搞定
+        left_trees = build_trees(left, i - 1)
+        right_trees = build_trees(i + 1, right)
+        # 2. 将所有可能的左孩子+右孩子+当前节点，构成结果进行输出
+        for l in left_trees:
+            for r in right_trees:
+                # 当前节点
+                cur_tree = TreeNode(i)
+                # 所有的左孩子+右孩子节点
+                cur_tree.left = l
+                cur_tree.right = r
+                all_trees.append(cur_tree)
+    return all_trees
+return build_trees(1, n)
+
+```
+- 统计数量
+
+```python
+    def numTrees(self, n):
+        """给出n，求1-n所有可能的二进制二叉树的数量
+        方法2(从下到上dp)：dp[i]代表1-i的可能的数量，每个位置可以由左边孩子的数量*右边孩子的数量得到
+        """
+        # 这是一道数学问题
+        # G(n)=G(0)∗G(n−1)+G(1)∗(n−2)+...+G(n−1)∗G(0)
+        dp = [0 for _ in range(n+1)]
+        dp[0] = 1
+        dp[1] = 1
+        for i in range(2, n + 1):
+            for j in range(1, i + 1):
+                dp[i] += dp[j-1] * dp[i - j]
+        return dp[n]
+```
+
+## 三、题解
+
+### 3.1 树的遍历
+
 #### 11111 非递归总结
 ```c++
         // 栈 先进后出
@@ -19,6 +118,10 @@
 class Solution:
     def preorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
         """144. 二叉树的前序遍历
+    1
+  2   3
+4  5 6  7
+先序：1245367
 输入：root = [1,null,2,3]
 输出：[1,2,3]
         题解：栈模拟，先右入栈，出来的时候左就会优先出来
@@ -60,6 +163,12 @@ class Solution:
         // 前序遍历，出栈顺序：根左右; 入栈顺序：右左根
         // 中序遍历，出栈顺序：左根右; 入栈顺序：右根左
         // 后序遍历，出栈顺序：左右根; 入栈顺序：根右左
+    1
+  2   3
+4  5 6  7
+中序：4251637
+[1,5,]
+42
         """
         if root is None:
             return []
@@ -151,8 +260,80 @@ class Solution:
 
 ```
 
+#### 102 树的层次遍历
 
-#### 95 构建所有二叉树
+
+```python
+class Solution(object):
+    def levelOrder(self, root):
+        """层次遍历输出某一层的值
+        :param root:
+        :return:
+        """
+        if not root:
+            return []
+        from collections import deque
+        cache = deque()
+        cache.append(root)
+        rt = []
+        while cache:
+            rt_tmp = []
+            cache_tmp = deque()
+            while cache:
+                cur = cache.popleft()
+                rt_tmp.append(cur.val)
+                if cur.left:
+                    cache_tmp.append(cur.left)
+                if cur.right:
+                    cache_tmp.append(cur.right)
+            cache = cache_tmp
+            rt.append(rt_tmp)
+        return rt
+```
+
+
+#### 103 z字形层次遍历
+
+
+```python
+
+class Solution(object):
+    def zigzagLevelOrder(self, root):
+        """z字型层次遍历
+        :type root: TreeNode
+        :rtype: List[List[int]]
+        """
+        if not root:
+            return []
+        from collections import deque
+        cache = deque()
+        zflag = False
+        cache.append(root)
+        rt = []
+        while cache:
+            tmp_cache = deque()
+            tmp_rt = []
+            while cache:
+                cur = cache.popleft()
+                tmp_rt.append(cur.val)
+                if cur.left:
+                    tmp_cache.append(cur.left)
+                if cur.right:
+                    tmp_cache.append(cur.right)
+            cache = tmp_cache
+            if not zflag:
+                rt.append(tmp_rt)
+            else:
+                rt.append(tmp_rt[::-1])
+            zflag = not zflag
+        return rt
+```
+
+
+
+### 3.2 构建二叉树
+
+#### 95 构建所有二叉搜索树
 
 ```python
 
@@ -228,7 +409,7 @@ class Solution(object):
         return numTreesBetweenLR(1, n)
 ```
 
-#### 96 1-n可能二叉树的数量-从下到上dp
+#### 96 1-n可能二叉搜索树的数量-从下到上dp
 
 ```python
 
@@ -242,15 +423,64 @@ class Solution(object):
         dp = [0 for _ in range(n+1)]
         dp[0] = 1
         dp[1] = 1
+        # 对于每个n
         for i in range(2, n + 1):
+            # 左中右[0, 1, n-1-0]
+            # 左中右[1, 1, n-1-1]
+            # 左中右[n-1, 1, 0]
             for j in range(1, i + 1):
                 dp[i] += dp[j-1] * dp[i - j]
         return dp[n]
 ```
 
+#### 654 构建最大的二叉树(每次利用最大值将数组分成两半来构建)
 
-#### 98 有效的二叉树-非递归中序遍历
 
+```
+给定一个不重复的整数数组 nums 。 最大二叉树 可以用下面的算法从 nums 递归地构建:
+
+创建一个根节点，其值为 nums 中的最大值。
+递归地在最大值 左边 的 子数组前缀上 构建左子树。
+递归地在最大值 右边 的 子数组后缀上 构建右子树。
+返回 nums 构建的 最大二叉树 。
+
+来源：力扣（LeetCode）
+链接：https://leetcode.cn/problems/maximum-binary-tree
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def constructMaximumBinaryTree(self, nums: List[int]) -> TreeNode:
+        def build(l, r):
+            """构建[l,r]子区间里面的最大二叉树"""
+            if l > r:
+                return None
+            if l == r:
+                return TreeNode(nums[l])
+            max_index, max_val = -1, float('-inf')
+            for i in range(l, r + 1):
+                if nums[i] > max_val:
+                    max_index, max_val = i, nums[i]
+            left = build(l, max_index - 1)
+            right = build(max_index + 1, r)
+            cur = TreeNode(nums[max_index])
+            cur.left = left
+            cur.right = right
+            return cur
+        return build(0, len(nums) - 1)
+
+```
+
+### 3.3 二叉搜索树
+
+#### 98 有效的二叉搜索树-非递归中序遍历
 
 ```python
 
@@ -310,10 +540,8 @@ class Solution(object):
             if node is None:
                 return True
             return left_boud < node.val < right_boud and isValid(node.left, left_boud, node.val) and isValid(node.right, node.val, right_boud)
-
         return isValid(root, float('-inf'), float('inf'))
         
-
 ```
 
 #### 99 复原二叉搜索树: 二叉搜索树有两个节点swap了，叫你复原二叉树
@@ -360,7 +588,10 @@ class Solution(object):
         in_order(root)
         # 交换值,
         self.first.val, self.second.val = self.second.val, self.first.val
+
 ```
+
+### 3.4 两棵树比较
 
 #### 100 判断两棵树是否等价
 
@@ -425,74 +656,6 @@ class Solution(object):
 ```
 
 
-#### 102 树的层次遍历
-
-
-```python
-class Solution(object):
-    def levelOrder(self, root):
-        """层次遍历输出某一层的值
-        :param root:
-        :return:
-        """
-        if not root:
-            return []
-        from collections import deque
-        cache = deque()
-        cache.append(root)
-        rt = []
-        while cache:
-            rt_tmp = []
-            cache_tmp = deque()
-            while cache:
-                cur = cache.popleft()
-                rt_tmp.append(cur.val)
-                if cur.left:
-                    cache_tmp.append(cur.left)
-                if cur.right:
-                    cache_tmp.append(cur.right)
-            cache = cache_tmp
-            rt.append(rt_tmp)
-        return rt
-```
-
-
-#### 103 z字形层次遍历
-
-
-```python
-
-class Solution(object):
-    def zigzagLevelOrder(self, root):
-        """z字型层次遍历
-        :type root: TreeNode
-        :rtype: List[List[int]]
-        """
-        if not root:
-            return []
-        from collections import deque
-        cache = deque()
-        zflag = False
-        cache.append(root)
-        rt = []
-        while cache:
-            tmp_cache = deque()
-            tmp_rt = []
-            while cache:
-                cur = cache.popleft()
-                tmp_rt.append(cur.val)
-                if cur.left:
-                    tmp_cache.append(cur.left)
-                if cur.right:
-                    tmp_cache.append(cur.right)
-            cache = tmp_cache
-            if not zflag:
-                rt.append(tmp_rt)
-            else:
-                rt.append(tmp_rt[::-1])
-            zflag = not zflag
-        return rt
-```
 
 #### 104 树的最大深度
 
@@ -508,6 +671,8 @@ class Solution(object):
         return 1 + max(self.maxDepth(root.left), self.maxDepth(root.right))
 
 ```
+
+### 3.5 重建二叉树
 
 #### 105 根据先序遍历和中序遍历重建二叉树
 
@@ -526,7 +691,7 @@ class Solution(object):
 
         方法：递归实现，根据先序遍历+中序遍历，可以把做边的孩子和右边的孩子区分出来，递归先构建孩子，再构建当前的数就行了
         """
-        def search(pre_nodes, ino_nodes):
+        def creat_tree_from_preorder_and_inorder(pre_nodes, ino_nodes):
             if not pre_nodes or not ino_nodes:
                 return None
             # 拿到当前节点
@@ -535,13 +700,13 @@ class Solution(object):
             ino_h_index = ino_nodes.index(cur_val)
             cur = TreeNode(cur_val)
             # 遍历左孩子节点
-            childl = search(pre_nodes[1:ino_h_index+1], ino_nodes[:ino_h_index])
+            childl = creat_tree_from_preorder_and_inorder(pre_nodes[1:ino_h_index+1], ino_nodes[:ino_h_index])
             # 遍历右孩子节点
-            childr = search(pre_nodes[ino_h_index+1:], ino_nodes[ino_h_index+1:])
+            childr = creat_tree_from_preorder_and_inorder(pre_nodes[ino_h_index+1:], ino_nodes[ino_h_index+1:])
             cur.left = childl
             cur.right = childr
             return cur
-        return search(preorder, inorder)
+        return creat_tree_from_preorder_and_inorder(preorder, inorder)
 
 ```
 
@@ -564,132 +729,20 @@ class Solution(object):
         方法：
             1. 根据后续遍历，可以找到根节点，根据中序遍历，可以将孩子分为左右两半
         """
-        def search(ino, pos):
+        def creat_tree_from_inorder_and_postorder(ino, pos):
             if not ino or not pos:
                 return None
             root_val = pos[-1]
             root_val_ino_index = ino.index(root_val)
             root = TreeNode(root_val)
-            root.left = search(ino[:root_val_ino_index], pos[:root_val_ino_index])
-            root.right = search(ino[root_val_ino_index+1:], pos[root_val_ino_index:-1])
+            root.left = creat_tree_from_inorder_and_postorder(ino[:root_val_ino_index], pos[:root_val_ino_index])
+            root.right = creat_tree_from_inorder_and_postorder(ino[root_val_ino_index+1:], pos[root_val_ino_index:-1])
             return root
-        return search(inorder, postorder)
+        return creat_tree_from_inorder_and_postorder(inorder, postorder)
 ```
 
-#### 114 flatten二叉树
 
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution(object):
-    def flatten(self, root):
-        """将二叉树转化成链表，
-        :type root: TreeNode
-        :rtype: None Do not return anything, modify root in-place instead.
-        方法：直接先序遍历，记录pre结果，完成flatten
-        """
-        if root is None:
-            return
-        cache = [root]
-        pre = TreeNode(-1)
-        head = pre
-        while cache:
-            cur = cache.pop()
-            # print('cur:', cur.val)
-            if cur.right is not None:
-                cache.append(cur.right)
-            if cur.left is not None:
-                cache.append(cur.left)
-            cur.left = None
-            pre.right = cur
-            pre = cur
-        return head.right
-
-```
-
-#### 331 验证是否为二叉树的先序遍历
-
-
-```python
-class Solution(object):
-    def isValidSerialization(self, preorder):
-        """给出先序遍历结果，空节点由#表示，问是否是个有效的二叉树。
-        :type preorder: str, 先序遍历结果
-        :rtype: bool
-        example:
-            #  Input: preorder = "9,3,4,#,#,1,#,#,2,#,6,#,#"
-            # Output: true
-               9
-           3      2
-        4   1   #   6
-       # # # #    #   #
-
-       方法： 6 # # 代表一个子节点，利用栈一步一步消除子节点，然后判断是否为空
-        """
-        preorder = preorder.split(',')
-        cache = []
-        n = len(preorder)
-        cur = 0
-        while cur < n:
-            if not cache:
-                cache.append(preorder[cur])
-            else:
-                if preorder[cur] != '#':
-                    cache.append(preorder[cur])
-                else:
-                    cache.append('#')
-                    while True:
-                        if len(cache) >= 3 and cache[-1] == '#' and cache[-2] == "#" and cache[-3] != '#':
-                            cache.pop()
-                            cache.pop()
-                            cache.pop()
-                            cache.append('#')
-                        else:
-                            break
-            cur += 1
-        return cache == ["#"]
-
-
-```
-
-#### 341 将嵌套的list转成flat的
-
-```python
-
-class NestedIterator(object):
-    """将一个嵌套的list转成flat的
-    方法：利用栈来处理，直到最前面的元素处理好了，就不放入栈里面了
-    # Input: nestedList = [[1,1],2,[1,1]]
-    # Output: [1,1,2,1,1]
-    """
-    def __init__(self, nestedList):
-        # 先倒着放进stack里面
-        self.stack = []
-        for i in range(len(nestedList) - 1, -1, -1):
-            self.stack.append(nestedList[i])
-
-    def next(self):
-        # 取出已经处理好的int值
-        cur = self.stack.pop()
-        return cur.getInteger()
-
-    def hasNext(self):
-        while self.stack:
-            # 如果是整数类型，直接返回true
-            cur = self.stack[-1]
-            if cur.isInteger():
-                return True
-            # 否则把最后一个元素拿出来处理
-            self.stack.pop()
-            # 利用栈，把最前面的元素放到栈顶，知道它为整数了才退出，相当于利用栈来flat list
-            for i in range(len(cur.getList()) - 1, -1, -1):
-                self.stack.append(cur.getList()[i])
-        return False
-```
+### 3.5 序列化
 
 #### 剑指 Offer II 048. 序列化与反序列化二叉树 or 297. 二叉树的序列化与反序列化
 
@@ -854,6 +907,96 @@ if __name__ == '__main__':
 
 #### 449 序列化和反序列化搜索二叉树
 
+- 最新方法：先序遍历+二分+递归
+
+```python
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Codec:
+
+    def serialize(self, root):
+        """Encodes a tree to a single string.
+        
+        :type root: TreeNode
+        :rtype: str
+        """
+        if not root:
+            return ''
+        cache = []
+        cache.append(root)
+        res = []
+        while cache:
+            cur = cache.pop()
+            res.append(str(cur.val))
+            if cur.right:
+                cache.append(cur.right)
+            if cur.left:
+                cache.append(cur.left)
+        res = ','.join(res)
+        # print('res:', res)
+        return res
+
+    def build_from_preorder(self, values, l, r):
+        if l > r:
+            return None
+        if l == r:
+            return TreeNode(values[l])
+        cand = l
+        k1 = l + 1
+        k2 = r
+        while k1 <= k2:
+            mid = k1 + k2 >> 1
+            if values[mid] > values[l]:
+                k2 = mid - 1
+            elif values[mid] < values[l]:
+                cand = mid
+                k1 = mid + 1
+            else:
+                cand = mid
+                k1 = mid + 1
+        cur = TreeNode(values[l])
+        # print('values[l]:', values[l])
+        # print('values[cand]:', values[cand])
+        # print('left:', values[l+1:cand+1])
+        # print('right:', values[cand+1:r+1])
+        cur.left = self.build_from_preorder(values, l+1, cand)
+        cur.right = self.build_from_preorder(values, cand + 1, r)
+        return cur
+
+    def deserialize(self, data):
+        """Decodes your encoded data to tree.
+        :type data: str
+        :rtype: TreeNode
+        449. 序列化和反序列化二叉搜索树
+输入：root = [2,1,3]
+输出：[2,1,3]
+
+题解：
+1. 搜索二叉树如果是非平衡树，用常规序列二叉树的方法存会浪费比较多的空间，可以利用先序遍历的方式存，然后利用二叉搜索树的性质区分左右子树，递归构建左右子树即可。
+        """
+        if not data:
+            return None
+        values = data.split(',')
+        values = [int(_) for _ in values]
+        return self.build_from_preorder(values, 0, len(values)-1)
+
+        
+
+# Your Codec object will be instantiated and called as such:
+# ser = Codec()
+# deser = Codec()
+# tree = ser.serialize(root)
+# ans = deser.deserialize(tree)
+# return ans
+
+```
+
+- 之前的方法
 ```python
 # leetcode submit region begin(Prohibit modification and deletion)
 # Definition for a binary tree node.
@@ -910,109 +1053,8 @@ class Codec:
 ```
 
 
-#### 437 树的路径和III
 
-```python
-class Solution(object):
-    def pathSum(self, root, targetSum):
-        """树上从上到下的节点中，路径和为targetSum的个数，可以不是从头结点或者叶节点为起始点
-        :type root: TreeNode
-        :type targetSum: int
-        :rtype: int
-        #  Example 1:
-        #
-        #
-        # Input: root = [10,5,-3,3,2,null,11,3,-2,null,1], targetSum = 8
-        # Output: 3
-        # Explanation: The paths that sum to 8 are shown.
-
-        Solution:
-            1. 前缀和频次+树的遍历
-        """
-
-        self.target_sum_cnt = 0
-
-        def search(cur_node, prefix_sum, prefix_sum_cnt_dict):
-            """搜索每一个节点
-            Args:
-                cur_node(Node):当前节点
-                prefix_sum(int): 当前节点之前的路径上的前缀和
-                prefix_sum_cnt_dict(dict):当前节点之前的路径上的前缀和的频次
-            """
-
-            # nonlocal target_sum_cnt
-            if cur_node is None:
-                return
-            cur_sum = prefix_sum + cur_node.val
-            if cur_sum == targetSum:
-                self.target_sum_cnt += 1
-            diff = cur_sum - targetSum
-            if prefix_sum_cnt_dict[diff] > 0:
-                self.target_sum_cnt += prefix_sum_cnt_dict[diff]
-            # print('cur_node:', cur_node.val, 'cur_sum:', cur_sum, 'prefix_sum:', prefix_sum, 'diff:', diff, 'diff cnt:', prefix_sum_cnt_dict[diff])
-            prefix_sum_cnt_dict[cur_sum] += 1
-            search(cur_node.left, cur_sum, prefix_sum_cnt_dict)
-
-            search(cur_node.right, cur_sum, prefix_sum_cnt_dict)
-            prefix_sum_cnt_dict[cur_sum] -= 1
-
-        from collections import defaultdict
-        prefix_sum_cnt_dict = defaultdict(int)
-        search(root, 0, prefix_sum_cnt_dict)
-
-        return self.target_sum_cnt
-
-```
-
-#### 543 二叉树的直径
-
-```python
-# Definition for a binary tree node.
-# class TreeNode(object):
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution(object):
-    def diameterOfBinaryTree(self, root):
-        """树的直径
-        :type root: TreeNode
-        :rtype: int
-
-        Solution:
-            1. 记忆化搜索求每个node的深度
-            2. 遍历所有node，求最长直径
-        """
-        cache = dict()
-        def search_depth(node):
-            """记录每个节点的深度"""
-            if node not in cache:
-                if node is None:
-                    cache[node] = 0
-                else:
-                    left_depth = search_depth(node.left)
-                    right_depth = search_depth(node.right)
-                    cache[node] = max(left_depth, right_depth) + 1
-            return cache[node]
-
-        search_depth(root)
-        self.max_diameter = 0
-
-        def dfs(node):
-            """遍历所有节点，找最大直径"""
-            if node is None:
-                return
-            left_depth = search_depth(node.left)
-            right_depth = search_depth(node.right)
-            diameter = left_depth + right_depth
-            # 记录最大深度
-            self.max_diameter = max(self.max_diameter, diameter)
-            dfs(node.left)
-            dfs(node.right)
-        dfs(root)
-        return self.max_diameter
-
-```
+### 3.6 二叉树直径&路径和
 
 #### 543 二叉树的直径-简化版本
 
@@ -1028,7 +1070,7 @@ class Solution(object):
         """树的直径
         :type root: TreeNode
         :rtype: int
-
+        题目：给定一棵二叉树，你需要计算它的直径长度。一棵二叉树的直径长度是任意两个结点路径长度中的最大值。这条路径可能穿过也可能不穿过根结点。
         Solution:
             1. 想办法求每个节点的最大深度
             2. 树的直径就是每个节点左右的最大深度之和，遍历每个节点的时候，记录最大值即可
@@ -1048,88 +1090,6 @@ class Solution(object):
         search(root)
         # 返回直径最大值
         return result
-```
-
-
-
-
-
-#### 654 构建最大的二叉树(每次利用最大值将数组分成两半来构建)
-
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution:
-    def constructMaximumBinaryTree(self, nums: List[int]) -> TreeNode:
-        def build(l, r):
-            """构建[l,r]子区间里面的最大二叉树"""
-            if l > r:
-                return None
-            if l == r:
-                return TreeNode(nums[l])
-            max_index, max_val = -1, float('-inf')
-            for i in range(l, r + 1):
-                if nums[i] > max_val:
-                    max_index, max_val = i, nums[i]
-            left = build(l, max_index - 1)
-            right = build(max_index + 1, r)
-            cur = TreeNode(nums[max_index])
-            cur.left = left
-            cur.right = right
-            return cur
-        return build(0, len(nums) - 1)
-
-```
-
-#### 1371 找到二进制树中，节点和最大的二进制搜索树
-
-```python
-# Definition for a binary tree node.
-# class TreeNode:
-#     def __init__(self, val=0, left=None, right=None):
-#         self.val = val
-#         self.left = left
-#         self.right = right
-class Solution:
-    def maxSumBST(self, root: Optional[TreeNode]) -> int:
-        """find the maxsum bst in an binaray tree
-        example:
-            Input: root = [1,4,3,2,4,2,5,null,null,null,null,null,null,4,6]
-            Output: 20
-        solution:
-            use postOrder traversal to check if child is valide, and then check
-            cur node if valid, meanwhile, we can get the sum after postOrder traversal
-        """
-
-
-        self.max_binary_search_node_sum = 0
-        def isValidBinarySearchTree(node):
-            if node is None:
-                # for an null child, we need use child.maxval and child.minval to check
-                # if fathter is valid, it's min_val = float('inf'), and 
-                # max_val = float('-inf'), so the child.max_val < fater.val < child.min_val
-                # can be true
-                # reuslt = isValidBinarySearchTree, node's sum, cur.min, cur.max
-                return True, 0, float('inf'), float('-inf')
-            
-            left_valid, left_sum, left_l, left_r = isValidBinarySearchTree(node.left)
-            right_valid, right_sum, right_l, right_r = isValidBinarySearchTree(node.right)
-            if left_r < node.val < right_l and left_valid and right_valid:
-                cur_sum = left_sum + right_sum + node.val
-                if cur_sum > self.max_binary_search_node_sum:
-                    self.max_binary_search_node_sum = cur_sum
-                # print('node:',node.val,'valid:',True, 'sum:', cur_sum, 'cur.min:', min(left_l, node.val), 'cur.max:', max(right_r, node.val))
-                # reuslt = isValidBinarySearchTree, node's sum, cur.min, cur.max                
-                return True, cur_sum, min(left_l, node.val), max(right_r, node.val)
-            else:
-                return False, -1, -1, -1
-        isValidBinarySearchTree(root)
-        return self.max_binary_search_node_sum
-
 ```
 
 
@@ -1227,6 +1187,7 @@ class Solution:
 
 ```
 
+### 3.7 后继者&祖先
 
 #### 面试题 04.06. 后继者
 
@@ -1390,4 +1351,270 @@ class Solution(object):
             return root
         return left if left is not None else right
 
+```
+
+### 3.8 树形dp
+
+
+#### 437 树的路径和III
+
+```python
+class Solution(object):
+    def pathSum(self, root, targetSum):
+        """树上从上到下的节点中，路径和为targetSum的个数，可以不是从头结点或者叶节点为起始点
+        :type root: TreeNode
+        :type targetSum: int
+        :rtype: int
+        #  Example 1:
+        #
+        #
+        # Input: root = [10,5,-3,3,2,null,11,3,-2,null,1], targetSum = 8
+        # Output: 3
+        # Explanation: The paths that sum to 8 are shown.
+
+        Solution:
+            1. 前缀和频次+树的遍历
+        """
+
+        self.target_sum_cnt = 0
+
+        def search(cur_node, prefix_sum, prefix_sum_cnt_dict):
+            """搜索每一个节点
+            Args:
+                cur_node(Node):当前节点
+                prefix_sum(int): 当前节点之前的路径上的前缀和
+                prefix_sum_cnt_dict(dict):当前节点之前的路径上的前缀和的频次
+            """
+
+            # nonlocal target_sum_cnt
+            if cur_node is None:
+                return
+            cur_sum = prefix_sum + cur_node.val
+            if cur_sum == targetSum:
+                self.target_sum_cnt += 1
+            diff = cur_sum - targetSum
+            if prefix_sum_cnt_dict[diff] > 0:
+                self.target_sum_cnt += prefix_sum_cnt_dict[diff]
+            # print('cur_node:', cur_node.val, 'cur_sum:', cur_sum, 'prefix_sum:', prefix_sum, 'diff:', diff, 'diff cnt:', prefix_sum_cnt_dict[diff])
+            prefix_sum_cnt_dict[cur_sum] += 1
+            search(cur_node.left, cur_sum, prefix_sum_cnt_dict)
+
+            search(cur_node.right, cur_sum, prefix_sum_cnt_dict)
+            prefix_sum_cnt_dict[cur_sum] -= 1
+
+        from collections import defaultdict
+        prefix_sum_cnt_dict = defaultdict(int)
+        search(root, 0, prefix_sum_cnt_dict)
+
+        return self.target_sum_cnt
+
+```
+
+#### 1371 找到二进制树中，节点和最大的二进制搜索树
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def maxSumBST(self, root: Optional[TreeNode]) -> int:
+        """find the maxsum bst in an binaray tree
+        example:
+            Input: root = [1,4,3,2,4,2,5,null,null,null,null,null,null,4,6]
+            Output: 20
+        solution:
+            use postOrder traversal to check if child is valide, and then check
+            cur node if valid, meanwhile, we can get the sum after postOrder traversal
+        """
+
+
+        self.max_binary_search_node_sum = 0
+        def isValidBinarySearchTree(node):
+            if node is None:
+                # for an null child, we need use child.maxval and child.minval to check
+                # if fathter is valid, it's min_val = float('inf'), and 
+                # max_val = float('-inf'), so the child.max_val < fater.val < child.min_val
+                # can be true
+                # reuslt = isValidBinarySearchTree, node's sum, cur.min, cur.max
+                return True, 0, float('inf'), float('-inf')
+            
+            left_valid, left_sum, left_l, left_r = isValidBinarySearchTree(node.left)
+            right_valid, right_sum, right_l, right_r = isValidBinarySearchTree(node.right)
+            if left_r < node.val < right_l and left_valid and right_valid:
+                cur_sum = left_sum + right_sum + node.val
+                if cur_sum > self.max_binary_search_node_sum:
+                    self.max_binary_search_node_sum = cur_sum
+                # print('node:',node.val,'valid:',True, 'sum:', cur_sum, 'cur.min:', min(left_l, node.val), 'cur.max:', max(right_r, node.val))
+                # reuslt = isValidBinarySearchTree, node's sum, cur.min, cur.max                
+                return True, cur_sum, min(left_l, node.val), max(right_r, node.val)
+            else:
+                return False, -1, -1, -1
+        isValidBinarySearchTree(root)
+        return self.max_binary_search_node_sum
+
+```
+
+
+
+
+### 3.9 其他
+
+#### 114 flatten二叉树
+
+
+```python
+
+给你二叉树的根结点 root ，请你将它展开为一个单链表：
+展开后的单链表应该同样使用 TreeNode ，其中 right 子指针指向链表中下一个结点，而左子指针始终为 null 。
+展开后的单链表应该与二叉树 先序遍历 顺序相同。
+输入：root = [1,2,5,3,4,null,6]
+   1
+ 2  5
+3 4 null 6
+
+=>
+
+1->2->3->4->5->6
+
+输出：[1,null,2,null,3,null,4,null,5,null,6]
+
+题解：先序遍历
+
+```
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def flatten(self, root):
+        """将二叉树转化成链表，
+        :type root: TreeNode
+        :rtype: None Do not return anything, modify root in-place instead.
+        方法：直接先序遍历，记录pre结果，完成flatten
+        """
+        if root is None:
+            return
+        cache = [root]
+        pre = TreeNode(-1)
+        head = pre
+        while cache:
+            cur = cache.pop()
+            # print('cur:', cur.val)
+            if cur.right is not None:
+                cache.append(cur.right)
+            if cur.left is not None:
+                cache.append(cur.left)
+            cur.left = None
+            pre.right = cur
+            pre = cur
+        return head.right
+
+```
+
+#### 331 验证二叉树的前序序列化
+
+```python
+给定一串以逗号分隔的序列，验证它是否是正确的二叉树的前序序列化。编写一个在不重构树的条件下的可行算法。
+输入: preorder = "9,3,4,#,#,1,#,#,2,#,6,#,#"
+输出: true
+```
+
+
+```python
+class Solution(object):
+    def isValidSerialization(self, preorder):
+        """给出先序遍历结果，空节点由#表示，问是否是个有效的二叉树。
+        :type preorder: str, 先序遍历结果
+        :rtype: bool
+        example:
+            #  Input: preorder = "9,3,4,#,#,1,#,#,2,#,6,#,#"
+            # Output: true
+               9
+           3      2
+        4   1   #   6
+       # # # #    #   #
+
+       方法： 6 # # 代表一个子节点，利用栈一步一步消除子节点，然后判断是否为空
+        """
+        preorder = preorder.split(',')
+        cache = []
+        n = len(preorder)
+        cur = 0
+        while cur < n:
+            if not cache:
+                cache.append(preorder[cur])
+            else:
+                if preorder[cur] != '#':
+                    cache.append(preorder[cur])
+                else:
+                    cache.append('#')
+                    while True:
+                        if len(cache) >= 3 and cache[-1] == '#' and cache[-2] == "#" and cache[-3] != '#':
+                            cache.pop()
+                            cache.pop()
+                            cache.pop()
+                            cache.append('#')
+                        else:
+                            break
+            cur += 1
+        return cache == ["#"]
+
+```
+
+#### 341 将嵌套的list转成flat的
+
+```python
+将嵌套的list转成flat的
+
+会用如下代码检测：
+initialize iterator with nestedList
+res = []
+while iterator.hasNext()
+    append iterator.next() to the end of res
+return res
+
+
+输入：nestedList = [[1,1],2,[1,1]]
+输出：[1,1,2,1,1]
+解释：通过重复调用 next 直到 hasNext 返回 false，next 返回的元素的顺序应该是: [1,1,2,1,1]。
+```
+
+```python
+
+class NestedIterator(object):
+    """将一个嵌套的list转成flat的
+    方法：利用栈来处理，直到最前面的元素处理好了，就不放入栈里面了
+    # Input: nestedList = [[1,1],2,[1,1]]
+    # Output: [1,1,2,1,1]
+    """
+    def __init__(self, nestedList):
+        # 先倒着放进stack里面
+        self.stack = []
+        for i in range(len(nestedList) - 1, -1, -1):
+            self.stack.append(nestedList[i])
+
+    def next(self):
+        # 取出已经处理好的int值
+        cur = self.stack.pop()
+        return cur.getInteger()
+
+    def hasNext(self):
+        """处理好嵌套的数据"""
+        while self.stack:
+            # 如果是整数类型，直接返回true
+            cur = self.stack[-1]
+            if cur.isInteger():
+                return True
+            # 否则把最后一个元素拿出来处理
+            self.stack.pop()
+            # 利用栈，把最前面的元素放到栈顶，知道它为整数了才退出，相当于利用栈来flat list
+            for i in range(len(cur.getList()) - 1, -1, -1):
+                self.stack.append(cur.getList()[i])
+        return False
 ```
