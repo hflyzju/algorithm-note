@@ -277,3 +277,87 @@ class Solution:
             return "Neither"
 
 ```
+
+
+#### 30. 串联所有单词的子串
+
+```
+给定一个字符串 s 和一些 长度相同 的单词 words 。找出 s 中恰好可以由 words 中所有单词串联形成的子串的起始位置。
+注意子串要与 words 中的单词完全匹配，中间不能有其他字符 ，但不需要考虑 words 中单词串联的顺序。
+输入：s = "barfoothefoobarman", words = ["foo","bar"]
+输出：[0,9]
+解释：
+从索引 0 和 9 开始的子串分别是 "barfoo" 和 "foobar" 。
+输出的顺序不重要, [9,0] 也是有效答案。
+
+题目：每个word长度一样，求包含所有words的子字符串的起点。
+题解1：找到每个长度为len(word[0]) * len(word)的子字符串，检查是否包含所有words
+题解2：在题解1的基础上，利用滑动窗口进行优化，否则对于每个index=i%len(word[0])为起点的word，可能都需要重新计算一次。
+解析如下：
+- 对i%len(word[0])=0的位置利用滑动窗口
+[barfoo]thefoobarman
+bar[foothe]foobarman
+
+- 对i%len(word[0])=1的位置利用滑动窗口
+b[arfoot]hefoobarman
+barf[oothef]oobarman
+
+时间复杂度: O(len(s) * len(words[0])),需要做len( words[0])次滑动窗口，每次需要遍历一次 len(s)。
+空间复杂度: O(m×n)，其中 m 是words 的单词数,n 是words 中每个单词的长度。每次滑动窗口时，需要用一个哈希表保存单词频次。
+
+
+
+```
+
+
+```c++
+class Solution {
+public:
+    vector<int> findSubstring(string &s, vector<string> &words) {
+        vector<int> res;
+        int m = words.size(), n = words[0].size(), ls = s.size();
+        // 枚举起点
+        for (int i = 0; i < n && i + m * n <= ls; ++i) {
+            // 统计长度为m的子串中每个word的频次
+            unordered_map<string, int> differ;
+            for (int j = 0; j < m; ++j) {
+                ++differ[s.substr(i + j * n, n)];
+            }
+            // 比较
+            for (string &word: words) {
+                if (--differ[word] == 0) {
+                    differ.erase(word);
+                }
+            }
+
+            // 利用滑动窗口即系往后看
+            for (int start = i; start < ls - m * n + 1; start += n) {
+                // 这个代表往后移动
+                if (start != i) {
+                    // 加上后面一个word
+                    string word = s.substr(start + (m - 1) * n, n);
+                    if (++differ[word] == 0) {
+                        differ.erase(word);
+                    }
+                    // 移除最前面的word
+                    word = s.substr(start - n, n);
+                    if (--differ[word] == 0) {
+                        differ.erase(word);
+                    }
+                }
+                // 如果为空，则加进来
+                if (differ.empty()) {
+                    res.emplace_back(start);
+                }
+            }
+        }
+        return res;
+    }
+};
+
+// 作者：LeetCode-Solution
+// 链接：https://leetcode.cn/problems/substring-with-concatenation-of-all-words/solution/chuan-lian-suo-you-dan-ci-de-zi-chuan-by-244a/
+// 来源：力扣（LeetCode）
+// 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+```
