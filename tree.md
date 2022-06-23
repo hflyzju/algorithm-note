@@ -9,7 +9,7 @@
 | 序列化和反序列化  | 剑指offer 48序列化反序列化二叉树, 428多叉树（hard）,449二叉搜索树 |hard,mid| 序列化和反序列化 | 二叉树，多叉树：层次遍历，decode时候，每一层消耗2个或者n棵树即可。二叉搜索树： 前序遍历序列化，然后利用二分法查找每个头结点的左边和右边子数组，然后递归构建即可，这种方法可以省一些序列化的开销|
 |二叉树直径，相邻不相等最长直径|543,2246|中等，困难|树的深度|1. dfs(返回的是从当前节点出发的最大的深度) 2. 直径以及相邻不相等的直径是由1可以计算出来|
 |后继者&共同祖先|04.06， 236|中等| 后序遍历 | 1. 后继者：二分。 2. 共同祖先：后续遍历思想，先检查左右两个子树有没有包含两个节点，如果分别在左和右中，那么当前节点就是祖先，否则是在左孩子或者右孩子中。
-| 树形dp |437，1371 |困难  |1. 树的路径和(树的遍历+前缀和) 2. 节点和最大的二进制搜索树（子树） |1.思想：先序遍历+前缀和。 2.思想：后续遍历+dp|
+| 树形dp |437，1371,968 |困难  |1. 树的路径和(树的遍历+前缀和) 2. 节点和最大的二进制搜索树（子树）3.监控二叉树(一个摄像头可以监控他的孩子、自己、父母，问最少需要多少个二叉树来监控) |1.思想：先序遍历+前缀和。 2.思想：后续遍历+dp, 3. 三个状态（1. 装了摄像头被监控到，2. 没有装摄像头被监控到，3. 没有装摄像头没有监控到），然后利用后续遍历的思想来求最终的结果|
 |其他|114（二叉树转链表），331（验证是否是二叉树的前序序列化）|中等|前序遍历，栈|1. 直接前序遍历指定下一个节点即可。 2. 栈消除val##，替换成一个#|
 
 ## 二、模板
@@ -1647,6 +1647,67 @@ class Solution:
                 return False, -1, -1, -1
         isValidBinarySearchTree(root)
         return self.max_binary_search_node_sum
+
+```
+
+
+#### 968. 监控二叉树 - 方法一，树形dp
+
+```python
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def minCameraCover(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+
+题目：
+给定一个二叉树，我们在树的节点上安装摄像头。
+节点上的每个摄影头都可以监视其父对象、自身及其直接子对象。
+计算监控树的所有节点所需的最小摄像头数量。
+
+输入：[0,0,null,0,0]
+输出：1
+解释：如图所示，一台摄像头足以监控所有节点。
+
+题解：每个节点的状态有，装相机，不装相机，被覆盖，不被覆盖。
+1. 当前节点装相机->满足->最小需要多少相机。
+2. 当前不装相机，满足的情况下->最小需要多少相机。
+3. 当前不装相机，不满足（但是孩子需要满足）情况下->最小需要多少相机
+
+1.左右满足或者不满足都可以
+cur_set = min(l_set, l_not_set_but_cover, l_not_set_not_cover) + min(r_set, r_not_set_but_cover, r_not_set_not_cover) + 1
+2. 左右一个装了就行
+cur_not_set_but_cover = min(l_set + min(r_set, r_not_set_but_cover), r_set + min(l_not_set_but_cover, l_set))
+3. 左右都满足就行，当前不满足
+cur_not_set_not_cover = l_not_set_but_cover + r_not_set_but_cover
+        """
+        def dfs(root):
+            """
+            状态0：当前节点安装相机的时候，需要的最少相机数
+            状态1：当前节点不安装相机，但是能被覆盖到的时候，需要的最少相机数
+            状态2：当前节点不安装相机，也不能被覆盖到的时候，需要的最少相机数
+            """
+            if not root:
+                return [1, 0, 0]
+            l_set, l_not_set_but_cover, l_not_set_not_cover = dfs(root.left)
+            r_set, r_not_set_but_cover, r_not_set_not_cover = dfs(root.right)
+            # 左右装，不装满足，不装不满足都可以
+            cur_set = min(l_set, l_not_set_but_cover, l_not_set_not_cover) + min(r_set, r_not_set_but_cover, r_not_set_not_cover) + 1
+            # 左侧装，右侧装或者不装满足 或者右侧装，左侧装或者左侧不装满足
+            cur_not_set_but_cover = min(l_set + min(r_set, r_not_set_but_cover), r_set + min(l_not_set_but_cover, l_set))
+            # 当前不装不满足，可能由父节点来装，但是孩子需要覆盖到
+            cur_not_set_not_cover = l_not_set_but_cover + r_not_set_but_cover
+            return [cur_set, cur_not_set_but_cover, cur_not_set_not_cover]
+
+        cur_set, cur_not_set_but_cover, cur_r_not_set_not_cover = dfs(root)
+        return min(cur_set, cur_not_set_but_cover)
+
 
 ```
 
