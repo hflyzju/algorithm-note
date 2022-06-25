@@ -1050,3 +1050,57 @@ class Solution(object):
 # 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 
 ```
+
+
+#### 剑指 Offer II 091. 粉刷房子
+
+```python
+class Solution(object):
+    def minCost(self, costs):
+        """
+        :type costs: List[List[int]]
+        :rtype: int
+
+        题目：每个房子i刷不同的颜色j需要cost[i][j]的代价，两个相邻的房子不能相同的颜色，问刷完所有房子最低的代价。
+        题解：1. 直接利用层次遍历思想遍历所有节点，最后取最后一层的最小值。
+        题解：2.在1上改进，1上有比较多的重复计算，利用dp[i][0],dp[i][1],dp[i][2]代表前i个不同颜色需要的最低代价，可以由dp[i-1][0], dp[i-1][1], dp[i-1][2]转移而来。
+
+输入: costs = [[17,2,17],[16,16,5],[14,3,19]]
+输出: 10
+解释: 将 0 号房子粉刷成蓝色，1 号房子粉刷成绿色，2 号房子粉刷成蓝色。
+     最少花费: 2 + 5 + 3 = 10。
+        """
+        # 题解2：dp
+        a, b, c = costs[0]
+        for i in range(1, len(costs)):
+            d = costs[i][0] + min(b, c)
+            e = costs[i][1] + min(a, c)
+            f = costs[i][2] + min(a, b)
+            a, b, c = d, e, f
+        return min(a, b, c)
+        # # 题解1：超时
+        # d = deque()
+        # d.append([costs[0][0], 0])
+        # d.append([costs[0][1], 1])
+        # d.append([costs[0][2], 2])
+
+        # layer = 1
+        # min_cost = float('inf')
+        # while d:
+        #     size = len(d)
+        #     for i in range(size):
+        #         cur_cost, cur_color = d.popleft()
+        #         # print('cur_cost, cur_color:', cur_cost, cur_color)
+        #         if layer == len(costs):
+        #             min_cost = min(cur_cost, min_cost)
+        #         if layer < len(costs):
+        #             for i in range(3):
+        #                 if cur_color != i:
+        #                     next_cost = cur_cost + costs[layer][i]
+        #                     d.append([next_cost, i])
+        #     layer += 1
+        # return min_cost
+
+            
+
+```
