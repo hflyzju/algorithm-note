@@ -1163,3 +1163,38 @@ class Solution:
 
 
 ```
+
+
+#### 324. 摆动排序 II
+
+```python
+class Solution(object):
+    def wiggleSort(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: None Do not return anything, modify nums in-place instead.
+输入：nums = [1,5,1,1,6,4]
+输出：[1,6,1,5,1,4]
+解释：[1,4,1,5,1,6] 同样是符合题目要求的结果，可以被判题程序接受。
+
+        题目：波浪形排序，例如13121
+        题解：排序，然后将数组分成两半，依次逆序填充即可，逆序输出可以解决1,2,2,3=》1,3,2,2这种重复case，因为尽可能的是中间的数字隔离开。
+        """
+        nums.sort()
+        n = len(nums)
+        tmp = [0] * n
+        cnt = 0
+        l1 = (n-1) // 2
+        l2 = n - 1
+        while cnt < n:
+            if cnt & 1 == 0:
+                tmp[cnt] = nums[l1]
+                l1 -= 1
+            else:
+                tmp[cnt] = nums[l2]
+                l2 -= 1
+            cnt += 1
+        for i in range(n):
+            nums[i] = tmp[i]
+
+```

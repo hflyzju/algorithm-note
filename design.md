@@ -56,3 +56,48 @@ class RandomizedCollection(object):
         return self.cache[index]
 
 ```
+
+
+
+#### 535. TinyURL 的加密与解密
+
+```
+输入：url = "https://leetcode.com/problems/design-tinyurl"
+输出："https://leetcode.com/problems/design-tinyurl"
+
+解释：
+Solution obj = new Solution();
+string tiny = obj.encode(url); // 返回加密后得到的 TinyURL 。
+string ans = obj.decode(tiny); // 返回解密后得到的原本的 URL 。
+
+
+```
+
+```python
+class Codec:
+    def __init__(self):
+        self.database = {}
+        self.id = 0
+
+    def encode(self, longUrl: str) -> str:
+        self.id += 1
+        self.database[self.id] = longUrl
+        return "http://tinyurl.com/" + str(self.id)
+
+    def decode(self, shortUrl: str) -> str:
+        i = shortUrl.rfind('/')
+        id = int(shortUrl[i + 1:])
+        return self.database[id]
+
+# 作者：LeetCode-Solution
+# 链接：https://leetcode.cn/problems/encode-and-decode-tinyurl/solution/tinyurl-de-jia-mi-yu-jie-mi-by-leetcode-ty5yp/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+        
+
+# Your Codec object will be instantiated and called as such:
+# codec = Codec()
+# codec.decode(codec.encode(url))
+
+```
