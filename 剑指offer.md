@@ -1,8 +1,234 @@
-### 面试题03. 数组中重复的数字
+## 一、总结
+
+
+|  类型 | 难度  | 题目 | 题解 | 
+|  ----  | ----  | --- | --- |
+ 面试题05. 替换空格|简单|请实现一个函数，把字符串 s 中的每个空格替换成"%20"。|c++可变字符串修改，先增加字符串长度，然后倒序修改|
+|面试题04. 二维数组中的查找|中等|从左到右，从上到下排序数组搜索|从右上往下搜|
+|面试题09. 用两个栈实现队列|简单|用两个栈实现一个队|两个栈|
+| 面试题11. 旋转数组的最小数字|简单|二分(最差情况为N复杂度)|mid>high,l=mid+1, mid=high,r=mid, mid<high,h=mid, return nums[l]|
+| 面试题14- I. 剪绳子|中等|给你一根长度为 n 的绳子，请把绳子剪成整数长度的 m 段，求最大的乘积是多少| dp[i] = max(dp[i], dp[i - k]*dp[k], dp[i - k]*k, (i-k)*k)|
+
+|面试题15. 二进制中1的个数|简单|转化为2进制后1的个数|每次减去最右边的1：可利用的性质：把一个整数减去1，再和原整数做与运算，会把该整数最右边的1变为0|
+
+
+## 二、模板
+
+### 2.1 二分模板
+
+```python
+"""
+输入：numbers = [3,4,5,1,2]
+输出：1
+"""
+class Solution:
+    def minArray(self, numbers: List[int]) -> int:
+
+        #### 1:1,2,3,4
+        #### 2:4,3,2,1
+        #### 3:2,1,3
+
+        i, j = 0, len(numbers) - 1
+        while i < j:
+            m = (i + j) // 2
+            if numbers[m] > numbers[j]:
+                i = m + 1
+            elif numbers[m] < numbers[j]:
+                j = m
+            # 单中间的值和末尾的值相等时，又两种情况:[1,1,1,0,1],[1,0,1,1,1],缩小判定范围后，要找的数字还在i-j里面
+            else:
+                j -= 1
+        return numbers[i]
+```
+
+### 2.2 回溯模板
+
+#### 剑指 Offer 12. 矩阵中的路径
+```python
+"""
+题目：给定一个 m x n 二维字符网格 board 和一个字符串单词 word 。如果 word 存在于网格中，返回 true ；否则，返回 false 。
+输入：board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"
+输出：true
+
+题解：回溯
+"""
+class Solution:
+    def exist(self, board: List[List[str]], word: str) -> bool:
+        def dfs(i, j, k):
+            if not 0 <= i < len(board) or not 0 <= j < len(board[0]) or board[i][j] != word[k]: 
+                return False
+            if k == len(word) - 1: 
+                return True
+            tmp, board[i][j] = board[i][j], '/'
+            res = dfs(i + 1, j, k + 1) or dfs(i - 1, j, k + 1) or dfs(i, j + 1, k + 1) or dfs(i, j - 1, k + 1)
+            board[i][j] = tmp
+            return res
+
+        for i in range(len(board)):
+            for j in range(len(board[0])):
+                if dfs(i, j, 0): return True
+        return False
+
+```
+
+### 2.3 图的遍历（带条件）
+#### 面试题13. 机器人的运动范围
+
+- dfs
+```python
+class Solution:
+    def movingCount(self, m: int, n: int, k: int) -> int:
+
+        # example1: [[0,0,0,0]]
+        # example2:[[0],[0],[0],[0]]
+        board = [[0 for _ in range(n)] for __ in range(m)]
+        def sum_of_loc(num):
+            """数位之和"""
+            s = 0
+            while num:
+                s += num % 10
+                num = num // 10
+            return s
+        self.cnt = 0
+        def dfs(i, j):
+            if i<0 or j<0 or i>=m or j>=n:
+                return
+            # 用board[i][j]=0代表未访问
+            if board[i][j] == 0 and (sum_of_loc(i) + sum_of_loc(j)) <= k:
+                self.cnt += 1
+                # 设为访问，因为每到一个节点，都把它的相邻的点访问完了，没有后顾之忧
+                board[i][j] = 1
+                dfs(i-1, j) 
+                dfs(i+1, j)
+                dfs(i, j-1)
+                dfs(i, j+1)
+        dfs(0, 0)
+        return self.cnt
+```
+
+- bfs
+
+```python
+class Solution:
+    def movingCount(self, m: int, n: int, k: int) -> int:
+
+        # example1: [[0,0,0,0]]
+        # example2:[[0],[0],[0],[0]]
+        board = [[0 for _ in range(n)] for __ in range(m)]
+        def sum_of_loc(num):
+            """数位之和"""
+            s = 0
+            while num:
+                s += num % 10
+                num = num // 10
+            return s
+
+        self.cnt = 0
+        dp = collections.deque()
+        dp.append([0, 0])
+        self.cnt = 0
+        while dp:
+            cur_x, cur_y = dp.popleft()
+            if cur_x <0 or cur_x >= m or cur_y < 0 or cur_y >= n or board[cur_x][cur_y] == 1 or ((sum_of_loc(cur_x) + sum_of_loc(cur_y)) > k):
+                continue
+            self.cnt += 1
+            board[cur_x][cur_y] = 1
+            dp.append([cur_x + 1, cur_y])
+            dp.append([cur_x - 1, cur_y])
+            dp.append([cur_x, cur_y - 1])
+            dp.append([cur_x, cur_y + 1])
+
+        return self.cnt         
+```
+
+
+### 2.4 位运算
+
+#### 面试题15. 二进制中1的个数
+- 位运算
+```python
+class Solution:
+    def hammingWeight(self, n: int) -> int:
+        cnt = 0
+        while n:
+            if n & 1 == 1:
+                cnt += 1
+            n = n >> 1
+        return cnt
+```
+
+- 数学性质:性质：把一个整数减去1，再和原整数做与运算，会把该整数最右边的1变为0.
+
+```python
+class Solution:
+    def hammingWeight(self, n: int) -> int:
+        #位运算：减1相与
+        count = 0
+        while n:
+            count += 1
+            n = (n-1) & n
+        return count
+
+```
+
+### 2.5 质数
+
+#### 1175. 质数排列
+```c++
+class Solution {
+public:
+    int mod = 1e9 + 7;
+
+    int countPrimes(int n) {
+        // https://labuladong.github.io/algo/4/30/114/
+        vector<bool> isPrime(n+1, true);
+        for (int i = 2; i * i <= n; i++) {
+            if (isPrime[i]) {
+                for (int j = i * i; j <= n; j += i) {
+                    isPrime[j] = false;
+                }
+            }
+        }
+        int count = 0;
+        for (int i = 2; i <= n; i++) {
+            if (isPrime[i]) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    long factorial(int n) {
+        long res = 1;
+        for (int i = 1; i <= n; i++) {
+            res *= i;
+            res %= mod;
+        }
+        return res;
+    }
+
+
+    int numPrimeArrangements(int n) {
+        int primeNum = countPrimes(n);
+        int notPrimeNum = n - primeNum;
+        // cout << "primeNum:" << primeNum << "notPrimeNum:" << notPrimeNum << endl;
+        long res = 1;
+        
+        return (int) (factorial(primeNum) * factorial(notPrimeNum) % mod);
+    }
+};
+```
+
+
+## 三、详细题解
+
+### 数组&排序
+
+#### 面试题03. 数组中重复的数字
 
 标签:Hash, 排序
 方法一: hash: O(n), O(n)
-方法二: 排序: O(n), O(1)
+方法二: 排序: O(nlogn), O(1)
 
 ```python
 class Solution:
@@ -17,7 +243,10 @@ class Solution:
         
 ```
 
-### 面试题04. 二维数组中的查找
+#### 面试题04. 二维数组中的查找
+
+题目：在一个 n * m 的二维数组中，每一行都按照从左到右递增的顺序排序，每一列都按照从上到下递增的顺序排序。请完成一个高效的函数，输入这样的一个二维数组和一个整数，判断数组中是否含有该整数。
+
 
 1.逐行使用二分查找
 O(n*log(m))
@@ -55,7 +284,7 @@ class Solution:
 
 ```
 
-### 面试题05. 替换空格
+#### 面试题05. 替换空格
 
 1.遍历替换
 
@@ -73,8 +302,44 @@ class Solution:
         return ''.join(rt)
 ```
 
+2. 可变字符串倒序修改
 
-### 面试题06. 从尾到头打印链表
+```c++
+class Solution {
+public:
+    string replaceSpace(string s) {
+        int count = 0, len = s.size();
+        // 统计空格数量
+        for (char c : s) {
+            if (c == ' ') count++;
+        }
+        // 修改 s 长度
+        s.resize(len + 2 * count);
+        // 倒序遍历修改
+        for(int i = len - 1, j = s.size() - 1; i < j; i--, j--) {
+            if (s[i] != ' ')
+                s[j] = s[i];
+            else {
+                s[j - 2] = '%';
+                s[j - 1] = '2';
+                s[j] = '0';
+                j -= 2;
+            }
+        }
+        return s;
+    }
+};
+
+// 作者：jyd
+// 链接：https://leetcode.cn/problems/ti-huan-kong-ge-lcof/solution/mian-shi-ti-05-ti-huan-kong-ge-ji-jian-qing-xi-tu-/
+// 来源：力扣（LeetCode）
+// 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+
+
+
+#### 面试题06. 从尾到头打印链表
 
 1.遍历然后反向输出
 
@@ -140,7 +405,7 @@ class Solution:
         return res
 ```
 
-### 面试题07. 重建二叉树
+#### 面试题07. 重建二叉树
 
 1.递归
 ```python
@@ -187,7 +452,7 @@ class Solution:
         return node
 ```
 
-### 面试题09. 用两个栈实现队列
+#### 面试题09. 用两个栈实现队列
 
 1.队列:先进先出, 栈:先进后出
 ```python
@@ -221,7 +486,58 @@ class CQueue:
 # param_2 = obj.deleteHead()
 ```
 
-### 面试题10- I. 斐波那契数列
+- c++版本
+
+```c++
+class CQueue {
+
+
+private:
+    stack<int> instack;
+    stack<int> outstack;
+
+public:
+    CQueue() {
+
+    }
+    
+    void appendTail(int value) {
+        instack.push(value);
+    }
+    
+    int deleteHead() {
+        if(outstack.empty()) {
+            while(!instack.empty()) {
+                int val = instack.top();
+                instack.pop();
+                outstack.push(val);
+            }
+        }
+
+        if(!outstack.empty()) {
+            int res = outstack.top();
+            outstack.pop();
+            return res;
+        }
+        return -1;
+    }
+};
+
+/**
+ * Your CQueue object will be instantiated and called as such:
+ * CQueue* obj = new CQueue();
+ * obj->appendTail(value);
+ * int param_2 = obj->deleteHead();
+ */
+
+```
+
+#### 面试题10- I. 斐波那契数列
+
+```
+F(0) = 0,   F(1) = 1
+F(N) = F(N - 1) + F(N - 2), 其中 N > 1.
+```
 
 - 动态规划
 ```python
@@ -243,7 +559,7 @@ class Solution:
 - 递归
 
 
-### 面试题10- II. 青蛙跳台阶问题
+#### 面试题10- II. 青蛙跳台阶问题
 - 动态规划, 就跟上面是一道题
 
 ```python
@@ -262,8 +578,34 @@ class Solution:
         return dp[n] % 1000000007
 ```
 
+```c++
 
-### 面试题11. 旋转数组的最小数字
+class Solution {
+public:
+    int numWays(int n) {
+        if (n == 0) {
+            return 1;
+        }
+        if(n <= 2 ) {
+            return n; 
+        }
+
+        int a = 1, b = 2;
+        int mod = 1000000007;
+        for(int i=3; i<n+1; i++) {
+            int c = a + b;
+            a = b;
+            b = c;
+            b = b % mod;
+        }
+
+        return b;
+
+    }
+};
+```
+
+#### 面试题11. 旋转数组的最小数字
 
 - 遍历
 ```python
@@ -273,9 +615,9 @@ class Solution:
 
         if not numbers:
             return 
-        ### 1:1,2,3,4
-        ### 2:4,3,2,1
-        ### 3:2,1,3
+        #### 1:1,2,3,4
+        #### 2:4,3,2,1
+        #### 3:2,1,3
 
         reverse_index = -1
         for i in range(len(numbers) - 1):
@@ -290,9 +632,9 @@ class Solution:
 class Solution:
     def minArray(self, numbers: List[int]) -> int:
 
-        ### 1:1,2,3,4
-        ### 2:4,3,2,1
-        ### 3:2,1,3
+        #### 1:1,2,3,4
+        #### 2:4,3,2,1
+        #### 3:2,1,3
 
         i, j = 0, len(numbers) - 1
         while i < j:
@@ -311,7 +653,7 @@ class Solution:
 ```
 
 
-### 面试题12. 矩阵中的路径
+#### 面试题12. 矩阵中的路径
 
 - 递归
 ```python
@@ -351,6 +693,14 @@ class Solution:
 - 答案
 
 ```python
+
+"""
+题目：给定一个 m x n 二维字符网格 board 和一个字符串单词 word 。如果 word 存在于网格中，返回 true ；否则，返回 false 。
+输入：board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"
+输出：true
+
+题解：回溯
+"""
 class Solution:
     def exist(self, board: List[List[str]], word: str) -> bool:
         def dfs(i, j, k):
@@ -371,7 +721,7 @@ class Solution:
 ```
 
 
-### 面试题13. 机器人的运动范围
+#### 面试题13. 机器人的运动范围
 
 - dfs
 ```python
@@ -392,6 +742,7 @@ class Solution:
         def dfs(i, j):
             if i<0 or j<0 or i>=m or j>=n:
                 return
+            # 用board[i][j]=0代表未访问
             if board[i][j] == 0 and (sum_of_loc(i) + sum_of_loc(j)) <= k:
                 self.cnt += 1
                 # 设为访问，因为每到一个节点，都把它的相邻的点访问完了，没有后顾之忧
@@ -439,7 +790,7 @@ class Solution:
         return self.cnt         
 ```
 
-### 面试题14- I. 剪绳子
+#### 面试题14- I. 剪绳子
 - 动态规划
 ```python
 class Solution:
@@ -475,7 +826,7 @@ class Solution:
             return 3 ** a * 2
 ```
 
-### 面试题15. 二进制中1的个数
+#### 面试题15. 二进制中1的个数
 - 位运算
 ```python
 class Solution:
@@ -502,7 +853,7 @@ class Solution:
 
 ```
 
-### 面试题16. 数值的整数次方
+#### 面试题16. 数值的整数次方
 
 - 递归
 
@@ -531,7 +882,12 @@ class Solution:
 ```python
 class Solution:
     def myPow(self, x: float, n: int) -> float:
-        
+        """
+        n=9
+         = 1001
+         = 1*2^3 + 0*2^2 + 0*2^1 + 1*2^0
+        x^9 = x^(2^3) * 1 * 1 * x^(2^0) = x^(8+1)
+        """
         if x == 0: 
             return 0
         res = 1
@@ -547,7 +903,7 @@ class Solution:
 
 ```
 
-### 面试题17. 打印从1到最大的n位数
+#### 面试题17. 打印从1到最大的n位数
 
 - 直接法，考大数，这道题无意义
 ```python
@@ -556,7 +912,7 @@ class Solution:
         return list(range(1, 10**n))
 ```
 
-### 面试题18. 删除链表的节点
+#### 面试题18. 删除链表的节点
 
 - 新建一个备胎
 ```python
@@ -580,7 +936,7 @@ class Solution:
         return head_tmp.next
 ```
 
-### 面试题21. 调整数组顺序使奇数位于偶数前面
+#### 面试题21. 调整数组顺序使奇数位于偶数前面
 
 ```python
 class Solution:
@@ -599,7 +955,7 @@ class Solution:
         
 ```
 
-### 面试题22. 链表中倒数第k个节点
+#### 面试题22. 链表中倒数第k个节点
 - 遍历记录n
 ```python
 # Definition for singly-linked list.
@@ -691,7 +1047,7 @@ class Solution:
 ```
 
 
-### 面试题24. 反转链表
+#### 面试题24. 反转链表
 
 - 备胎转正
 
@@ -764,7 +1120,7 @@ class Solution:
 ```
 
 
-### 面试题25. 合并两个排序的链表  
+#### 面试题25. 合并两个排序的链表  
 
 - 假头节点
 
@@ -827,7 +1183,7 @@ class Solution:
             return l1
 ```
 
-### 面试题26. 树的子结构
+#### 面试题26. 树的子结构
 
 - 递归
 
@@ -857,7 +1213,7 @@ class Solution:
 
 ```
 
-### 面试题27. 二叉树的镜像
+#### 面试题27. 二叉树的镜像
 
 - 递归
 
@@ -877,7 +1233,7 @@ class Solution:
         return root
 ```
 
-### 面试题28. 对称的二叉树
+#### 面试题28. 对称的二叉树
 
 - 递归
 
@@ -918,7 +1274,7 @@ class Solution:
         return judgeSym(root.left, root.right)
 ```
 
-### 面试题29. 顺时针打印矩阵
+#### 面试题29. 顺时针打印矩阵
 
 - 错误解法
 
@@ -990,7 +1346,7 @@ class Solution:
 ```
 
 
-### 面试题30. 包含min函数的栈
+#### 面试题30. 包含min函数的栈
 
 
 - 错误解法
@@ -1061,7 +1417,7 @@ class MinStack:
 ```
 
 
-### 面试题31. 栈的压入、弹出序列
+#### 面试题31. 栈的压入、弹出序列
 
 - 模拟法
 
@@ -1082,7 +1438,7 @@ class Solution:
 ```
 
 
-### 面试题32 - I. 从上到下打印二叉树
+#### 面试题32 - I. 从上到下打印二叉树
 
 - 双端队列, 层次遍历
 
@@ -1111,7 +1467,7 @@ class Solution:
         return rt
 ```
 
-### 层次遍历
+#### 层次遍历
 
 - 双端队列, 层次遍历, 缓存
 
@@ -1148,7 +1504,7 @@ class Solution:
 ```
 
 
-### 面试题32 - III. 从上到下打印二叉树 III
+#### 面试题32 - III. 从上到下打印二叉树 III
 
 ```python
 # Definition for a binary tree node.
@@ -1188,7 +1544,7 @@ class Solution:
 ```
 
 
-### 面试题33. 二叉搜索树的后序遍历序列
+#### 面试题33. 二叉搜索树的后序遍历序列
 
 - 递归: 二叉搜索数后续排列，那么出现第一个大于他的数后，后面所有的数应该都要大于才对，否则为false，然后可以递归取判定左右两边是否都符合。
 
@@ -1215,7 +1571,7 @@ class Solution:
 ```
 
 
-### 面试题34. 二叉树中和为某一值的路径
+#### 面试题34. 二叉树中和为某一值的路径
 
 - 递归, 错误写法
 
@@ -1289,11 +1645,11 @@ class Solution:
         return rt
 ```
 
-### 面试题35. 复杂链表的复制
+#### 面试题35. 复杂链表的复制
 
 ???
 
-### 面试题37. 序列化二叉树
+#### 面试题37. 序列化二叉树
 
 - 构建一颗树，也是根据层次遍历爹思想来构建
 ```python
@@ -1361,7 +1717,7 @@ class Codec:
 # codec.deserialize(codec.serialize(root))
 ```
 
-### 面试题39. 数组中出现次数超过一半的数字
+#### 面试题39. 数组中出现次数超过一半的数字
 
 - 哈希计数法
 - 排序，中间的数一定是众数(超过一半)
@@ -1390,7 +1746,7 @@ class Solution:
 ```
 
 
-### 面试题40. 最小的k个数
+#### 面试题40. 最小的k个数
 - 直接排序
 加入数据量超级大，直接排序很浪费.
 
@@ -1453,7 +1809,7 @@ class Solution:
         return [-x for x in rt]
 ```
 
-### 面试题42. 连续子数组的最大和
+#### 面试题42. 连续子数组的最大和
 
 - 用一个缓存前面的最大值
 ```python
@@ -1488,7 +1844,7 @@ class Solution:
 ```
 
 
-### 面试题43. 1～n整数中1出现的次数
+#### 面试题43. 1～n整数中1出现的次数
 
 1. =0 --> high*digit
 2. =1 --> high*digit + low + 1
@@ -1539,7 +1895,7 @@ class Solution:
 
 
 
-### 面试题44. 数字序列中某一位的数字
+#### 面试题44. 数字序列中某一位的数字
 
 - 错误解法
 
@@ -1593,7 +1949,7 @@ class Solution:
 ```
 
 
-### 面试题45. 把数组排成最小的数
+#### 面试题45. 把数组排成最小的数
 - 快速排序
 - 传递性证明？字符串 xy < yx , yz < zy ，需证明 xz < zx 一定成立。
 
@@ -1623,7 +1979,7 @@ class Solution:
                
 ```
 
-### 面试题46. 把数字翻译成字符串
+#### 面试题46. 把数字翻译成字符串
 
 
 - 思路: 如果与前一位能够match, 则dp[i] = dp[i-1]+dp[i-2], 即可以由前面一个跳一步来达到, 也可以由前两位跳一步达到, 所以是想加.
@@ -1674,7 +2030,7 @@ class Solution:
 ```
 
 
-### 面试题47. 礼物的最大价值
+#### 面试题47. 礼物的最大价值
 
 - 超时解法, 遍历, 可能路径会超级超级多
 
@@ -1729,7 +2085,7 @@ class Solution(object):
         return dp[m-1][n-1]
 ```
 
-### 面试题48. 最长不含重复字符的子字符串
+#### 面试题48. 最长不含重复字符的子字符串
 
 - 最长子串和解法
 ```python
@@ -1780,7 +2136,7 @@ class Solution(object):
 - 动态规划
 ??? 
 
-### 面试题49. 丑数
+#### 面试题49. 丑数
 
 - 错误写法
 ```python
@@ -1841,7 +2197,7 @@ class Solution(object):
         return dp[n]
 ```
 
-### 面试题50. 第一个只出现一次的字符
+#### 面试题50. 第一个只出现一次的字符
 
 ```python
 class Solution(object):
@@ -1864,7 +2220,7 @@ class Solution(object):
 ```
 
 
-### 面试题52. 两个链表的第一个公共节点
+#### 面试题52. 两个链表的第一个公共节点
 
 - 错误写法
 ```python
@@ -1959,7 +2315,7 @@ class Solution(object):
         return curA
 ```
 
-### 面试题53. 在排序数组中查找数字
+#### 面试题53. 在排序数组中查找数字
 
 - 二分法
 ```python
@@ -1993,7 +2349,7 @@ class Solution(object):
 ```
 
 
-### 面试题53. 0 ～ n-1中缺失的数字
+#### 面试题53. 0 ～ n-1中缺失的数字
 
 - 错误解法
 ```python
@@ -2044,7 +2400,7 @@ class Solution(object):
 
 
 
-### Number of Paths
+#### Number of Paths
 
 
 ```python
@@ -2075,7 +2431,7 @@ print(s.num_of_paths_to_dest(4))
 
 
 
-### 5429. 数组中的 k 个最强值
+#### 5429. 数组中的 k 个最强值
 
 - 超时解法
 
@@ -2129,7 +2485,7 @@ class Solution:
 ```
 
 
-### 面试题54. 二叉搜索树的第k大节点
+#### 面试题54. 二叉搜索树的第k大节点
 
 - 递归遍历
 ```python
@@ -2155,7 +2511,7 @@ class Solution(object):
         return self.res
 ```
 
-### 面试题55. 二叉树的深度
+#### 面试题55. 二叉树的深度
 
 - dfs
 ```python
@@ -2198,7 +2554,7 @@ class Solution(object):
         return max(self.maxDepth(root.left), self.maxDepth(root.right)) + 1
 ```
 
-### 面试题55. 平衡二叉树
+#### 面试题55. 平衡二叉树
 
 - 从上到下，自己解法, 时间比较亏，算树的深度肯定重复了, 时间为nlog2n
 ```python
@@ -2268,7 +2624,7 @@ class Solution(object):
         return recur(root) != -1
 ```
 
-### 面试题56-i 数组中数字出现的次数
+#### 面试题56-i 数组中数字出现的次数
 位运算
 ```python
 class Solution(object):
@@ -2299,7 +2655,7 @@ class Solution(object):
         return [num1, num2]
 ```
 
-### 面试题56-ii 数组中数字出现的次数II
+#### 面试题56-ii 数组中数字出现的次数II
 
 ```python
 class Solution(object):
@@ -2321,7 +2677,7 @@ class Solution(object):
 ```
 
 
-### 面试题57 和为s的两个数字
+#### 面试题57 和为s的两个数字
 
 - 双指针
 ```python
@@ -2346,7 +2702,7 @@ class Solution(object):
         return -1
 ```
 
-### 面试题57-II 和为s的连续正数序列
+#### 面试题57-II 和为s的连续正数序列
 
 - 错误写法
 ```python
@@ -2422,7 +2778,7 @@ class Solution(object):
 ```
 
 
-### 面试题58-I 翻转单词顺序
+#### 面试题58-I 翻转单词顺序
 
 ```python
 class Solution(object):
@@ -2453,10 +2809,10 @@ class Solution(object):
         return ' '.join(rt)
 ```
 
-### 面试题58-I 左旋转字符串
+#### 面试题58-I 左旋转字符串
 
 
-### 面试题59-I 滑动窗口的最大值
+#### 面试题59-I 滑动窗口的最大值
 
 ```python
 class Solution(object):
@@ -2489,7 +2845,7 @@ class Solution(object):
         return res
 ```
 
-### 面试题59-II 队列的最大值
+#### 面试题59-II 队列的最大值
 
 ```python
 class MaxQueue(object):
