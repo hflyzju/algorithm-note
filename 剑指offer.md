@@ -1,18 +1,30 @@
 ## 一、总结
 
-
 |类型|  题号 | 难度  | 题目 | 题解 | 
 | ---- |  ----  | ----  | --- | --- |
 |字符串|面试题05. 替换空格|简单|请实现一个函数，把字符串 s 中的每个空格替换成"%20"。|c++可变字符串修改，先增加字符串长度，然后倒序修改|
 |数组|面试题04. 二维数组中的查找|中等|从左到右，从上到下排序数组搜索|从右上往下搜|
+|数组|39. 数组中出现次数超过一半的数字|中等|找出众数|不同的数两两抵消，剩下的众数还是原来的众数|
+|数组|40. 最小的k个数|中等|最小的k个数|快速排序或者最小堆，快速排序是利用末尾的元素挑出了k个小的数，第k小和前k个最小的数，都可以用这个方法|
+|数组|剑指 Offer 43. 1～n 整数中 1 出现的次数|困难|统计1-n中所有数字中1出现的次数|统计每一位上1出现的次数即可，需要注意cur=0,1,>1时，前面的数字a和后面的数字b的变化范围。|
 |栈|面试题09. 用两个栈实现队列|简单|用两个栈实现一个队|两个栈|
+|栈|31. 栈的压入、弹出序列|中等|判断数组2是否为数组1的弹出序列（可以提前弹出）|模拟压入，如果最后节点与弹出的节点相等就弹出来，不相等就继续压入，最后检查mock是否为空。|
+|栈|30. 包含min函数的栈|中等|实现一个栈，并且随时可以查看其min的元素|用一个minStack模拟，如果pop的时候相同则一起弹出|
 |二分|面试题11. 旋转数组的最小数字|简单|二分(最差情况为N复杂度)|mid>high,l=mid+1, mid=high,r=mid, mid<high,h=mid, return nums[l]|
 |动归|面试题14- I. 剪绳子|中等|给你一根长度为 n 的绳子，请把绳子剪成整数长度的 m 段，求最大的乘积是多少| dp[i] = max(dp[i], dp[i - k]*dp[k], dp[i - k]*k, (i-k)*k)|
 |位运算|面试题15. 二进制中1的个数|简单|转化为2进制后1的个数|每次减去最右边的1：可利用的性质：把一个整数减去1，再和原整数做与运算，会把该整数最右边的1变为0|
 |位运算|面试题16. 数值的整数次方|中等|求x的n次方，x可能为负数|9=1001，对应[8,0,0,1],对应x翻倍后[x^8,x^4,x^2,x^1]的状态，对于第i位，如果n&i该位的数字不为0，那么我们可以乘x^i次方到结果中去|
+|位运算|面试题56-i 数组中数字出现的次数|中等|其余出现两次，找出只出现1次的两个数|一直异或的到的xor为剩下两个不同数的异或结果，xor中为1的位代表这个位这两个数不同，然后可以利用这个性质将数字分成两组分别异或，两组中剩下的数字就是num1和num2.|
+|位运算|中等|面试题56-ii 数组中数字出现的次数II|其余出现3次，它出现1次，找出这个数|遍历1 << i，每个位i上的数字的个数，如果个数为3的倍数，那么肯定不是出现1次的那个数字，那么这个数字可|到res中，最终返回res即可。|
 |回溯|面试题17. 打印从1到最大的n位数|中等|打印从1-n的所有数|回溯的方法收集001，002，...，100，101，102等值|
 |树|26. 树的子结构|中等|A是否包含B|主函数检查第一个节点是否相等，如果相等，则检查其孩子是否都能match，注意主函数如果一个为空直接False，子函数B为空直接True|
 |树|28. 对称的二叉树|中等|判断一棵树是否为对称的|isMatch(left.left, right.right) and isMatch(left.right, right.left) + 注意root为None|
+|树|33. 二叉搜索树的后序遍历序列|中等|判断数组是否是有效的二叉搜索树后序遍历的结果|找到第一个比根节点大的元素，然后验证后面的数应该都要大于根节点，然后递归验证左右子树（此时左右子树已经找到了）|
+|树|37. 序列化二叉树|困难|层次遍历+注意为空的时候需要序列化|
+|树|剑指 Offer 54. 二叉搜索树的第k大节点|简单|找到二叉搜索树第k大的数|后-中-左遍历即可|
+|双指针|剑指 Offer 57 - II. 和为s的连续正数序列|简单|连续和为target的所有数组|双指针解|
+|双端队列|面试题59-I 滑动窗口的最大值|困难|滑动窗口最大值|求最大值，用双端队列，每次append一个大的元素的时候，把前面小的元素pop出来，保留的是一个递减列表，这样可以很方便的拿到最左边的值即最大值，移动滑动窗口的时候，监控最大值是否需要从左边pop出去即可。|
+
 
 ## 二、模板
 
@@ -222,6 +234,67 @@ class Solution:
 
 
 ```
+#### 面试题56-i 数组中数字出现的次数
+
+```
+一个整型数组 nums 里除两个数字之外，其他数字都出现了两次。请写程序找出这两个只出现一次的数字。要求时间复杂度是O(n)，空间复杂度是O(1)。
+输入：nums = [4,1,4,6]
+输出：[1,6] 或 [6,1]
+输入：nums = [1,2,10,4,1,4,3,3]
+输出：[2,10] 或 [10,2]
+
+题解：一直异或的到的xor为剩下两个不同数的异或结果，xor中为1的位代表这个位这两个数不同，然后可以利用这个性质将数字分成两组分别异或，两组中剩下的数字就是num1和num2.
+```
+
+```python
+class Solution:
+    def singleNumbers(self, nums: List[int]) -> List[int]:
+
+        xor = 0
+        for num in nums:
+            xor ^= num
+
+        i = 0
+        while (1 << i) & xor == 0:
+            i += 1
+        mark = 1 << i
+        num1, num2 = 0, 0
+        for num in nums:
+            if num & mark ==0:
+                num1 ^= num
+            else:
+                num2 ^= num
+        return [num1, num2]
+```
+
+#### 面试题56-ii 数组中数字出现的次数II
+
+```
+在一个数组 nums 中除一个数字只出现一次之外，其他数字都出现了三次。请找出那个只出现一次的数字。
+输入：nums = [3,4,3,3]
+输出：4
+输入：nums = [9,1,7,9,7,9,7]
+输出：1
+题解：遍历1 << i，每个位i上的数字的个数，如果个数为3的倍数，那么肯定不是出现1次的那个数字，那么这个数字可|到res中，最终返回res即可。
+```
+```python
+class Solution(object):
+    def singleNumber(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        rt = 0
+        for i in range(32):
+            cnt = 0
+            bit = 1 << i
+            for num in nums:
+                if num & bit:
+                    cnt += 1
+            if cnt % 3 != 0:
+                rt |= bit
+        return rt
+```
 
 ### 2.5 质数
 
@@ -318,6 +391,18 @@ class Solution(object):
 
 #### 26. 树的子结构
 
+```
+剑指 Offer 26. 树的子结构:输入两棵二叉树A和B，判断B是不是A的子结构。
+输入：A = [1,2,3], B = [3,1]
+输出：false
+输入：A = [3,4,5,1,2], B = [4,1]
+输出：true
+
+题解：
+1. 遇到相等的点，搜索其子树是否match
+2. 否则继续搜索其孩子
+```
+
 ```python
 # Definition for a binary tree node.
 # class TreeNode(object):
@@ -344,15 +429,6 @@ class Solution(object):
         :type A: TreeNode
         :type B: TreeNode
         :rtype: bool
-剑指 Offer 26. 树的子结构:输入两棵二叉树A和B，判断B是不是A的子结构。
-输入：A = [1,2,3], B = [3,1]
-输出：false
-输入：A = [3,4,5,1,2], B = [4,1]
-输出：true
-
-题解：
-1. 遇到相等的点，搜索其子树是否match
-2. 否则继续搜索其孩子
         """
         if A is None or B is None:
             return False
@@ -370,6 +446,7 @@ class Solution(object):
 #### 28. 对称的二叉树
 
 ```python
+# 判断一棵二叉树是不是对称的
 # Definition for a binary tree node.
 # class TreeNode(object):
 #     def __init__(self, x):
@@ -401,6 +478,588 @@ class Solution(object):
 
 ```
 
+#### 面试题33. 二叉搜索树的后序遍历序列
+
+
+- 递归检查：
+
+```python
+
+"""
+输入一个整数数组，判断该数组是不是某二叉搜索树的后序遍历结果。如果是则返回 true，否则返回 false。假设输入的数组的任意两个数字都互不相同。
+输入: [1,6,3,2,5]
+输出: false
+输入: [1,3,2,6,5]
+输出: true
+题解：先找到第一个比根节点大的值，那么后面的值理论上都要大于根节点，然后递归判断子节点是否为有效的后序遍历即可
+"""
+
+class Solution:
+    def verifyPostorder(self, postorder: [int]) -> bool:
+        def recur(i, j):
+            """判断[i,j]之间是否为一个合理的后序遍历结果"""
+            if i >= j: 
+                return True
+            # 后序遍历为[左、右、中]
+            # 1. 找到第一个大于j的位置
+            # 2. 验证后面的数都要大于根节点
+            p = i
+            while p < j and postorder[p] < postorder[j]: 
+                p += 1
+            m = p
+            while p < j:
+                if postorder[p] < postorder[j]:
+                    return False
+                p += 1
+            return recur(i, m - 1) and recur(m, j - 1)
+        return recur(0, len(postorder) - 1)
+
+# 作者：jyd
+# 链接：https://leetcode.cn/problems/er-cha-sou-suo-shu-de-hou-xu-bian-li-xu-lie-lcof/solution/mian-shi-ti-33-er-cha-sou-suo-shu-de-hou-xu-bian-6/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+
+#### 37. 序列化二叉树
+
+```python
+
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Codec:
+
+    def serialize(self, root):
+        """Encodes a tree to a single string.
+        
+        :type root: TreeNode
+        :rtype: str
+        """
+        if root is None:
+            return ""
+        d = deque()
+        d.append(root)
+        res = []
+        while d:
+            cur = d.popleft()
+            if cur is None:
+                res.append('None')
+            else:
+                res.append(str(cur.val))
+                d.append(cur.left)
+                d.append(cur.right)
+        return ','.join(res)
+
+    def deserialize(self, data):
+        """Decodes your encoded data to tree.
+        
+        :type data: str
+        :rtype: TreeNode
+        """
+        if not data:
+            return None
+        res = data.split(',')
+        root = TreeNode(res[0])
+        d = deque()
+        d.append(root)
+        index = 1
+        while d:
+            cur = d.popleft()
+            val = res[index]
+            if val == 'None':
+                cur.left = None
+            else:
+                cur.left = TreeNode(int(val))
+                d.append(cur.left)
+            index += 1
+            val = res[index]
+            if val == 'None':
+                cur.right = None
+            else:
+                cur.right = TreeNode(int(val))
+                d.append(cur.right)
+            index += 1
+        return root
+
+        
+
+# Your Codec object will be instantiated and called as such:
+# codec = Codec()
+# codec.deserialize(codec.serialize(root))
+```
+
+#### 剑指 Offer 54. 二叉搜索树的第k大节点
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def kthLargest(self, root: TreeNode, k: int) -> int:
+        """剑指 Offer 54. 二叉搜索树的第k大节点
+        给定一棵二叉搜索树，请找出其中第 k 大的节点的值。
+
+        输入: root = [3,1,4,null,2], k = 1
+        3
+        / \
+        1   4
+        \
+        2
+        输出: 4
+
+        题解：右->中->左搜索并计数即可找到计数为k的数。
+        """
+        self.cnt = 0
+        self.val = float('inf')
+        
+        def search(node):
+            if node is None:
+                return
+            search(node.right)
+            self.cnt += 1
+            if self.cnt == k:
+                self.val = node.val
+                return
+            search(node.left)
+
+        search(root)
+        return self.val
+        
+```
+
+### 2.8 数组
+
+#### 29. 顺时针打印矩阵
+```python
+
+class Solution:
+    def spiralOrder(self, matrix: List[List[int]]) -> List[int]:
+        """29. 顺时针打印矩阵
+输入：matrix = [[1,2,3],[4,5,6],[7,8,9]]
+输出：[1,2,3,6,9,8,7,4,5]
+        """
+        if not matrix: return []
+        l, r, t, b, res = 0, len(matrix[0]) - 1, 0, len(matrix) - 1, []
+        while True:
+            for i in range(l, r + 1): 
+                res.append(matrix[t][i]) # left to right
+            t += 1
+            if t > b:  # 每次有更新之后，检查更新的节点是否越界
+                break
+            for i in range(t, b + 1):
+                 res.append(matrix[i][r]) # top to bottom
+            r -= 1
+            if l > r: 
+                break
+            for i in range(r, l - 1, -1):
+                 res.append(matrix[b][i]) # right to left
+            b -= 1
+            if t > b: 
+                break
+            for i in range(b, t - 1, -1): 
+                res.append(matrix[i][l]) # bottom to top
+            l += 1
+            if l > r: 
+                break
+        return res
+```
+
+#### 面试题39. 数组中出现次数超过一半的数字
+
+- 哈希计数法
+- 排序，中间的数一定是众数(超过一半)
+- 摩尔投票法
+```python
+"""
+两种情况：
+- 如果 n1 = x(众数), 抵消时，有一半是众数，抵消后, 还有一半以上是众数.
+- 如果 n1 != x, 抵消时，小于一半是众数，剩下的众数变多，找来的还是众数.
+
+"""
+class Solution:
+    def majorityElement(self, nums: List[int]) -> int:
+
+        votes = 0
+        for num in nums:
+            if votes == 0: 
+                x = num
+            if num == x:
+                votes += 1 
+            else:
+                votes -= 1
+        return x
+```
+
+#### 面试题40. 最小的k个数
+- 直接排序
+加入数据量超级大，直接排序很浪费.
+
+- 快速排序
+1. 如果快速排序的中点与要找的第k个数的长度相同，那快速排序就不用继续往下走了，
+否则继续对左边或者右边部分进行排序就行。
+2. center<k, 继续对预编剩下的进行排序.
+3. center>k, 继续在左边找topk的子数组.
+```python
+class Solution:
+    def getLeastNumbers(self, arr: List[int], k: int) -> List[int]:
+        
+        if not arr:
+            return -1
+
+        if k < 0:
+            return -1
+
+        def quik_sort(l, r, res_k):
+            """从子数组l和r(包括r)之间找到第res_k的数"""
+            # print(arr,l,r,res_k)
+            if l >= r:
+                return
+            # 双指针的初始位置
+            k1, k2 = l, l
+            for k2 in range(l, r):
+                if arr[k2] < arr[r]:
+                    arr[k1], arr[k2] = arr[k2], arr[k1]
+                    k1 += 1
+            arr[k1], arr[r] = arr[r], arr[k1]
+            left_num = k1 - l + 1
+            if left_num == res_k:
+                return
+            elif left_num > res_k:
+                quik_sort(l, k1 - 1, res_k)
+            elif left_num < res_k:
+                quik_sort(k1 + 1, r, res_k - left_num)
+        quik_sort(0, len(arr) - 1, k)
+        return arr[:k]
+
+```
+- 最大堆(python默认是最小堆)
+最大堆堆顶是最大得数，如果来一个数比最大的数还大，就丢弃最大的数，加入新来的数.
+
+```python
+class Solution:
+    def getLeastNumbers(self, arr: List[int], k: int) -> List[int]:
+        
+        if k == 0:
+            return []
+
+        import heapq
+        rt = [-x for x in arr[:k]]
+        heapq.heapify(rt)
+        for k1 in range(k, len(arr)):
+            if -rt[0] > arr[k1]:
+                heapq.heappop(rt)
+                heapq.heappush(rt, -arr[k1])
+
+        return [-x for x in rt]
+```
+
+#### 剑指 Offer 43. 1～n 整数中 1 出现的次数
+
+```python
+class Solution:
+    def countDigitOne(self, n: int) -> int:
+        """剑指 Offer 43. 1～n 整数中 1 出现的次数
+        输入一个整数 n ，求1～n这n个整数的十进制表示中1出现的次数。
+        输入：n = 12
+        输出：5
+        题解：统计每一位上1出现的次数即可，需要注意cur=0,1,>1时，前面的数字a和后面的数字b的变化范围。
+
+        7805134
+        cur=1 -> a * base + b + 1
+        7805 1 34
+        [0~7804] 1 [0~99] = a * base
+        [7805] 1 [0~34] = b + 1
+        cur>1 -> (a+1) * base
+        780 5 134
+        [0~780] 1 [0~999] (a+1) * base
+        cur=0
+        78 0 5134
+        [0~77] 1 [0~9999] a * base
+        """
+        res, base = 0, 1
+        while base <= n:
+            b = n % base
+            a = n // base
+            cur = a % 10
+            a = a // 10
+            if cur == 0:
+                res += (a * base)
+            elif cur == 1:
+                res += (a * base + b + 1)
+            else:
+                res += (a + 1) * base
+            base *= 10
+        return res
+
+```
+
+
+### 2.9 栈
+
+#### 面试题30. 包含min函数的栈
+
+```
+MinStack minStack = new MinStack();
+minStack.push(-2);
+minStack.push(0);
+minStack.push(-3);
+minStack.min();   --> 返回 -3.
+minStack.pop();
+minStack.top();      --> 返回 0.
+minStack.min();   --> 返回 -2.
+
+[-2, 0, -3]
+[-2, -3]
+```
+
+- c++解法
+
+```c++
+class MinStack {
+
+private:
+    stack<int> valStack;
+    stack<int> minStack;
+public:
+
+
+    /** initialize your data structure here. */
+    MinStack() {
+
+    }
+    
+    void push(int x) {
+        valStack.push(x);
+        if(minStack.empty()) {
+            minStack.push(x);
+        } else {
+            if(x <= minStack.top()) {
+                minStack.push(x);
+            }
+        }
+    }
+    
+    void pop() {
+        if(!valStack.empty()) {
+            int lastVal = valStack.top();
+            valStack.pop();
+            if(lastVal == minStack.top()) {
+                minStack.pop();
+            }
+        }
+    }
+    
+    int top() {
+        if(!valStack.empty()) {
+            return valStack.top();
+        }
+        return -1;
+    }
+    
+    int min() {
+        if(!minStack.empty()) {
+            return minStack.top();
+        }
+        return -1;
+    }
+};
+
+/**
+ * Your MinStack object will be instantiated and called as such:
+ * MinStack* obj = new MinStack();
+ * obj->push(x);
+ * obj->pop();
+ * int param_3 = obj->top();
+ * int param_4 = obj->min();
+ */
+```
+
+
+#### 面试题31. 栈的压入、弹出序列
+
+- 模拟法
+
+```python
+"""
+31. 栈的压入、弹出序列
+输入：pushed = [1,2,3,4,5], popped = [4,5,3,2,1]
+输出：true
+解释：我们可以按以下顺序执行：
+push(1), push(2), push(3), push(4), pop() -> 4,
+push(5), pop() -> 5, pop() -> 3, pop() -> 2, pop() -> 1
+
+提示1：每个数字都不同。
+题解：模拟压入，如果最后节点与弹出的节点相等就弹出来，不相等就继续压入，最后检查mock是否为空。
+"""
+
+class Solution:
+    def validateStackSequences(self, pushed: List[int], popped: List[int]) -> bool:
+
+        mock = []
+        popped_index = 0
+        for push in pushed:
+            mock.append(push)
+            while mock and mock[-1] == popped[popped_index]: # 如果相等就弹出来
+                mock.pop()
+                popped_index += 1
+        if mock:
+            return False
+        return True
+```
+
+### 2.10 链表
+
+
+#### 面试题35. 复杂链表的复制
+
+```python
+"""
+请实现 copyRandomList 函数，复制一个复杂链表。在复杂链表中，每个节点除了有一个 next 指针指向下一个节点，还有一个 random 指针指向链表中的任意节点或者 null。
+
+输入：head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
+输出：[[7,null],[13,0],[11,4],[10,2],[1,0]]
+
+题解：
+1. 哈希表+遍历，时间空间都是O(n)
+2. 直接在原链表，对每个节点后面插入一个相同的节点，这样就方便指定下一个节点和random节点，最后利用链表的性质进行拆分即可。
+
+"""
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, x: int, next: 'Node' = None, random: 'Node' = None):
+        self.val = int(x)
+        self.next = next
+        self.random = random
+"""
+class Solution:
+    def copyRandomList(self, head: 'Node') -> 'Node':
+        if not head: return
+        cur = head
+        # 1. 复制各节点，并构建拼接链表
+        while cur:
+            tmp = Node(cur.val)
+            tmp.next = cur.next
+            cur.next = tmp
+            cur = tmp.next
+        # 2. 构建各新节点的 random 指向
+        cur = head
+        while cur:
+            if cur.random:
+                cur.next.random = cur.random.next
+            cur = cur.next.next
+        # 3. 拆分两链表
+        cur = res = head.next
+        pre = head
+        while cur.next:
+            pre.next = pre.next.next
+            cur.next = cur.next.next
+            pre = pre.next
+            cur = cur.next
+        pre.next = None # 单独处理原链表尾节点
+        return res      # 返回新链表头节点
+
+# 作者：jyd
+# 链接：https://leetcode.cn/problems/fu-za-lian-biao-de-fu-zhi-lcof/solution/jian-zhi-offer-35-fu-za-lian-biao-de-fu-zhi-ha-xi-/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+```
+
+### 2.11 双指针
+
+
+#### 剑指 Offer 57 - II. 和为s的连续正数序列
+
+```
+输入一个正整数 target ，输出所有和为 target 的连续正整数序列（至少含有两个数）。
+序列内的数字由小到大排列，不同序列按照首个数字从小到大排列。
+
+输入：target = 9
+输出：[[2,3,4],[4,5]]
+
+输入：target = 15
+输出：[[1,2,3,4,5],[4,5,6],[7,8]]
+
+题目：求连续的子数组和为target的数，用双指针解决。
+
+```
+
+```python
+class Solution:
+    def findContinuousSequence(self, target: int) -> List[List[int]]:
+        i, j, s, res = 1, 2, 3, []
+        while i < j:
+            if s == target:
+                res.append(list(range(i, j + 1)))
+            if s >= target:
+                s -= i
+                i += 1
+            else:
+                j += 1
+                s += j
+        return res
+
+# 作者：jyd
+# 链接：https://leetcode.cn/problems/he-wei-sde-lian-xu-zheng-shu-xu-lie-lcof/solution/jian-zhi-offer-57-ii-he-wei-s-de-lian-xu-t85z/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+```
+
+### 2.12 双端队列
+
+#### 面试题59-I 滑动窗口的最大值
+```
+给定一个数组 nums 和滑动窗口的大小 k，请找出所有滑动窗口里的最大值。
+输入: nums = [1,3,-1,-3,5,3,6,7], 和 k = 3
+输出: [3,3,5,5,6,7] 
+解释: 
+  滑动窗口的位置                最大值
+---------------               -----
+[1  3  -1] -3  5  3  6  7       3
+ 1 [3  -1  -3] 5  3  6  7       3
+ 1  3 [-1  -3  5] 3  6  7       5
+ 1  3  -1 [-3  5  3] 6  7       5
+ 1  3  -1  -3 [5  3  6] 7       6
+ 1  3  -1  -3  5 [3  6  7]      7
+
+ 题解：求最大值，用双端队列，每次append一个大的元素的时候，把前面小的元素pop出来，保留的是一个递减列表，这样可以很方便的拿到最左边的值即最大值，移动滑动窗口的时候，监控最大值是否需要从左边pop出去即可。
+```
+
+
+```python
+class Solution:
+    def maxSlidingWindow(self, nums: List[int], k: int) -> List[int]:
+        if not nums:
+            return []
+        # 1,3,3,3
+        stack = deque()
+        for i in range(k):
+            while stack and stack[-1] < nums[i]:
+                stack.pop()
+            stack.append(nums[i])
+        res = [stack[0]]
+        for i in range(k, len(nums)):
+            l = nums[i-k]
+            if stack[0] == l:
+                stack.popleft()
+            while stack and stack[-1] < nums[i]:
+                stack.pop()
+            stack.append(nums[i])
+            res.append(stack[0])
+        return res
+
+```
 
 ## 三、详细题解
 
@@ -1644,6 +2303,81 @@ class Solution:
 
 #### 面试题30. 包含min函数的栈
 
+```
+MinStack minStack = new MinStack();
+minStack.push(-2);
+minStack.push(0);
+minStack.push(-3);
+minStack.min();   --> 返回 -3.
+minStack.pop();
+minStack.top();      --> 返回 0.
+minStack.min();   --> 返回 -2.
+
+[-2, 0, -3]
+[-2, -3]
+```
+
+- c++解法
+
+```c++
+class MinStack {
+
+private:
+    stack<int> valStack;
+    stack<int> minStack;
+public:
+
+
+    /** initialize your data structure here. */
+    MinStack() {
+
+    }
+    
+    void push(int x) {
+        valStack.push(x);
+        if(minStack.empty()) {
+            minStack.push(x);
+        } else {
+            if(x <= minStack.top()) {
+                minStack.push(x);
+            }
+        }
+    }
+    
+    void pop() {
+        if(!valStack.empty()) {
+            int lastVal = valStack.top();
+            valStack.pop();
+            if(lastVal == minStack.top()) {
+                minStack.pop();
+            }
+        }
+    }
+    
+    int top() {
+        if(!valStack.empty()) {
+            return valStack.top();
+        }
+        return -1;
+    }
+    
+    int min() {
+        if(!minStack.empty()) {
+            return minStack.top();
+        }
+        return -1;
+    }
+};
+
+/**
+ * Your MinStack object will be instantiated and called as such:
+ * MinStack* obj = new MinStack();
+ * obj->push(x);
+ * obj->pop();
+ * int param_3 = obj->top();
+ * int param_4 = obj->min();
+ */
+```
 
 - 错误解法
 
@@ -1718,6 +2452,18 @@ class MinStack:
 - 模拟法
 
 ```python
+"""
+31. 栈的压入、弹出序列
+输入：pushed = [1,2,3,4,5], popped = [4,5,3,2,1]
+输出：true
+解释：我们可以按以下顺序执行：
+push(1), push(2), push(3), push(4), pop() -> 4,
+push(5), pop() -> 5, pop() -> 3, pop() -> 2, pop() -> 1
+
+提示1：每个数字都不同。
+题解：模拟压入，如果最后节点与弹出的节点相等就弹出来，不相等就继续压入，最后检查mock是否为空。
+"""
+
 class Solution:
     def validateStackSequences(self, pushed: List[int], popped: List[int]) -> bool:
 
@@ -1725,7 +2471,7 @@ class Solution:
         popped_index = 0
         for push in pushed:
             mock.append(push)
-            while mock and mock[-1] == popped[popped_index]:
+            while mock and mock[-1] == popped[popped_index]: # 如果相等就弹出来
                 mock.pop()
                 popped_index += 1
         if mock:
@@ -1842,6 +2588,46 @@ class Solution:
 
 #### 面试题33. 二叉搜索树的后序遍历序列
 
+
+- 递归检查：
+
+```python
+
+"""
+输入一个整数数组，判断该数组是不是某二叉搜索树的后序遍历结果。如果是则返回 true，否则返回 false。假设输入的数组的任意两个数字都互不相同。
+输入: [1,6,3,2,5]
+输出: false
+输入: [1,3,2,6,5]
+输出: true
+题解：先找到第一个比根节点大的值，那么后面的值理论上都要大于根节点，然后递归判断子节点是否为有效的后序遍历即可
+"""
+
+class Solution:
+    def verifyPostorder(self, postorder: [int]) -> bool:
+        def recur(i, j):
+            """判断[i,j]之间是否为一个合理的后序遍历结果"""
+            if i >= j: 
+                return True
+            # 后序遍历为[左、右、中]
+            # 1. 找到第一个大于j的位置
+            # 2. 验证后面的数都要大于根节点
+            p = i
+            while p < j and postorder[p] < postorder[j]: 
+                p += 1
+            m = p
+            while p < j:
+                if postorder[p] < postorder[j]:
+                    return False
+                p += 1
+            return recur(i, m - 1) and recur(m, j - 1)
+        return recur(0, len(postorder) - 1)
+
+# 作者：jyd
+# 链接：https://leetcode.cn/problems/er-cha-sou-suo-shu-de-hou-xu-bian-li-xu-lie-lcof/solution/mian-shi-ti-33-er-cha-sou-suo-shu-de-hou-xu-bian-6/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
 - 递归: 二叉搜索数后续排列，那么出现第一个大于他的数后，后面所有的数应该都要大于才对，否则为false，然后可以递归取判定左右两边是否都符合。
 
 ```python
@@ -1869,6 +2655,15 @@ class Solution:
 
 #### 面试题34. 二叉树中和为某一值的路径
 
+
+```
+题目：找出所有 从根节点到叶子节点 路径总和等于给定目标和的路径
+输入：root = [5,4,8,11,null,13,4,7,2,null,null,5,1], targetSum = 22
+输出：[[5,4,11,2],[5,8,4,5]]
+
+题解：深度优先+回溯
+
+```
 - 递归, 错误写法
 
 ```python
@@ -1943,7 +2738,59 @@ class Solution:
 
 #### 面试题35. 复杂链表的复制
 
-???
+```python
+"""
+请实现 copyRandomList 函数，复制一个复杂链表。在复杂链表中，每个节点除了有一个 next 指针指向下一个节点，还有一个 random 指针指向链表中的任意节点或者 null。
+
+输入：head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
+输出：[[7,null],[13,0],[11,4],[10,2],[1,0]]
+
+题解：
+1. 哈希表+遍历，时间空间都是O(n)
+2. 直接在原链表，对每个节点后面插入一个相同的节点，这样就方便指定下一个节点和random节点，最后利用链表的性质进行拆分即可。
+
+"""
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, x: int, next: 'Node' = None, random: 'Node' = None):
+        self.val = int(x)
+        self.next = next
+        self.random = random
+"""
+class Solution:
+    def copyRandomList(self, head: 'Node') -> 'Node':
+        if not head: return
+        cur = head
+        # 1. 复制各节点，并构建拼接链表
+        while cur:
+            tmp = Node(cur.val)
+            tmp.next = cur.next
+            cur.next = tmp
+            cur = tmp.next
+        # 2. 构建各新节点的 random 指向
+        cur = head
+        while cur:
+            if cur.random:
+                cur.next.random = cur.random.next
+            cur = cur.next.next
+        # 3. 拆分两链表
+        cur = res = head.next
+        pre = head
+        while cur.next:
+            pre.next = pre.next.next
+            cur.next = cur.next.next
+            pre = pre.next
+            cur = cur.next
+        pre.next = None # 单独处理原链表尾节点
+        return res      # 返回新链表头节点
+
+# 作者：jyd
+# 链接：https://leetcode.cn/problems/fu-za-lian-biao-de-fu-zhi-lcof/solution/jian-zhi-offer-35-fu-za-lian-biao-de-fu-zhi-ha-xi-/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+```
 
 #### 面试题37. 序列化二叉树
 
@@ -2037,8 +2884,6 @@ class Solution:
             else:
                 votes -= 1
         return x
-
-
 ```
 
 
@@ -2141,6 +2986,21 @@ class Solution:
 
 
 #### 面试题43. 1～n整数中1出现的次数
+
+```
+7805134
+cur=1 -> a * base + b + 1
+7805 1 34
+[0~7804] 1 [0~99] = a * base
+[7805] 1 [0~34] = b + 1
+cur>1 -> (a+1) * base
+780 5 134
+[0~780] 1 [0~999] (a+1) * base
+cur=0
+78 0 5134
+[0~77] 1 [0~9999] a * base
+```
+
 
 1. =0 --> high*digit
 2. =1 --> high*digit + low + 1
@@ -2921,6 +3781,17 @@ class Solution(object):
 ```
 
 #### 面试题56-i 数组中数字出现的次数
+
+```
+一个整型数组 nums 里除两个数字之外，其他数字都出现了两次。请写程序找出这两个只出现一次的数字。要求时间复杂度是O(n)，空间复杂度是O(1)。
+输入：nums = [4,1,4,6]
+输出：[1,6] 或 [6,1]
+输入：nums = [1,2,10,4,1,4,3,3]
+输出：[2,10] 或 [10,2]
+
+题解：一直异或的到的xor为剩下两个不同数的异或结果，xor中为1的位代表这个位这两个数不同，然后可以利用这个性质将数字分成两组分别异或，两组中剩下的数字就是num1和num2.
+```
+
 位运算
 ```python
 class Solution(object):
@@ -2953,6 +3824,14 @@ class Solution(object):
 
 #### 面试题56-ii 数组中数字出现的次数II
 
+```
+在一个数组 nums 中除一个数字只出现一次之外，其他数字都出现了三次。请找出那个只出现一次的数字。
+输入：nums = [3,4,3,3]
+输出：4
+输入：nums = [9,1,7,9,7,9,7]
+输出：1
+题解：遍历1 << i，每个位i上的数字的个数，如果个数为3的倍数，那么肯定不是出现1次的那个数字，那么这个数字可|到res中，最终返回res即可。
+```
 ```python
 class Solution(object):
     def singleNumber(self, nums):
@@ -2974,7 +3853,15 @@ class Solution(object):
 
 
 #### 面试题57 和为s的两个数字
+```
+输入一个递增排序的数组和一个数字s，在数组中查找两个数，使得它们的和正好是s。如果有多对数字的和等于s，则输出任意一对即可。
 
+输入：nums = [2,7,11,15], target = 9
+输出：[2,7] 或者 [7,2]
+
+输入：nums = [10,26,30,31,47,60], target = 40
+输出：[10,30] 或者 [30,10]
+```
 - 双指针
 ```python
 class Solution(object):
