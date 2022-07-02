@@ -1,16 +1,18 @@
 ## 一、总结
 
 
-|  类型 | 难度  | 题目 | 题解 | 
-|  ----  | ----  | --- | --- |
- 面试题05. 替换空格|简单|请实现一个函数，把字符串 s 中的每个空格替换成"%20"。|c++可变字符串修改，先增加字符串长度，然后倒序修改|
-|面试题04. 二维数组中的查找|中等|从左到右，从上到下排序数组搜索|从右上往下搜|
-|面试题09. 用两个栈实现队列|简单|用两个栈实现一个队|两个栈|
-| 面试题11. 旋转数组的最小数字|简单|二分(最差情况为N复杂度)|mid>high,l=mid+1, mid=high,r=mid, mid<high,h=mid, return nums[l]|
-| 面试题14- I. 剪绳子|中等|给你一根长度为 n 的绳子，请把绳子剪成整数长度的 m 段，求最大的乘积是多少| dp[i] = max(dp[i], dp[i - k]*dp[k], dp[i - k]*k, (i-k)*k)|
-
-|面试题15. 二进制中1的个数|简单|转化为2进制后1的个数|每次减去最右边的1：可利用的性质：把一个整数减去1，再和原整数做与运算，会把该整数最右边的1变为0|
-
+|类型|  题号 | 难度  | 题目 | 题解 | 
+| ---- |  ----  | ----  | --- | --- |
+|字符串|面试题05. 替换空格|简单|请实现一个函数，把字符串 s 中的每个空格替换成"%20"。|c++可变字符串修改，先增加字符串长度，然后倒序修改|
+|数组|面试题04. 二维数组中的查找|中等|从左到右，从上到下排序数组搜索|从右上往下搜|
+|栈|面试题09. 用两个栈实现队列|简单|用两个栈实现一个队|两个栈|
+|二分|面试题11. 旋转数组的最小数字|简单|二分(最差情况为N复杂度)|mid>high,l=mid+1, mid=high,r=mid, mid<high,h=mid, return nums[l]|
+|动归|面试题14- I. 剪绳子|中等|给你一根长度为 n 的绳子，请把绳子剪成整数长度的 m 段，求最大的乘积是多少| dp[i] = max(dp[i], dp[i - k]*dp[k], dp[i - k]*k, (i-k)*k)|
+|位运算|面试题15. 二进制中1的个数|简单|转化为2进制后1的个数|每次减去最右边的1：可利用的性质：把一个整数减去1，再和原整数做与运算，会把该整数最右边的1变为0|
+|位运算|面试题16. 数值的整数次方|中等|求x的n次方，x可能为负数|9=1001，对应[8,0,0,1],对应x翻倍后[x^8,x^4,x^2,x^1]的状态，对于第i位，如果n&i该位的数字不为0，那么我们可以乘x^i次方到结果中去|
+|回溯|面试题17. 打印从1到最大的n位数|中等|打印从1-n的所有数|回溯的方法收集001，002，...，100，101，102等值|
+|树|26. 树的子结构|中等|A是否包含B|主函数检查第一个节点是否相等，如果相等，则检查其孩子是否都能match，注意主函数如果一个为空直接False，子函数B为空直接True|
+|树|28. 对称的二叉树|中等|判断一棵树是否为对称的|isMatch(left.left, right.right) and isMatch(left.right, right.left) + 注意root为None|
 
 ## 二、模板
 
@@ -171,6 +173,56 @@ class Solution:
 
 ```
 
+#### 面试题16. 数值的整数次方
+
+- 递归
+
+```python
+class Solution:
+    def myPow(self, x: float, n: int) -> float:
+
+        if n == 0:
+            return 1
+
+        if n == 1:
+            return x
+
+        if n < 0:
+            return 1 / self.myPow(x, -1 * n)
+
+        if n % 2 == 0:
+            return self.myPow(x * x, n // 2)
+
+        else:
+            return x*self.myPow(x * x, n // 2)
+```
+
+- 二分法
+
+```python
+class Solution:
+    def myPow(self, x: float, n: int) -> float:
+        """
+        n=9
+         = 1001
+         = 1*2^3 + 0*2^2 + 0*2^1 + 1*2^0
+        x^9 = x^(2^3) * 1 * 1 * x^(2^0) = x^(8+1)
+        """
+        if x == 0: 
+            return 0
+        res = 1
+        if n < 0: 
+            x, n = 1 / x, -n
+        while n:
+            if n & 1: 
+                res *= x
+            x *= x
+            n >>= 1
+        return res
+
+
+```
+
 ### 2.5 质数
 
 #### 1175. 质数排列
@@ -181,6 +233,10 @@ public:
 
     int countPrimes(int n) {
         // https://labuladong.github.io/algo/4/30/114/
+        // n*log(log(n))
+        // 2 * 2, 2 * 3, 2 * 4, 2 * 5, 2 * 6, 2 * 7
+        // 3 * 2, 3 * 3, 3 * 4, ...
+        // 4 * 2
         vector<bool> isPrime(n+1, true);
         for (int i = 2; i * i <= n; i++) {
             if (isPrime[i]) {
@@ -217,6 +273,132 @@ public:
         return (int) (factorial(primeNum) * factorial(notPrimeNum) % mod);
     }
 };
+```
+
+### 2.6 回溯
+
+#### 面试题17. 打印从1到最大的n位数
+
+- 回溯思想解决大数的打印问题
+
+```python
+class Solution(object):
+
+    def clean(self, x):
+        i = 0
+        while i < len(x) and x[i] == '0':
+            i += 1
+        if i == len(x):
+            return '0'
+        else:
+            return x[i:]
+
+
+    def printNumbers(self, n):
+        """
+        :type n: int
+        :rtype: List[int]
+        """
+        res = []
+        def dfs(path, i):
+            if i == n:
+                val = self.clean(''.join(path))
+                if val != '0':
+                    res.append(int(val))
+                return
+            for j in range(10):
+                path.append(str(j))
+                dfs(path, i + 1)
+                path.pop()
+        dfs([], 0)
+        return res
+```
+
+### 2.7 树
+
+#### 26. 树的子结构
+
+```python
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+
+    def match(self, A, B):
+        if B is None:
+            return True
+        if A is None:
+            return False
+        if B.val != A.val:
+            return False
+        else:
+            return self.match(A.left, B.left) and self.match(A.right, B.right)
+
+
+    def isSubStructure(self, A, B):
+        """
+        :type A: TreeNode
+        :type B: TreeNode
+        :rtype: bool
+剑指 Offer 26. 树的子结构:输入两棵二叉树A和B，判断B是不是A的子结构。
+输入：A = [1,2,3], B = [3,1]
+输出：false
+输入：A = [3,4,5,1,2], B = [4,1]
+输出：true
+
+题解：
+1. 遇到相等的点，搜索其子树是否match
+2. 否则继续搜索其孩子
+        """
+        if A is None or B is None:
+            return False
+        if A.val == B.val:
+            if self.match(A.left, B.left) and self.match(A.right, B.right):
+                return True
+        if self.isSubStructure(A.left, B):
+            return True
+        if self.isSubStructure(A.right, B):
+            return True
+        return False
+
+```
+
+#### 28. 对称的二叉树
+
+```python
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+
+    def isMatch(self, left, right):
+        if left is None and right is None:
+            return True
+        if left is None or right is None:
+            return False
+        if left.val != right.val:
+            return False
+        
+        return self.isMatch(left.right, right.left) and self.isMatch(left.left, right.right)
+
+    def isSymmetric(self, root):
+        """
+        :type root: TreeNode
+        :rtype: bool
+        """
+        if root is None:
+            return True
+        return self.isMatch(root.left, root.right)
+
+
 ```
 
 
@@ -905,6 +1087,41 @@ class Solution:
 
 #### 面试题17. 打印从1到最大的n位数
 
+- 回溯思想解决大数的打印问题
+
+```python
+class Solution(object):
+
+    def clean(self, x):
+        i = 0
+        while i < len(x) and x[i] == '0':
+            i += 1
+        if i == len(x):
+            return '0'
+        else:
+            return x[i:]
+
+
+    def printNumbers(self, n):
+        """
+        :type n: int
+        :rtype: List[int]
+        """
+        res = []
+        def dfs(path, i):
+            if i == n:
+                val = self.clean(''.join(path))
+                if val != '0':
+                    res.append(int(val))
+                return
+            for j in range(10):
+                path.append(str(j))
+                dfs(path, i + 1)
+                path.pop()
+        dfs([], 0)
+        return res
+```
+
 - 直接法，考大数，这道题无意义
 ```python
 class Solution:
@@ -956,6 +1173,36 @@ class Solution:
 ```
 
 #### 面试题22. 链表中倒数第k个节点
+
+- 双指针
+```python
+# Definition for singly-linked list.
+# class ListNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution(object):
+    def getKthFromEnd(self, head, k):
+        """
+        :type head: ListNode
+        :type k: int
+        :rtype: ListNode
+        """
+        #            l
+        #        r
+        # [1,2,3,4,5]
+        cur = head
+        while k > 1:
+            cur = cur.next
+            k -= 1
+        while cur.next:
+            cur = cur.next
+            head = head.next
+        return head
+```
+
+
 - 遍历记录n
 ```python
 # Definition for singly-linked list.
@@ -966,7 +1213,6 @@ class Solution:
 
 class Solution:
     def getKthFromEnd(self, head: ListNode, k: int) -> ListNode:
-
         n = 0
         cur = head
         while cur:
@@ -980,7 +1226,6 @@ class Solution:
             head = head.next
             n -= 1
 
-        
 ```
 
 - 快慢指针: 先让第一个指针先跑k步, 第一个指针结束了，那后一个指针的位置就是要求的结果
@@ -1184,6 +1429,57 @@ class Solution:
 ```
 
 #### 面试题26. 树的子结构
+
+
+```python
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+
+    def match(self, A, B):
+        if B is None:
+            return True
+        if A is None:
+            return False
+        if B.val != A.val:
+            return False
+        else:
+            return self.match(A.left, B.left) and self.match(A.right, B.right)
+
+
+    def isSubStructure(self, A, B):
+        """
+        :type A: TreeNode
+        :type B: TreeNode
+        :rtype: bool
+剑指 Offer 26. 树的子结构:输入两棵二叉树A和B，判断B是不是A的子结构。
+输入：A = [1,2,3], B = [3,1]
+输出：false
+输入：A = [3,4,5,1,2], B = [4,1]
+输出：true
+
+题解：
+1. 遇到相等的点，搜索其子树是否match
+2. 否则继续搜索其孩子
+        """
+        if A is None or B is None:
+            return False
+        if A.val == B.val:
+            if self.match(A.left, B.left) and self.match(A.right, B.right):
+                return True
+        if self.isSubStructure(A.left, B):
+            return True
+        if self.isSubStructure(A.right, B):
+            return True
+        return False
+
+```
+
 
 - 递归
 
