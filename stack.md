@@ -1,56 +1,66 @@
-### 一、模板
+### 一、总结
+
+|类型|  题号 | 难度  | 题目 | 题解 | 
+| ---- |  ----  | ----  | --- | --- |
+|双端队列+递归|227. 基本计算器 II|困难|1 + 1 * (2 + 3) / 3包括括号的计算器的结果|函数计算括号内的值的结果，遇到括号可以重复调用消耗元素，详细方法如下：用双端队列存原始数据，从左到右消耗数据，如果遇到括号，重新调用函数计算括号里面的数据|
+|递增栈+存index|83 最大的矩形面积-单调栈|困难|计算可能的最大的矩形的面积|1.每个位置的宽度由左右两边第一个低于当前高度的位置决定，所以用递增栈存结果，遇到第一个比他小的，说明右边到头了，然后需要计算左边界（如果相等可以持续弹出），这样拿到每个位置的左右边界，可以计算当前节点的高。2. 如果最终stack不为空，还需要将stack里面的数据弹出并计算结果|
+|单调栈+统计|907. 子数组的最小值之和|困难|给定一个整数数组 arr，找到 min(b) 的总和，其中 b 的范围为 arr 的每个（连续）子数组。|    1. 每个数字影响的范围与它左右两边第一个小于它的位置有关，例如[3, [1], 2 ,4], 这个1，包括1的子数组的个数为2*3=6个，左右两边分别利用单调栈可以解决。2. 重复出现的数字，要注意只往一边扩展可以避免重复计算。[71,55,82,55]|
+|单调栈|496. 下一个更大元素 I|中等|根据num2中下一个更大的数，将num1进行转换|利用单调栈记录num2的下一个最大的元素，然后存到hash表中，然后num1进行查询|
+|单调栈（循环）|503. 下一个更大元素 II|中等|nums1可以循环，问如果将nums1转换成下一个更大的元素|单调栈|
+
+
+### 二、模板
 #### 1. 左右递增栈模板1
 ```python
-
-        nums = [0] + nums + [0]        
-        # 右边第一个比它小的元素下标
-        right_first_smaller = [None] * len(nums)
-        stack = []
-        for i in range(len(nums)):
-            # 如果当前元素比栈顶元素小，弹栈
-            while stack and nums[i] < nums[stack[-1]]:
-                right_first_smaller[stack.pop()] = i
-            stack.append(i)
-        # 左边第一个比它小的元素下标
-        left_first_smaller = [None] * len(nums)
-        stack = []
-        for i in range(len(nums)-1,-1,-1):
-            # 如果当前元素比栈顶元素小，弹栈
-            while stack and nums[i] < nums[stack[-1]]:
-                left_first_smaller[stack.pop()] = i
-            stack.append(i)
+nums = [0] + nums + [0]        
+# 右边第一个比它小的元素下标
+right_first_smaller = [None] * len(nums)
+stack = []
+for i in range(len(nums)):
+    # 如果当前元素比栈顶元素小，弹栈
+    while stack and nums[i] < nums[stack[-1]]:
+        right_first_smaller[stack.pop()] = i
+    stack.append(i)
+# 左边第一个比它小的元素下标
+left_first_smaller = [None] * len(nums)
+stack = []
+for i in range(len(nums)-1,-1,-1):
+    # 如果当前元素比栈顶元素小，弹栈
+    while stack and nums[i] < nums[stack[-1]]:
+        left_first_smaller[stack.pop()] = i
+    stack.append(i)
 ```
 
 #### 2.左右递增栈模板2
 
 ```python
-        n = len(arr)
-        left = [-1] * n
-        cache = []
-        for i in range(n):
-            while cache and arr[cache[-1]] > arr[i]:
-                cache.pop()
-            if not cache:
-                left[i] = 0
-            else:
-                left[i] = cache[-1] + 1
-            cache.append(i)
+n = len(arr)
+left = [-1] * n
+cache = []
+for i in range(n):
+    while cache and arr[cache[-1]] > arr[i]:
+        cache.pop()
+    if not cache:
+        left[i] = 0
+    else:
+        left[i] = cache[-1] + 1
+    cache.append(i)
 
-        right = [-1] * n
-        cache = []
-        for i in range(n-1, -1, -1):
-            while cache and arr[cache[-1]] >= arr[i]: # 需要等于，badcase: [71,55,82,55]
-                cache.pop()
-            if not cache:
-                right[i] = n - 1
-            else:
-                right[i] = cache[-1] - 1
-            cache.append(i)
+right = [-1] * n
+cache = []
+for i in range(n-1, -1, -1):
+    while cache and arr[cache[-1]] >= arr[i]: # 需要等于，badcase: [71,55,82,55]
+        cache.pop()
+    if not cache:
+        right[i] = n - 1
+    else:
+        right[i] = cache[-1] - 1
+    cache.append(i)
 
 ```
 
 
-### 二、题解
+### 三、题解
 
 
 
