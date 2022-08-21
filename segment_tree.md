@@ -47,7 +47,7 @@ class NumArray:
 
 
     def update_node(self, node, index, val):
-        """跟新左右孩子中当前节点的值，并根绝左右孩子的sum更新当前sum"""
+        """跟新左右孩子中当前节点的值，并根据左右孩子的sum更新当前sum"""
         if node.left == node.right:
             node.val = val
             # 只有一个节点也需要更新sum
@@ -505,5 +505,144 @@ class RangeModule(object):
 # print(obj.queryRange(left=10,right=15))
 # obj.removeRange(left=10,right=15)
 # print(obj.queryRange(left=10,right=15))
+
+```
+
+
+
+
+#### 2381. Shifting Letters II
+
+```
+You are given a string s of lowercase English letters and a 2D integer array shifts where shifts[i] = [starti, endi, directioni]. For every i, shift the characters in s from the index starti to the index endi (inclusive) forward if directioni = 1, or shift the characters backward if directioni = 0.
+
+Shifting a character forward means replacing it with the next letter in the alphabet (wrapping around so that 'z' becomes 'a'). Similarly, shifting a character backward means replacing it with the previous letter in the alphabet (wrapping around so that 'a' becomes 'z').
+
+Return the final string after all such shifts to s are applied.
+
+ 
+
+Example 1:
+
+Input: s = "abc", shifts = [[0,1,0],[1,2,1],[0,2,1]]
+Output: "ace"
+Explanation: Firstly, shift the characters from index 0 to index 1 backward. Now s = "zac".
+Secondly, shift the characters from index 1 to index 2 forward. Now s = "zbd".
+Finally, shift the characters from index 0 to index 2 forward. Now s = "ace".
+Example 2:
+
+Input: s = "dztz", shifts = [[0,0,0],[1,1,1]]
+Output: "catz"
+Explanation: Firstly, shift the characters from index 0 to index 0 backward. Now s = "cztz".
+Finally, shift the characters from index 1 to index 1 forward. Now s = "catz".
+```
+
+```python
+# 线段树解法，其实可以不用这么难，可以用“差分数组解决”
+class Node:
+    def __init__(self, l, r):
+        self.left = None
+        self.right = None
+        self.l = l
+        self.r = r
+        self.val = 0  # 记录的是最终的权重
+
+
+class SegmentTree:
+
+    def __init__(self, n):
+        self.root = Node(0, n - 1)
+
+    def update(self, node, l, r, val):
+
+        if l <= node.l and node.r <= r:
+            node.val += val
+        else:
+            self.push_down(node)
+            mid = node.l + node.r >> 1
+            if l <= mid:
+                self.update(node.left, l, r, val)
+            if r > mid:
+                self.update(node.right, l, r, val)
+
+    def push_down(self, node):
+        mid = node.l + node.r >> 1
+        if not node.left:
+            node.left = Node(node.l, mid)
+        if not node.right:
+            node.right = Node(mid + 1, node.r)
+        if node.val:
+            node.left.val += node.val
+            node.right.val += node.val
+            # reset
+            node.val = 0
+
+    def query_node(self, node, i):
+        if node.l == node.r and node.l == i:
+            return node.val
+        self.push_down(node)
+        mid = node.l + node.r >> 1
+        if node.l <= i <= mid:
+            return self.query_node(node.left, i)
+        if mid < i <= node.r:
+            return self.query_node(node.right, i)
+        return 0
+
+    def query(self, i):
+        return self.query_node(self.root, i)
+
+
+class Solution(object):
+
+    def get_char(self, c, i):
+        i = i % 26
+        if i > 0:
+            index = ord(c) + i
+            if index > ord('z'):
+                return chr((index - ord('z') + ord('a') - 1))
+            else:
+                return chr(index)
+        else:
+            index = ord(c) + i
+            if index < ord('a'):
+                return chr(ord('a') - (ord('a') - index))
+            else:
+                return chr(index)
+
+    def shiftingLetters(self, s, shifts):
+        """
+        :type s: str
+        :type shifts: List[List[int]]
+        :rtype: str
+        """
+
+        # s = "abc", shifts = [[0,1,0],[1,2,1],[0,2,1]]
+        n = len(shifts)
+        segmentTree = SegmentTree(n)
+        for i in range(n):
+            shift = shifts[i]
+            print(shift)
+            if shift[2] == 0:
+                segmentTree.update(segmentTree.root, shift[0], shift[1], -1)
+            else:
+                segmentTree.update(segmentTree.root, shift[0], shift[1], 1)
+
+            # for j in range(n):
+            #     diff = segmentTree.query(j)
+            #     print('i:', i, 'j:', j, 'diff:', diff)
+
+
+        s = list(s)
+        for i in range(n):
+            diff = segmentTree.query(i)
+            # print(s[i], diff)
+            s[i] = self.get_char(s[i], diff)
+        return ''.join(s)
+
+
+# obj = Solution()
+# s = "abc"
+# shifts = [[0,1,0],[1,2,1],[0,2,1]]
+# print(obj.shiftingLetters(s, shifts))
 
 ```
