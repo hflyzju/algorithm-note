@@ -2,6 +2,7 @@
 
 |  类型   | 编号  | 题目 | 题解 |
 |  ----  | ----  | --- | --- |
+|二分法变种|287. Find the Duplicate Number|找到1-n中可能重复多次的数字|在[1,n]中搜索，每次搜索统计小于i的个数，然后根据这个个数，决定最终的答案在哪个方向，最终答案必须存在，返回l或者r都可以|
 | 1d数组中找数字  | leetcode33, leetcode81 | 旋转数组搜索 | 找到有序的那一半，与当前数字进行比较，然后搜索 |
 | 2d数组中找第k小  | leetcode 668 | 乘法表中第k小的数(隐藏2分) | 首先确定边界[1, m*n]，每次找到mid，对于每个1d的行，可以常数时间得到该行小于等于mid的个数，这样可以逐渐缩小边界，输出r即可。|
 | 1d数组找出第 K 小的数对距离 | leetcode719 |找出第 K 小的数对距离(隐藏2分) | 数对距离边界[0, 10e9], 对于每一个mid, 可以O(n)时间找到nums中小于mid的间隔的个数(nums已经排序，可以用双指针在O(n)时间拿到结果)，这样可以逐渐缩小边界，输出r即可。|
@@ -95,6 +96,63 @@ return res
 ```
 
 ### 三、题解
+
+
+#### 287. Find the Duplicate Number
+```
+Given an array of integers nums containing n + 1 integers where each integer is in the range [1, n] inclusive.
+
+There is only one repeated number in nums, return this repeated number.
+
+You must solve the problem without modifying the array nums and uses only constant extra space.
+
+ 
+
+Example 1:
+
+Input: nums = [1,3,4,2,2]
+Output: 2
+Example 2:
+
+Input: nums = [3,1,3,4,2]
+Output: 3
+ 
+
+Constraints:
+
+1 <= n <= 105
+nums.length == n + 1
+1 <= nums[i] <= n
+All the integers in nums appear only once except for precisely one integer which appears two or more times.
+
+```
+
+
+```python
+class Solution(object):
+    def findDuplicate(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        
+        n = len(nums)
+        l, r = 1, n - 1
+        while l < r:
+            mid = l + r >> 1
+            cnt = 0
+            for i in range(n):
+                if nums[i] <= mid:
+                    cnt += 1
+            if cnt == mid:
+                l = mid + 1
+            elif cnt < mid:
+                l = mid + 1
+            else:
+                r = mid
+        return r # must have answer
+
+```
 
 #### 668. 乘法表中第k小的数-二分
 
