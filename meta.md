@@ -340,6 +340,300 @@ class Solution(object):
 
 ```
 
+
+#### 227. Basic Calculator II
+
+```
+Given a string s which represents an expression, evaluate this expression and return its value. 
+
+The integer division should truncate toward zero.
+
+You may assume that the given expression is always valid. All intermediate results will be in the range of [-231, 231 - 1].
+
+Note: You are not allowed to use any built-in function which evaluates strings as mathematical expressions, such as eval().
+
+Example 1:
+
+Input: s = "3+2*2"
+Output: 7
+Example 2:
+
+Input: s = " 3/2 "
+Output: 1
+Example 3:
+
+Input: s = " 3+5 / 2 "
+Output: 5
+```
+
+- 用stack解决
+```python
+class Solution(object):
+    def calculate(self, s):
+        """
+        :type s: str
+        :rtype: int
+        """
+        pre_mark = '+'
+        val = 0
+        res = []
+        for i in range(len(s)):
+            if s[i].isdigit():
+                val = val * 10 + int(s[i])
+            if (not s[i].isdigit() and s[i] != ' ') or i == len(s) - 1 :
+                if pre_mark == '+':
+                    res.append(val)
+                elif pre_mark == '-':
+                    res.append(-val)
+                elif pre_mark == '*':
+                    res[-1] *= val
+                elif pre_mark == '/':
+                    val_to_fix = 0
+                    if res[-1] < 0 and (-res[-1]) % val > 0:
+                        val_to_fix = 1
+                    res[-1] /= val
+                    res[-1] += val_to_fix
+                pre_mark = s[i]
+                val = 0
+        return sum(res)
+        
+```
+
+- 不用stack，因为只需要看最近的两个元素即可
+
+```python
+class Solution(object):
+    def calculate(self, s):
+        """
+        :type s: str
+        :rtype: int
+        
+        Input: s = "3+2*2"
+        Output: 7
+        
+        l1=3
+        l2=2*2
+        
+        2
+        
+        """
+        pre_mark = '+'
+        val = 0
+        
+        res = 0
+        l1 = 0
+        l2 = 0
+        for i in range(len(s)):
+            if s[i].isdigit():
+                val = val * 10 + int(s[i])
+            if (not s[i].isdigit() and s[i] != ' ') or i == len(s) - 1 :
+                if pre_mark == '+':
+                    res += l1
+                    l1 = l2
+                    l2 = val
+                elif pre_mark == '-':
+                    res += l1
+                    l1 = l2
+                    l2 = -val
+                elif pre_mark == '*':
+                    l2 *= val
+                elif pre_mark == '/':
+                    val_to_fix = 0
+                    if l2 < 0 and (-l2) % val > 0:
+                        val_to_fix = 1
+                    l2 /= val
+                    l2 += val_to_fix
+                pre_mark = s[i]
+                val = 0
+        return res + l1 + l2
+```
+### Round2(coding)：两题
+
+#### 65. Valid Number
+
+```
+
+A valid number can be split up into these components (in order):
+
+A decimal number or an integer.
+(Optional) An 'e' or 'E', followed by an integer.
+A decimal number can be split up into these components (in order):
+
+(Optional) A sign character (either '+' or '-').
+One of the following formats:
+One or more digits, followed by a dot '.'.
+One or more digits, followed by a dot '.', followed by one or more digits.
+A dot '.', followed by one or more digits.
+An integer can be split up into these components (in order):
+
+(Optional) A sign character (either '+' or '-').
+One or more digits.
+For example, all the following are valid numbers: ["2", "0089", "-0.1", "+3.14", "4.", "-.9", "2e10", "-90E3", "3e+7", "+6e-1", "53.5e93", "-123.456e789"], while the following are not valid numbers: ["abc", "1a", "1e", "e3", "99e2.5", "--6", "-+3", "95a54e53"].
+
+Given a string s, return true if s is a valid number.
+
+ 
+
+Example 1:
+
+Input: s = "0"
+Output: true
+Example 2:
+
+Input: s = "e"
+Output: false
+Example 3:
+
+Input: s = "."
+Output: false
+```
+
+```python
+class Solution(object):
+
+    def isValidFloat(self, val):
+        val_split = val.split('.')
+        if len(val_split) != 2:
+            return False
+        val_split = [_ for _ in val_split if _]
+        if len(val_split) == 0:
+            return False
+        for tmp in val_split:
+            if not tmp.isdigit():
+                return False
+        return True
+
+    def isValidInt(self, val):
+        # print('val:', val)
+        if not val:
+            # print('False')
+            return False
+        n = len(val)
+        # print('val.isdigit():', val.isdigit())
+        return val.isdigit()
+
+        """
+        "abc"
+        "1a"
+        "1e"
+        "e3"
+        "99e2.5"
+        "--6"
+        "-+3"
+        "95a54e53"
+        """
+    def isNumber(self, s):
+        """
+        :type s: str
+        :rtype: bool
+        """
+
+        """
+        小数或者整数 + e或者E再加整数
+
+        """
+        s = s.replace(' ', '')
+        if not s:
+            return False
+        if s == '.':
+            return False
+        s = s.lower()
+        if s.find('e') == -1:
+            if s[0] in ['+', '-']:
+                return self.isValidInt(s[1:]) or self.isValidFloat(s[1:])
+            else:
+                return self.isValidInt(s) or self.isValidFloat(s)
+        else:
+            ls = s.split('e')
+            if len(ls) != 2:
+                return False
+            ls = [_ for _ in ls if _]
+            if len(ls) != 2:
+                return False
+            if ls[1][0] in ['+', '-']:
+                if not self.isValidInt(ls[1][1:]):
+                    return False
+            else:
+                if not self.isValidInt(ls[1]):
+                    return False
+            if ls[0][0] in ['+', '-']:
+                if ls[0][1:]:
+                    return self.isValidInt(ls[0][1:]) or self.isValidFloat(ls[0][1:])
+                else:
+                    return False
+            else:
+                return self.isValidInt(ls[0]) or self.isValidFloat(ls[0])
+
+```
+
+#### 670. Maximum Swap
+
+```
+You are given an integer num. You can swap two digits at most once to get the maximum valued number.
+
+Return the maximum valued number you can get.
+
+ 
+
+Example 1:
+
+Input: num = 2736
+Output: 7236
+Explanation: Swap the number 2 and the number 7.
+Example 2:
+
+Input: num = 9973
+Output: 9973
+Explanation: No swap.
+
+```
+
+```python
+class Solution(object):
+    def maximumSwap(self, num):
+        """
+        :type num: int
+        :rtype: int
+        """
+
+        """
+        27
+
+        max_val_index=1
+        max_val = 7
+        left_index=2
+             
+           l  
+        [2,7,3,6]
+
+        题解：从右到左遍历，找到最左边是否存在一个数，小于右边的最大值，如果有，则把右边的最大值与最左边的这个值替换。
+        """
+        cache = []
+        num = list(str(num))
+        n = len(num)
+        left_index_to_swap_index = dict()
+        max_val_index = n - 1
+        max_val = num[n-1]
+        left_index = -1
+        for i in range(n-2, -1, -1):
+            if num[i] > max_val:
+                max_val = num[i]
+                max_val_index = i
+            elif num[i] < max_val:
+                left_index = i
+                left_index_to_swap_index[left_index] = max_val_index
+            # print('max_val_index:', max_val_index)
+            # print('left_index:', left_index)
+            # print("left_index_to_swap_index:", left_index_to_swap_index)
+        
+        if left_index != -1 and left_index < left_index_to_swap_index[left_index]:
+            swap_index = left_index_to_swap_index[left_index]
+            num[left_index], num[swap_index] = num[swap_index], num[left_index]
+        
+        return int(''.join(num))
+
+```
+
 # 其他
 
 
