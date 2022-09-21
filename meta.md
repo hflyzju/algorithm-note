@@ -1,3 +1,296 @@
+# [面试经验] FB MLE一条龙新鲜面经
+https://www.1point3acres.com/bbs/thread-650769-1-1.html
+
+## 店面
+
+### 题目1：791. Custom Sort String
+
+```
+791. Custom Sort String
+You are given two strings order and s. All the characters of order are unique and were sorted in some custom order previously.
+
+Permute the characters of s so that they match the order that order was sorted. More specifically, if a character x occurs before a character y in order, then x should occur before y in the permuted string.
+
+Return any permutation of s that satisfies this property.
+
+Example 1:
+
+Input: order = "cba", s = "abcd"
+Output: "cbad"
+Explanation: 
+"a", "b", "c" appear in order, so the order of "a", "b", "c" should be "c", "b", and "a". 
+Since "d" does not appear in order, it can be at any position in the returned string. "dcba", "cdba", "cbda" are also valid outputs.
+Example 2:
+
+Input: order = "cbafg", s = "abcd"
+Output: "cbad"
+```
+
+```python
+class Solution(object):
+    def customSortString(self, order, s):
+        """
+        :type order: str
+        :type s: str
+        :rtype: str
+        """
+        letter_to_freq = defaultdict(int)
+        for letter in s:
+            letter_to_freq[letter] += 1
+        res = []
+        order_letter_set = set()
+        for order_letter in order:
+            order_letter_set.add(order_letter)
+            for i in range(letter_to_freq[order_letter]):
+                res.append(order_letter)   
+        for letter in s:
+            if letter not in order_letter_set:
+                res.append(letter)
+        return ''.join(res)
+                
+
+```
+
+### 题目2：560. Subarray Sum Equals K
+
+```
+Given an array of integers nums and an integer k, return the total number of subarrays whose sum equals to k.
+
+A subarray is a contiguous non-empty sequence of elements within an array.
+
+Example 1:
+
+Input: nums = [1,1,1], k = 2
+Output: 2
+Example 2:
+
+Input: nums = [1,2,3], k = 3
+Output: 2
+
+来源：力扣（LeetCode）
+链接：https://leetcode.cn/problems/subarray-sum-equals-k
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+
+```python
+
+class Solution(object):
+    def subarraySum(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: int
+        """
+        """
+        [1,1,1], 2
+        {0:1, 1:1, 2:1}
+        cur_sum=3
+        diff=0
+        cnt=1
+
+        """
+        pre_sum_cnt = defaultdict(int)
+        pre_sum_cnt[0] = 1
+        cnt = 0
+        cur_sum = 0
+        for num in nums:
+            cur_sum += num
+            diff = cur_sum - k
+            cnt += pre_sum_cnt[diff]
+            pre_sum_cnt[cur_sum] += 1
+            # print('pre_sum_cnt:', pre_sum_cnt)
+        return cnt
+
+```
+
+## on-site
+
+### Coding 1: 
+
+
+
+#### LC 670. Maximum Swap
+```
+You are given an integer num. You can swap two digits at most once to get the maximum valued number.
+
+Return the maximum valued number you can get.
+
+ 
+
+Example 1:
+
+Input: num = 2736
+Output: 7236
+Explanation: Swap the number 2 and the number 7.
+Example 2:
+
+Input: num = 9973
+Output: 9973
+Explanation: No swap.
+``
+
+
+```python
+class Solution(object):
+    def maximumSwap(self, num):
+        """
+        :type num: int
+        :rtype: int
+        """
+
+        num = list(str(num))
+        n = len(num)
+        swap_index = -1
+        target_index = -1
+        max_val = -1
+        max_val_index = -1
+
+        """
+        i
+               max_val = 7
+               max_val_index = 1
+             swap_index = 0
+             target_index = 1
+        [2,7,3,6]
+
+
+           i
+               max_val = 9
+               max_val_index = 1
+             swap_index = 2
+             target_index = 3
+        [3,9,9]
+        """
+
+        for i in range(n-1, -1, -1):
+            if num[i] > max_val:
+                max_val = num[i]
+                max_val_index = i
+            elif num[i] < max_val:
+                swap_index = i
+                target_index = max_val_index
+        
+        num[swap_index], num[target_index] = num[target_index], num[swap_index]
+        return int(''.join(num))
+
+```
+
+
+#### 【没做出来】LC 394. Decode String
+
+```
+Given an encoded string, return its decoded string.
+
+The encoding rule is: k[encoded_string], where the encoded_string inside the square brackets is being repeated exactly k times. Note that k is guaranteed to be a positive integer.
+
+You may assume that the input string is always valid; there are no extra white spaces, square brackets are well-formed, etc. Furthermore, you may assume that the original data does not contain any digits and that digits are only for those repeat numbers, k. For example, there will not be input like 3a or 2[4].
+
+The test cases are generated so that the length of the output will never exceed 105.
+
+Example 1:
+
+Input: s = "3[a]2[bc]"
+Output: "aaabcbc"
+Example 2:
+
+Input: s = "3[a2[c]]"
+Output: "accaccacc"
+Example 3:
+
+Input: s = "2[abc]3[cd]ef"
+Output: "abcabccdcdcdef"
+
+```
+
+```python
+class Solution(object):
+    def decodeString(self, s):
+        """
+        :type s: str
+        :rtype: str
+        """
+
+        """
+
+        2[abc]3[4[b2[c]]]
+
+        """
+        n = len(s)
+        cache = []
+        cur = 0 # 当前累计的次数
+        res = "" # 当前累计的字符
+        for i in range(n):
+            if s[i].isdigit():
+                cur = cur * 10 + int(s[i])
+            elif s[i] == '[':
+                cache.append([cur, res]) # 把前面的保护起来
+                res = ""
+                cur = 0
+            elif s[i] == ']':
+                last_cur, last_res = cache.pop()
+                res = last_res + last_cur * res
+            else:
+                res += s[i]
+        return res
+
+```
+
+
+### Coding 2:  
+#### LC 543. Follow up 如果是general tree呢？
+
+```
+Given the root of a binary tree, return the length of the diameter of the tree.
+
+The diameter of a binary tree is the length of the longest path between any two nodes in a tree. This path may or may not pass through the root.
+
+The length of a path between two nodes is represented by the number of edges between them.
+
+
+Example 1:
+
+Input: root = [1,2,3,4,5]
+Output: 3
+Explanation: 3 is the length of the path [4,2,1,3] or [5,2,1,3].
+Example 2:
+
+Input: root = [1,2]
+Output: 1
+
+```
+
+```python
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def diameterOfBinaryTree(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+        """
+
+        self.diameter = 0
+
+        def search(node):
+            """return the depth of the node
+            """
+            if not node:
+                return 0
+            l = search(node.left)
+            r = search(node.right)
+            self.diameter = max(self.diameter, l + r)
+            return max(l, r) + 1
+
+        search(root)
+        return self.diameter
+```
+
+
+
 
 # META ML RS过经及timeline 2022-1-8
 
@@ -634,6 +927,12 @@ class Solution(object):
 
 ```
 
+### Round3(ML)
+
+
+### Round3(BQ)
+
+
 # 其他
 
 
@@ -724,3 +1023,5 @@ class Solution(object):
 
 1. https://leetcode.com/problem-list/top-facebook-questions/
 2. https://www.glassdoor.sg/Interview/Meta-Machine-Learning-Engineer-Interview-Questions-EI_IE40772.0,4_KO5,30.htm
+3. 记录我曾经面试 Facebook（Meta） 的经历：https://sichengingermay.com/facebook-interview/
+4. Meta面试经历，被拒，两次！https://zhuanlan.zhihu.com/p/499547331
