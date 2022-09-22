@@ -933,6 +933,221 @@ class Solution(object):
 ### Round3(BQ)
 
 
+# Meta高频
+## 分类与总结
+
+### 总结
+
+
+### stack
+
+#### 1249. Minimum Remove to Make Valid Parentheses
+
+```
+Given a string s of '(' , ')' and lowercase English characters.
+
+Your task is to remove the minimum number of parentheses ( '(' or ')', in any positions ) so that the resulting parentheses string is valid and return any valid string.
+
+Formally, a parentheses string is valid if and only if:
+
+It is the empty string, contains only lowercase characters, or
+It can be written as AB (A concatenated with B), where A and B are valid strings, or
+It can be written as (A), where A is a valid string.
+ 
+
+Example 1:
+
+Input: s = "lee(t(c)o)de)"
+Output: "lee(t(c)o)de"
+Explanation: "lee(t(co)de)" , "lee(t(c)ode)" would also be accepted.
+Example 2:
+
+Input: s = "a)b(c)d"
+Output: "ab(c)d"
+```
+
+```python
+class Solution(object):
+    def minRemoveToMakeValid(self, s):
+        """
+        :type s: str
+        :rtype: str
+
+        "abc
+
+        left=1
+         right=
+
+        a)b(c)d
+
+        ((abc(d
+
+        ['lee', [''], t, ['']]
+
+        """
+
+        left = 0
+        left_index = []
+        right = 0
+
+        remove_index_set = set()
+
+        for i in range(len(s)):
+            if s[i] == '(':
+                left_index.append(i)
+                left += 1
+            elif s[i] == ')':
+                if left <= 0:
+                    remove_index_set.add(i)
+                else:
+                    left -= 1
+                    left_index.pop()
+                # print("left_index:", left_index)
+
+        while left_index:
+            remove_index_set.add(left_index.pop())
+
+        res = []
+        for i in range(len(s)):
+            if i not in remove_index_set:
+                res.append(s[i])
+
+        return ''.join(res)
+        
+```
+
+## 高频题
+
+#### 1249. Minimum Remove to Make Valid Parentheses
+
+```
+Given a string s of '(' , ')' and lowercase English characters.
+
+Your task is to remove the minimum number of parentheses ( '(' or ')', in any positions ) so that the resulting parentheses string is valid and return any valid string.
+
+Formally, a parentheses string is valid if and only if:
+
+It is the empty string, contains only lowercase characters, or
+It can be written as AB (A concatenated with B), where A and B are valid strings, or
+It can be written as (A), where A is a valid string.
+ 
+
+Example 1:
+
+Input: s = "lee(t(c)o)de)"
+Output: "lee(t(c)o)de"
+Explanation: "lee(t(co)de)" , "lee(t(c)ode)" would also be accepted.
+Example 2:
+
+Input: s = "a)b(c)d"
+Output: "ab(c)d"
+```
+
+```python
+class Solution(object):
+    def minRemoveToMakeValid(self, s):
+        """
+        :type s: str
+        :rtype: str
+
+        "abc
+
+        left=1
+         right=
+
+        a)b(c)d
+
+        ((abc(d
+
+        ['lee', [''], t, ['']]
+
+        """
+
+        left = 0
+        left_index = []
+        right = 0
+
+        remove_index_set = set()
+
+        for i in range(len(s)):
+            if s[i] == '(':
+                left_index.append(i)
+                left += 1
+            elif s[i] == ')':
+                if left <= 0:
+                    remove_index_set.add(i)
+                else:
+                    left -= 1
+                    left_index.pop()
+                # print("left_index:", left_index)
+
+        while left_index:
+            remove_index_set.add(left_index.pop())
+
+        res = []
+        for i in range(len(s)):
+            if i not in remove_index_set:
+                res.append(s[i])
+
+        return ''.join(res)
+        
+```
+
+#### 680. Valid Palindrome II
+
+```
+Given a string s, return true if the s can be palindrome after deleting at most one character from it.
+
+Example 1:
+
+Input: s = "aba"
+Output: true
+Example 2:
+
+Input: s = "abca"
+Output: true
+Explanation: You could delete the character 'c'.
+Example 3:
+
+Input: s = "abc"
+Output: false
+```
+
+```python
+
+class Solution(object):
+    def validPalindrome(self, s):
+        """
+        :type s: str
+        :rtype: bool
+        """
+
+
+        def is_valid_palindrom_between_left_and_right(l, r, delete_flag):
+            while l <= r:
+                if l == r:
+                    return True
+                if s[l] == s[r]:
+                    if r - l <= 1:
+                        return True
+                    l += 1
+                    r -= 1
+                else:
+                    if not delete_flag:
+                        return is_valid_palindrom_between_left_and_right(l, r-1, True) or \
+                            is_valid_palindrom_between_left_and_right(l+1, r, True)
+                    else:
+                        return False
+            return False
+
+
+        return is_valid_palindrom_between_left_and_right(0, len(s) - 1, False)
+                
+
+```
+
+#### todo, 953,301,973
+
 # 其他
 
 
