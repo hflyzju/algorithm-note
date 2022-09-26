@@ -1,3 +1,25 @@
+# 总结
+
+## 面筋总结
+|面试id|  面试类型 | 时间  | 题目 | 类型 | 难度 | 题解 |
+| ---- |  ----  | ----  | --- | --- | --- | --- |
+| 1.MLE一条龙新鲜面经 |  店面-题目1  |2022.07| 791：Custom Sort String: 让s按order排序输出 | 哈希+排序 | 中等 | 先统计需要排序的字符串，然后按order输出，注意不存在order中的字符 |
+| 1.MLE一条龙新鲜面经 |  店面-题目2  |2022.07| 560. Subarray Sum Equals K：子序列和为k的个数，注意数字可能位负数  | 前缀和 | 中等偏难 |统计每个前缀和出现的次数，统计cur_pre_sum - target的次数即可，注意pre_sum_cnt[0]=1, 解决[1,1] k=2 => 1这种问题 |
+| 1.MLE一条龙新鲜面经 |  on-site1-Coding 1  |2022.07| 670. Maximum Swap：返回只可以swap一次后最大的数| 数组 | 中等 |从后往前遍历并记录最大值，对每个位置，与替换最大值替换可以取得该位置swap后的最大值，与最前面一个位置swap可以取得全局最大值|
+| 1.MLE一条龙新鲜面经 |  on-site1-Coding 2  |2022.07| 394. Decode String：将例如多层嵌套的s=3[a3[c]]进行解码|栈| 中等偏难 |注意只会出现k[]的形式，所以变简单一点，用pre_res记录之前累积的字符串，cnt记录括号前的数字, res记录当前的字符，遇到]可以更新res=pre_res + cnt * res， 遇到[可以将前面的pre_res和数字cnt压入栈|
+| 1.MLE一条龙新鲜面经 |  on-site1-Coding 3  |2022.07| 543. diameter of the tree： 树的直径|树|中等|后续遍历+每次统计树的深度+利用后续遍历计算包含当前节点的直径|
+| 2. META ML RS过经及timeline |  店面-Coding 1  |2022.01| Lowest Common Ancestor of a Binary Tree： 两个节点的最小公共祖先|树|中等|方法1: 递归：当前节点的输出可以由左孩子或者右孩子能返回结果来定，如果左孩子或者右孩子都不为空，那么返回当前节点。否则返回两者之一。方法2: 栈：跟踪跟节点到当前节点的的path(先序遍历入栈，后续遍历出栈可)，然后比较两个节点的path，找出最低的ancestor|
+| 2. META ML RS过经及timeline |  店面-Coding 2  |2022.01| 523. Continuous Subarray Sum：是否存在长度大于2的连续和为k的子数组 |数组+数学|中等通过率30%|前缀和对k取余数，如果余数mod相等，那么代表中间的那段数为k的倍数，要注意[1,1] k=2这种情况，可以另pre_mod_index[0]=-1|
+| 2. META ML RS过经及timeline |  on-site1-Coding 1  |2022.01| 339. Nested List Weight Sum：多重嵌套数组和|栈|中等|递归：先序遍历depth+1，后续遍历depth-1，这样输出和|
+| 2. META ML RS过经及timeline |  on-site1-Coding 2  |2022.01| 133. Clone Graph：克隆无向图|dfs或者bfs|中等|用字典记录每个节点到其copy节点的映射，然后用bfs求解，比较方便|
+| 2. META ML RS过经及timeline |  on-site1-Coding 3  |2022.01| Basic Calculator II: 计算无括号的加减乘初的结果|栈 or 优化版本|中等|1. 只需要记录ans(上个位置之前的结果)，pre_val(上一个位置结果)，cur_val(当前位置结果)这三个数，可以将空间复杂度优化到O(1). 2.遇到+-*/符号或者到结束位置就计算结果|
+| 2. META ML RS过经及timeline |  on-site2-Coding 1  |2022.07| 65. Valid Number: 是否为有效的float数的字符串，可能包含.+-eE等符号| 字符串 | 中等 |注意很多badcase|
+| 2. META ML RS过经及timeline |  on-site2-Coding 1  |2022.07| 670. Maximum Swap：返回只可以swap一次后最大的数| 数组 | 中等 |从后往前遍历并记录最大值，对每个位置，与替换最大值替换可以取得该位置swap后的最大值，与最前面一个位置swap可以取得全局最大值|
+
+## 高频题总结
+|类型|  题号 | 难度  | 题目 | 题解 | 
+| ---- |  ----  | ----  | --- | --- |
+
 # [面试经验] FB MLE一条龙新鲜面经
 https://www.1point3acres.com/bbs/thread-650769-1-1.html
 
@@ -359,6 +381,34 @@ class Solution(object):
 ```
 
 ### 题目2: 523. Continuous Subarray Sum
+#### 题目：
+```
+Given an integer array nums and an integer k, return true if nums has a continuous subarray of size at least two whose elements sum up to a multiple of k, or false otherwise.
+
+An integer x is a multiple of k if there exists an integer n such that x = n * k. 0 is always a multiple of k.
+
+ 
+
+Example 1:
+
+Input: nums = [23,2,4,6,7], k = 6
+Output: true
+Explanation: [2, 4] is a continuous subarray of size 2 whose elements sum up to 6.
+Example 2:
+
+Input: nums = [23,2,6,4,7], k = 6
+Output: true
+Explanation: [23, 2, 6, 4, 7] is an continuous subarray of size 5 whose elements sum up to 42.
+42 is a multiple of 6 because 42 = 7 * 6 and 7 is an integer.
+Example 3:
+
+Input: nums = [23,2,6,4,7], k = 13
+Output: false
+
+来源：力扣（LeetCode）
+链接：https://leetcode.cn/problems/continuous-subarray-sum
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
 
 #### 题解：
 1. (m + k * n) % k = m % k， 如果当前和的余数存在过，那么中间就代表加了n*k，所以就有连续的和为n*k
@@ -1145,8 +1195,211 @@ class Solution(object):
                 
 
 ```
+#### 953. Verifying an Alien Dictionary
 
-#### todo, 953,301,973
+
+```
+In an alien language, surprisingly, they also use English lowercase letters, but possibly in a different order. The order of the alphabet is some permutation of lowercase letters.
+
+Given a sequence of words written in the alien language, and the order of the alphabet, return true if and only if the given words are sorted lexicographically in this alien language.
+
+ 
+
+Example 1:
+
+Input: words = ["hello","leetcode"], order = "hlabcdefgijkmnopqrstuvwxyz"
+Output: true
+Explanation: As 'h' comes before 'l' in this language, then the sequence is sorted.
+Example 2:
+
+Input: words = ["word","world","row"], order = "worldabcefghijkmnpqstuvxyz"
+Output: false
+Explanation: As 'd' comes after 'l' in this language, then words[0] > words[1], hence the sequence is unsorted.
+```
+
+
+```python
+
+class Solution(object):
+    def isAlienSorted(self, words, order):
+        """
+        :type words: List[str]
+        :type order: str
+        :rtype: bool
+        """
+
+        def slower_than(word1, word2, letter_start_index):
+            """return True if word1 < word2"""
+
+            for i in range(min(len(word1), len(word2))):
+                letter1, letter2 = word1[i], word2[i]
+                l1_index = ord(letter1) - ord('a')
+                l2_index = ord(letter2) - ord('a')
+                # print(letter1, letter2, l1_index, l2_index)
+                if letter_start_index[l1_index] > letter_start_index[l2_index]:
+                    return False
+                elif letter_start_index[l1_index] < letter_start_index[l2_index]:
+                    return True
+            if len(word1) > len(word2):
+                return False            
+            return True
+
+
+        letter_start_index = [float('inf')] * 26
+        for i in range(len(order)):
+            letter = order[i]
+            if letter not in letter_start_index:
+                letter_start_index[ord(letter) - ord('a')] = i
+
+        for i in range(len(words) - 1):
+            if not slower_than(words[i], words[i+1], letter_start_index):
+                return False
+        
+        return True
+```
+
+
+#### 301. Remove Invalid Parentheses
+
+```
+
+Given a string s that contains parentheses and letters, remove the minimum number of invalid parentheses to make the input string valid.
+
+Return all the possible results. You may return the answer in any order.
+
+ 
+
+Example 1:
+
+Input: s = "()())()"
+Output: ["(())()","()()()"]
+Example 2:
+
+Input: s = "(a)())()"
+Output: ["(a())()","(a)()()"]
+Example 3:
+
+Input: s = ")("
+Output: [""]
+```
+
+
+```python
+class Solution(object):
+    def removeInvalidParentheses(self, s):
+        """
+        :type s: str
+        :rtype: List[str]
+        """
+
+        def is_valid(s1):
+            if not s1:
+                return True
+            l, r = 0, 0
+            for i in range(len(s1)):
+                if s1[i] == '(':
+                    l += 1
+                elif s1[i] == ')':
+                    if l <= 0:
+                        return False
+                    else:
+                        l -= 1
+            return l == r
+
+        res = []
+        def search(s1, l, r, start):
+            # print("s1, l, r, start:", s1, l, r, start)
+            if l == 0 and r == 0 and is_valid(s1):
+                res.append(s1)
+                # print('res:', res, 's1:' ,s1)
+                return
+            if r > 0:
+                for i in range(start, len(s1)):
+                    if i != start and s1[i] == s1[i-1]:
+                        continue
+                    if s1[i] == ')':
+                        search(s1[:i]+s1[i+1:], l, r - 1, i)# 减去第i个元素了，下一个还是从i开始删
+            elif l > 0:
+                for i in range(start, len(s1)):
+                    if i != start and s1[i] == s1[i-1]:
+                        continue
+                    if s1[i] == '(':
+                        search(s1[:i]+s1[i+1:], l - 1, r, i)
+
+        n = len(s)
+        l, r = 0, 0
+        for i in range(n):
+            if s[i] == '(':
+                l += 1
+            elif s[i] == ')':
+                if l <= 0:
+                    r += 1
+                else:
+                    l -= 1
+
+        search(s, l, r, 0)
+        return res
+```
+#### 973. K Closest Points to Origin
+
+```
+Given an array of points where points[i] = [xi, yi] represents a point on the X-Y plane and an integer k, return the k closest points to the origin (0, 0).
+
+The distance between two points on the X-Y plane is the Euclidean distance (i.e., √(x1 - x2)2 + (y1 - y2)2).
+
+You may return the answer in any order. The answer is guaranteed to be unique (except for the order that it is in).
+
+ 
+
+Example 1:
+
+
+Input: points = [[1,3],[-2,2]], k = 1
+Output: [[-2,2]]
+Explanation:
+The distance between (1, 3) and the origin is sqrt(10).
+The distance between (-2, 2) and the origin is sqrt(8).
+Since sqrt(8) < sqrt(10), (-2, 2) is closer to the origin.
+We only want the closest k = 1 points from the origin, so the answer is just [[-2,2]].
+Example 2:
+
+Input: points = [[3,3],[5,-1],[-2,4]], k = 2
+Output: [[3,3],[-2,4]]
+Explanation: The answer [[-2,4],[3,3]] would also be accepted.
+
+```
+
+```python
+class Solution(object):
+    def kClosest(self, points, k):
+        """
+        :type points: List[List[int]]
+        :type k: int
+        :rtype: List[List[int]]
+        """
+        def get_dis(x1, y1):
+            return x1 ** 2 + y1 ** 2
+
+        dis = [[get_dis(points[i][0], points[i][1]), i] for i in range(len(points))]
+
+        def find_k_closest_pointer(l, r, res_k):
+            k1 = l - 1
+            for i in range(l, r):
+                if dis[i][0] <= dis[r][0]:
+                    k1 += 1
+                    dis[i], dis[k1] = dis[k1], dis[i]
+            k1 += 1
+            dis[r], dis[k1] = dis[k1], dis[r]
+            if k1 - l + 1 == res_k:
+                return [points[dis[i][1]] for i in range(k)]
+            if res_k > k1 - l + 1:
+                return find_k_closest_pointer(k1 + 1, r, res_k - (k1 - l + 1))
+            else:
+                return find_k_closest_pointer(l, k1 - 1, res_k)
+
+        return find_k_closest_pointer(0, len(dis) - 1, k)
+        
+```
 
 # 其他
 
