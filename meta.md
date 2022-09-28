@@ -1401,6 +1401,47 @@ class Solution(object):
         
 ```
 
+#### 67. Add Binary
+
+```
+Example 1:
+
+Input: a = "11", b = "1"
+Output: "100"
+Example 2:
+
+Input: a = "1010", b = "1011"
+Output: "10101"
+```
+
+```python
+class Solution(object):
+    def addBinary(self, a, b):
+        """
+        :type a: str
+        :type b: str
+        :rtype: str
+        """
+        res = []
+        add = 0
+        m, n = len(a), len(b)
+        for i in range(max(m, n)):
+            if i < m:
+                x = a[m - i - 1]
+            else:
+                x = 0
+            if i < n:
+                y = b[n - i - 1]
+            else:
+                y = 0
+            s = int(x) + int(y) + add
+            add = s // 2
+            res.append(s % 2)
+        if add:
+            res.append(add)
+        return ''.join([str(_) for _ in res[::-1]])
+```
+
 # 其他
 
 
