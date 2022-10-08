@@ -1442,6 +1442,1082 @@ class Solution(object):
         return ''.join([str(_) for _ in res[::-1]])
 ```
 
+
+#### todolist [273, 301, 314, 125, 238, 938, 56, 215, 1762, 1570, 31, 199]
+
+#### todolist [528, 173, 415, 1, 29, 297, 278, 236, 253, 621, 91, 88, 543, 71, 50, 124, 10, 1650, 227, 138, 426, 133, 15, 158, 1428]
+
+#### 528. Random Pick with Weight
+
+```python
+# You are given a 0-indexed array of positive integers w where w[i] describes 
+# the weight of the iᵗʰ index. 
+# 
+#  You need to implement the function pickIndex(), which randomly picks an 
+# index in the range [0, w.length - 1] (inclusive) and returns it. The probability of 
+# picking an index i is w[i] / sum(w). 
+# 
+#  
+#  For example, if w = [1, 3], the probability of picking index 0 is 1 / (1 + 3)
+#  = 0.25 (i.e., 25%), and the probability of picking index 1 is 3 / (1 + 3) = 0.7
+# 5 (i.e., 75%). 
+#  
+# 
+#  
+#  Example 1: 
+# 
+#  
+# Input
+# ["Solution","pickIndex"]
+# [[[1]],[]]
+# Output
+# [null,0]
+# 
+# Explanation
+# Solution solution = new Solution([1]);
+# solution.pickIndex(); // return 0. The only option is to return 0 since there 
+# is only one element in w.
+#  
+# 
+#  Example 2: 
+# 
+#  
+# Input
+# ["Solution","pickIndex","pickIndex","pickIndex","pickIndex","pickIndex"]
+# [[[1,3]],[],[],[],[],[]]
+# Output
+# [null,1,1,1,1,0]
+# 
+# Explanation
+# Solution solution = new Solution([1, 3]);
+# solution.pickIndex(); // return 1. It is returning the second element (index =
+#  1) that has a probability of 3/4.
+# solution.pickIndex(); // return 1
+# solution.pickIndex(); // return 1
+# solution.pickIndex(); // return 1
+# solution.pickIndex(); // return 0. It is returning the first element (index = 
+# 0) that has a probability of 1/4.
+# 
+# Since this is a randomization problem, multiple answers are allowed.
+# All of the following outputs can be considered correct:
+# [null,1,1,1,1,0]
+# [null,1,1,1,1,1]
+# [null,1,1,1,0,0]
+# [null,1,1,1,0,1]
+# [null,1,0,1,0,0]
+# ......
+# and so on.
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  1 <= w.length <= 10⁴ 
+#  1 <= w[i] <= 10⁵ 
+#  pickIndex will be called at most 10⁴ times. 
+#  
+# 
+#  Related Topics 数学 二分查找 前缀和 随机化 👍 271 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+import random
+
+
+class Solution(object):
+
+    def __init__(self, w):
+        """
+        :type w: List[int]
+        """
+        s = float(sum(w))
+        for i in range(len(w)):
+            if i == 0:
+                w[i] = w[i] / s
+            else:
+                w[i] = w[i-1] + w[i] / s
+        self.w = w
+
+    def pickIndex(self):
+        """
+        :rtype: int
+        """
+        val = random.random()
+        if val <= self.w[0]:
+            return 0
+        l, r = 0, len(self.w) - 1
+        while l <= r:
+            m = l + r >> 1
+            if self.w[m-1] < val <= self.w[m]:
+                return m
+            elif val > self.w[m]:
+                l = m + 1
+            else:
+                r = m - 1
+
+
+
+# Your Solution object will be instantiated and called as such:
+# obj = Solution(w)
+# param_1 = obj.pickIndex()
+# leetcode submit region end(Prohibit modification and deletion)
+```
+
+#### 173. Binary Search Tree Iterator
+
+```python
+# Implement the BSTIterator class that represents an iterator over the in-order 
+# traversal of a binary search tree (BST): 
+# 
+#  
+#  BSTIterator(TreeNode root) Initializes an object of the BSTIterator class. 
+# The root of the BST is given as part of the constructor. The pointer should be 
+# initialized to a non-existent number smaller than any element in the BST. 
+#  boolean hasNext() Returns true if there exists a number in the traversal to 
+# the right of the pointer, otherwise returns false. 
+#  int next() Moves the pointer to the right, then returns the number at the 
+# pointer. 
+#  
+# 
+#  Notice that by initializing the pointer to a non-existent smallest number, 
+# the first call to next() will return the smallest element in the BST. 
+# 
+#  You may assume that next() calls will always be valid. That is, there will 
+# be at least a next number in the in-order traversal when next() is called. 
+# 
+#  
+#  Example 1: 
+#  
+#  
+# Input
+# ["BSTIterator", "next", "next", "hasNext", "next", "hasNext", "next", 
+# "hasNext", "next", "hasNext"]
+# [[[7, 3, 15, null, null, 9, 20]], [], [], [], [], [], [], [], [], []]
+# Output
+# [null, 3, 7, true, 9, true, 15, true, 20, false]
+#  
+# 
+# Explanation
+# BSTIterator bSTIterator = new BSTIterator([7, 3, 15, null, null, 9, 20]);
+# bSTIterator.next(); // return 3
+# bSTIterator.next(); // return 7
+# bSTIterator.hasNext(); // return True
+# bSTIterator.next(); // return 9
+# bSTIterator.hasNext(); // return True
+# bSTIterator.next(); // return 15
+# bSTIterator.hasNext(); // return True
+# bSTIterator.next(); // return 20
+# bSTIterator.hasNext(); // return False
+# 
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  The number of nodes in the tree is in the range [1, 10⁵]. 
+#  0 <= Node.val <= 10⁶ 
+#  At most 10⁵ calls will be made to hasNext, and next. 
+#  
+# 
+#  
+#  Follow up: 
+# 
+#  
+#  Could you implement next() and hasNext() to run in average O(1) time and use 
+# O(h) memory, where h is the height of the tree? 
+#  
+# 
+#  Related Topics 栈 树 设计 二叉搜索树 二叉树 迭代器 👍 648 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class BSTIterator(object):
+    """
+    思路：中序遍历
+    1. 先将当前节点的所有左子树压入栈，压到没有为止
+    2. 将最后一个压入的节点弹出（栈顶元素），加入答案
+    3. 将当前弹出的节点作为当前节点，重复步骤一
+    """
+
+    def __init__(self, root):
+        """
+        :type root: TreeNode
+        """
+        self.head = root
+        self.stack = []
+        while root:
+            self.stack.append(root)
+            root = root.left
+
+    def next(self):
+        """
+        :rtype: int
+        """
+        cur = self.stack.pop()
+        root = cur.right
+        while root:
+            self.stack.append(root)
+            root = root.left
+        return cur.val
+        
+
+    def hasNext(self):
+        """
+        :rtype: bool
+        """
+        return len(self.stack) > 0
+        
+
+
+# Your BSTIterator object will be instantiated and called as such:
+# obj = BSTIterator(root)
+# param_1 = obj.next()
+# param_2 = obj.hasNext()
+# leetcode submit region end(Prohibit modification and deletion)
+
+
+```
+
+#### 415. Add Strings
+
+
+```pyhton
+# Given two non-negative integers, num1 and num2 represented as string, return 
+# the sum of num1 and num2 as a string. 
+# 
+#  You must solve the problem without using any built-in library for handling 
+# large integers (such as BigInteger). You must also not convert the inputs to 
+# integers directly. 
+# 
+#  
+#  Example 1: 
+# 
+#  
+# Input: num1 = "11", num2 = "123"
+# Output: "134"
+#  
+# 
+#  Example 2: 
+# 
+#  
+# Input: num1 = "456", num2 = "77"
+# Output: "533"
+#  
+# 
+#  Example 3: 
+# 
+#  
+# Input: num1 = "0", num2 = "0"
+# Output: "0"
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  1 <= num1.length, num2.length <= 10⁴ 
+#  num1 and num2 consist of only digits. 
+#  num1 and num2 don't have any leading zeros except for the zero itself. 
+#  
+# 
+#  Related Topics 数学 字符串 模拟 👍 625 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution(object):
+    def addStrings(self, num1, num2):
+        """
+        :type num1: str
+        :type num2: str
+        :rtype: str
+        """
+        m, n = len(num1), len(num2)
+        add = 0
+        k1, k2 = m - 1, n - 1
+        res = []
+        while k1 >= 0 or k2 >= 0:
+            a = 0 if k1 < 0 else int(num1[k1])
+            b = 0 if k2 < 0 else int(num2[k2])
+            k1 -= 1
+            k2 -= 1
+            cur = a + b + add
+            add = cur // 10
+            cur = cur % 10
+            res.append(str(cur))
+        if add:
+            res.append(str(add))
+        return ''.join(res[::-1])
+
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+
+```
+
+
+#### 29 Divide Two Integers
+
+```python
+# Given two integers dividend and divisor, divide two integers without using 
+# multiplication, division, and mod operator. 
+# 
+#  The integer division should truncate toward zero, which means losing its 
+# fractional part. For example, 8.345 would be truncated to 8, and -2.7335 would be 
+# truncated to -2. 
+# 
+#  Return the quotient after dividing dividend by divisor. 
+# 
+#  Note: Assume we are dealing with an environment that could only store 
+# integers within the 32-bit signed integer range: [−2³¹, 2³¹ − 1]. For this problem, if 
+# the quotient is strictly greater than 2³¹ - 1, then return 2³¹ - 1, and if the 
+# quotient is strictly less than -2³¹, then return -2³¹. 
+# 
+#  
+#  Example 1: 
+# 
+#  
+# Input: dividend = 10, divisor = 3
+# Output: 3
+# Explanation: 10/3 = 3.33333.. which is truncated to 3.
+#  
+# 
+#  Example 2: 
+# 
+#  
+# Input: dividend = 7, divisor = -3
+# Output: -2
+# Explanation: 7/-3 = -2.33333.. which is truncated to -2.
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  -2³¹ <= dividend, divisor <= 2³¹ - 1 
+#  divisor != 0 
+#  
+# 
+#  Related Topics 位运算 数学 👍 991 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution(object):
+    def divide(self, dividend, divisor):
+        """
+        :type dividend: int
+        :type divisor: int
+        :rtype: int
+        10 / 3
+        2^0, 2^1, 2^2
+        3, 3+3, 3+3+3+3,
+        base = 3
+        cnt = 1
+        """
+        neg_flag = True if ((dividend > 0 and divisor <0) or (dividend < 0 and divisor > 0)) else False
+        dividend = -dividend if dividend < 0 else dividend
+        divisor = -divisor if divisor < 0 else divisor
+        res = 0
+        while dividend >= divisor:
+            base = divisor
+            cnt = 1
+            while dividend - base > base:
+                base += base
+                cnt += cnt
+            dividend -= base
+            res += cnt
+        if neg_flag:
+            res = -res
+        max_int = (1 << 31) - 1
+        min_int = -(1 << 31)
+        if res > max_int:
+            return max_int
+        if res < min_int:
+            return min_int
+        return res
+
+
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+
+```
+
+#### 297 Serialize and Deserialize Binary Tree
+
+```python
+# Serialization is the process of converting a data structure or object into a 
+# sequence of bits so that it can be stored in a file or memory buffer, or 
+# transmitted across a network connection link to be reconstructed later in the same or 
+# another computer environment. 
+# 
+#  Design an algorithm to serialize and deserialize a binary tree. There is no 
+# restriction on how your serialization/deserialization algorithm should work. You 
+# just need to ensure that a binary tree can be serialized to a string and this 
+# string can be deserialized to the original tree structure. 
+# 
+#  Clarification: The input/output format is the same as how LeetCode 
+# serializes a binary tree. You do not necessarily need to follow this format, so please be 
+# creative and come up with different approaches yourself. 
+# 
+#  
+#  Example 1: 
+#  
+#  
+# Input: root = [1,2,3,null,null,4,5]
+# Output: [1,2,3,null,null,4,5]
+#  
+# 
+#  Example 2: 
+# 
+#  
+# Input: root = []
+# Output: []
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  The number of nodes in the tree is in the range [0, 10⁴]. 
+#  -1000 <= Node.val <= 1000 
+#  
+# 
+#  Related Topics 树 深度优先搜索 广度优先搜索 设计 字符串 二叉树 👍 986 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Codec:
+
+    def serialize(self, root):
+        """Encodes a tree to a single string.
+        
+        :type root: TreeNode
+        :rtype: str
+        """
+        if not root:
+            return ""
+        path = []
+        d = deque()
+        d.append(root)
+        while d:
+            cur = d.popleft()
+            if cur:
+                path.append(str(cur.val))
+                d.append(cur.left)
+                d.append(cur.right)
+            else:
+                path.append("#")
+        res = ','.join(path)
+        # print(res)
+        return res
+
+    def deserialize(self, data):
+        """Decodes your encoded data to tree.
+
+        :type data: str
+        :rtype: TreeNode
+        """
+        if not data:
+            return None
+        data = data.split(',')
+        n = len(data)
+        i = 0
+        root = TreeNode(data[i])
+        i += 1
+        d = deque()
+        d.append(root)
+        while d:
+            cur = d.popleft()
+            if data[i] != '#':
+                left = TreeNode(data[i])
+                i += 1
+                cur.left = left
+                d.append(left)
+            else:
+                i += 1
+            if data[i] != '#':
+                right = TreeNode(data[i])
+                i += 1
+                cur.right = right
+                d.append(right)
+            else:
+                i += 1
+        # 1,2,3,null,null,4,5
+        return root
+
+
+
+        
+
+# Your Codec object will be instantiated and called as such:
+# ser = Codec()
+# deser = Codec()
+# ans = deser.deserialize(ser.serialize(root))
+# leetcode submit region end(Prohibit modification and deletion)
+
+
+```
+
+#### 278 First Bad Version
+
+```python
+# You are a product manager and currently leading a team to develop a new 
+# product. Unfortunately, the latest version of your product fails the quality check. 
+# Since each version is developed based on the previous version, all the versions 
+# after a bad version are also bad. 
+# 
+#  Suppose you have n versions [1, 2, ..., n] and you want to find out the 
+# first bad one, which causes all the following ones to be bad. 
+# 
+#  You are given an API bool isBadVersion(version) which returns whether 
+# version is bad. Implement a function to find the first bad version. You should 
+# minimize the number of calls to the API. 
+# 
+#  
+#  Example 1: 
+# 
+#  
+# Input: n = 5, bad = 4
+# Output: 4
+# Explanation:
+# call isBadVersion(3) -> false
+# call isBadVersion(5) -> true
+# call isBadVersion(4) -> true
+# Then 4 is the first bad version.
+#  
+# 
+#  Example 2: 
+# 
+#  
+# Input: n = 1, bad = 1
+# Output: 1
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  1 <= bad <= n <= 2³¹ - 1 
+#  
+# 
+#  Related Topics 二分查找 交互 👍 809 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+# The isBadVersion API is already defined for you.
+# @param version, an integer
+# @return a bool
+# def isBadVersion(version):
+
+class Solution(object):
+    def firstBadVersion(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+
+        l, r = 1, n
+        cand = l
+        while l <= r:
+            mid = l + r >> 1
+            if isBadVersion(mid):
+                cand = mid
+                r = mid - 1
+            else:
+                l = mid + 1
+        return cand
+# leetcode submit region end(Prohibit modification and deletion)
+
+
+```
+
+#### 236 Lowest Common Ancestor of a Binary Tree
+
+```python
+# Given a binary tree, find the lowest common ancestor (LCA) of two given nodes 
+# in the tree. 
+# 
+#  According to the definition of LCA on Wikipedia: “The lowest common ancestor 
+# is defined between two nodes p and q as the lowest node in T that has both p 
+# and q as descendants (where we allow a node to be a descendant of itself).” 
+# 
+#  
+#  Example 1: 
+#  
+#  
+# Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
+# Output: 3
+# Explanation: The LCA of nodes 5 and 1 is 3.
+#  
+# 
+#  Example 2: 
+#  
+#  
+# Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4
+# Output: 5
+# Explanation: The LCA of nodes 5 and 4 is 5, since a node can be a descendant 
+# of itself according to the LCA definition.
+#  
+# 
+#  Example 3: 
+# 
+#  
+# Input: root = [1,2], p = 1, q = 2
+# Output: 1
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  The number of nodes in the tree is in the range [2, 10⁵]. 
+#  -10⁹ <= Node.val <= 10⁹ 
+#  All Node.val are unique. 
+#  p != q 
+#  p and q will exist in the tree. 
+#  
+# 
+#  Related Topics 树 深度优先搜索 二叉树 👍 1997 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def lowestCommonAncestor(self, root, p, q):
+        """
+        :type root: TreeNode
+        :type p: TreeNode
+        :type q: TreeNode
+        :rtype: TreeNode
+        """
+        if not root:
+            return root
+        if root == p or root == q:
+            return root
+        l = self.lowestCommonAncestor(root.left, p, q)
+        r = self.lowestCommonAncestor(root.right, p, q)
+        if l and r:
+            return root
+        if l:
+            return l
+        return r
+        
+# leetcode submit region end(Prohibit modification and deletion)
+
+
+```
+
+#### 253 Meeting Rooms II
+
+```python
+# Given an array of meeting time intervals intervals where intervals[i] = [
+# starti, endi], return the minimum number of conference rooms required. 
+# 
+#  
+#  Example 1: 
+#  Input: intervals = [[0,30],[5,10],[15,20]]
+# Output: 2
+#  
+#  Example 2: 
+#  Input: intervals = [[7,10],[2,4]]
+# Output: 1
+#  
+#  
+#  Constraints: 
+# 
+#  
+#  1 <= intervals.length <= 10⁴ 
+#  0 <= starti < endi <= 10⁶ 
+#  
+# 
+#  Related Topics 贪心 数组 双指针 前缀和 排序 堆（优先队列） 👍 479 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution(object):
+    def minMeetingRooms(self, intervals):
+        """
+        :type intervals: List[List[int]]
+        :rtype: int
+        intervals = [[0,30],[5,10],[15,20]]
+        第一个人从0上车，从30下车；
+        第二个人从5上车，10下车。。。
+        人数 1    2     1     2     1      0
+             0----5----10----15----20-----30
+        变化 +1   +1    -1    +1    -1    -1
+        """
+        res = []
+        for x, y in intervals:
+            res.append([x, 1])
+            res.append([y, -1])
+        max_cnt = 0
+        cnt = 0
+        res.sort(key = lambda x:x[0])
+        # [[1,1],[13,1],[13,-1],[15,-1]]
+        pre_time = res[0][0]
+        for time, mark in res:
+            if time != pre_time:
+                max_cnt = max(max_cnt, cnt)
+                pre_time = time
+            cnt += mark
+        max_cnt = max(max_cnt, cnt)
+        return max_cnt
+
+
+
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+
+#### 621. Task Scheduler
+
+```python
+# Given a characters array tasks, representing the tasks a CPU needs to do, 
+# where each letter represents a different task. Tasks could be done in any order. 
+# Each task is done in one unit of time. For each unit of time, the CPU could 
+# complete either one task or just be idle. 
+# 
+#  However, there is a non-negative integer n that represents the cooldown 
+# period between two same tasks (the same letter in the array), that is that there 
+# must be at least n units of time between any two same tasks. 
+# 
+#  Return the least number of units of times that the CPU will take to finish 
+# all the given tasks. 
+# 
+#  
+#  Example 1: 
+# 
+#  
+# Input: tasks = ["A","A","A","B","B","B"], n = 2
+# Output: 8
+# Explanation: 
+# A -> B -> idle -> A -> B -> idle -> A -> B
+# There is at least 2 units of time between any two same tasks.
+#  
+# 
+#  Example 2: 
+# 
+#  
+# Input: tasks = ["A","A","A","B","B","B"], n = 0
+# Output: 6
+# Explanation: On this case any permutation of size 6 would work since n = 0.
+# ["A","A","A","B","B","B"]
+# ["A","B","A","B","A","B"]
+# ["B","B","B","A","A","A"]
+# ...
+# And so on.
+#  
+# 
+#  Example 3: 
+# 
+#  
+# Input: tasks = ["A","A","A","A","A","A","B","C","D","E","F","G"], n = 2
+# Output: 16
+# Explanation: 
+# One possible solution is
+# A -> B -> C -> A -> D -> E -> A -> F -> G -> A -> idle -> idle -> A -> idle ->
+#  idle -> A
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  1 <= task.length <= 10⁴ 
+#  tasks[i] is upper-case English letter. 
+#  The integer n is in the range [0, 100]. 
+#  
+# 
+#  Related Topics 贪心 数组 哈希表 计数 排序 堆（优先队列） 👍 1032 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution(object):
+    def leastInterval(self, tasks, n):
+        """
+        :type tasks: List[str]
+        :type n: int
+        :rtype: int
+        """
+        from collections import defaultdict
+        wc = defaultdict(int)
+        mc = 0
+        for t in tasks:
+            wc[t] += 1
+            if wc[t] > mc:
+                mc = wc[t]
+
+        mcc = 0
+        for k, c in wc.items():
+            if c == mc:
+                mcc += 1
+
+        return max(len(tasks), (mc - 1) * (n + 1) + mcc)
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+
+#### 91. Decode Ways
+
+```python
+# A message containing letters from A-Z can be encoded into numbers using the 
+# following mapping: 
+# 
+#  
+# 'A' -> "1"
+# 'B' -> "2"
+# ...
+# 'Z' -> "26"
+#  
+# 
+#  To decode an encoded message, all the digits must be grouped then mapped 
+# back into letters using the reverse of the mapping above (there may be multiple 
+# ways). For example, "11106" can be mapped into: 
+# 
+#  
+#  "AAJF" with the grouping (1 1 10 6) 
+#  "KJF" with the grouping (11 10 6) 
+#  
+# 
+#  Note that the grouping (1 11 06) is invalid because "06" cannot be mapped 
+# into 'F' since "6" is different from "06". 
+# 
+#  Given a string s containing only digits, return the number of ways to decode 
+# it. 
+# 
+#  The test cases are generated so that the answer fits in a 32-bit integer. 
+# 
+#  
+#  Example 1: 
+# 
+#  
+# Input: s = "12"
+# Output: 2
+# Explanation: "12" could be decoded as "AB" (1 2) or "L" (12).
+#  
+# 
+#  Example 2: 
+# 
+#  
+# Input: s = "226"
+# Output: 3
+# Explanation: "226" could be decoded as "BZ" (2 26), "VF" (22 6), or "BBF" (2 2
+#  6).
+#  
+# 
+#  Example 3: 
+# 
+#  
+# Input: s = "06"
+# Output: 0
+# Explanation: "06" cannot be mapped to "F" because of the leading zero ("6" is 
+# different from "06").
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  1 <= s.length <= 100 
+#  s contains only digits and may contain leading zero(s). 
+#  
+# 
+#  Related Topics 字符串 动态规划 👍 1274 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution(object):
+    def numDecodings(self, s):
+        """
+        :type s: str
+        :rtype: int
+
+        12322
+        11106
+        """
+        n = len(s)
+        if s[0] == '0':
+            return 0
+        if n == 1:
+            return 1
+        pre1 = 1
+        if s[1] == '0':
+            if '1' <= s[0] <= '2':
+                pre2 = 1
+            else:
+                return 0
+        else:
+            if "11" <= s[:2] <= "26":
+                pre2 = 2
+            else:
+                pre2 = 1
+
+        for i in range(2, n):
+            if s[i] == '0':
+                if s[i-1] == '0' or s[i-1] > '2':
+                    return 0
+                pre1, pre2 = pre2, pre1
+            else:
+                if "11" <= s[i-1:i+1] <= "26":
+                    pre1, pre2 = pre2, pre1 + pre2
+                else:
+                    pre1, pre2 = pre2, pre2
+        return pre2
+
+
+
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+
+```
+
+#### 88. Merge Sorted Array
+
+```python
+# You are given two integer arrays nums1 and nums2, sorted in non-decreasing 
+# order, and two integers m and n, representing the number of elements in nums1 and 
+# nums2 respectively. 
+# 
+#  Merge nums1 and nums2 into a single array sorted in non-decreasing order. 
+# 
+#  The final sorted array should not be returned by the function, but instead 
+# be stored inside the array nums1. To accommodate this, nums1 has a length of m + 
+# n, where the first m elements denote the elements that should be merged, and the 
+# last n elements are set to 0 and should be ignored. nums2 has a length of n. 
+# 
+#  
+#  Example 1: 
+# 
+#  
+# Input: nums1 = [1,2,3,0,0,0], m = 3, nums2 = [2,5,6], n = 3
+# Output: [1,2,2,3,5,6]
+# Explanation: The arrays we are merging are [1,2,3] and [2,5,6].
+# The result of the merge is [1,2,2,3,5,6] with the underlined elements coming 
+# from nums1.
+#  
+# 
+#  Example 2: 
+# 
+#  
+# Input: nums1 = [1], m = 1, nums2 = [], n = 0
+# Output: [1]
+# Explanation: The arrays we are merging are [1] and [].
+# The result of the merge is [1].
+#  
+# 
+#  Example 3: 
+# 
+#  
+# Input: nums1 = [0], m = 0, nums2 = [1], n = 1
+# Output: [1]
+# Explanation: The arrays we are merging are [] and [1].
+# The result of the merge is [1].
+# Note that because m = 0, there are no elements in nums1. The 0 is only there 
+# to ensure the merge result can fit in nums1.
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  nums1.length == m + n 
+#  nums2.length == n 
+#  0 <= m, n <= 200 
+#  1 <= m + n <= 200 
+#  -10⁹ <= nums1[i], nums2[j] <= 10⁹ 
+#  
+# 
+#  
+#  Follow up: Can you come up with an algorithm that runs in O(m + n) time? 
+# 
+#  Related Topics 数组 双指针 排序 👍 1598 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution(object):
+    def merge(self, nums1, m, nums2, n):
+        """
+        :type nums1: List[int]
+        :type m: int
+        :type nums2: List[int]
+        :type n: int
+        :rtype: None Do not return anything, modify nums1 in-place instead.
+        """
+
+        k1, k2 = 0, 0
+        for i in range(m-1, -1, -1):
+            nums1[i+n] = nums1[i]
+
+        i = 0
+        while k1 < m and k2 < n:
+            if nums1[k1+n] == nums2[k2]:
+                nums1[i] = nums1[k1+n]
+                i += 1
+                nums1[i] = nums2[k2]
+                i += 1
+                k1 += 1
+                k2 += 1
+            elif nums1[k1+n] > nums2[k2]:
+                nums1[i] = nums2[k2]
+                k2 += 1
+                i += 1
+            else:
+                nums1[i] = nums1[k1+n]
+                k1 += 1
+                i += 1
+
+        while k1 < m:
+            nums1[i] = nums1[k1+n]
+            i += 1
+            k1 += 1
+        while k2 < n:
+            nums1[i] = nums2[k2]
+            i += 1
+            k2 += 1
+
+
+s = Solution()
+a = [1,2,3,0,0,0]
+m =			3
+b =			[2,5,6]
+n =			3
+print(s.merge(a, m, b, n))
+# leetcode submit region end(Prohibit modification and deletion)
+
+
+```
+
+#### todolist [76, 269, 139, 523, 23, 200, 283, 65, 211, 347, 34, 721, 42, 339, 2, 987, 636, 121, 146, 162, 282, 17, 986, 43, 140]
+
+
+
+
+
 # 其他
 
 
