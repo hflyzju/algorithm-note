@@ -1442,6 +1442,668 @@ class Solution(object):
         return ''.join([str(_) for _ in res[::-1]])
 ```
 
+#### 273. Integer to English Words
+
+"""
+one two three four five six seven eight nigh? 
+ten eleven twelve thirteen fourteen fifteen? sixteen seventeen eighteen nighteen
+twenty thirty fourty fifty? sixty seventy eighty nighty
+hundred
+thouthand million billion
+
+nigh -> nine
+nighteen -> nineteen
+fourty -> fouty
+fifty -> fifty
+"""
+
+```python
+
+class Solution(object):
+    def numberToWords(self, num):
+        """
+        :type num: int
+        :rtype: str
+        """
+        if num == 0:
+            return "Zero"
+        ones = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
+        teens = ["Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"]
+        tens = ["Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"]
+        thousands = [" Thousand", " Million", " Billion"]
+        def search(num):
+            s = ""
+            # 1. if num biger than base, use recursion to get the result and return result,
+            # be careful when mode == 0
+            for i, base in enumerate([1000000000, 1000000, 1000]):
+                if num >= base:
+                    s += self.numberToWords(num // base) + thousands[2 - i]
+                    if num % base != 0:
+                        s += " " + self.numberToWords(num % base)
+                    return s
+            # 2. if num slower than 1000, check if it at range in [0, 10, 20, 100]
+            if num < 1000:
+                if num >= 100:
+                    if num % 100 == 0:
+                        s += self.numberToWords(num // 100) + " Hundred"
+                    else:
+                        s += self.numberToWords(num // 100) + " Hundred " + self.numberToWords(num % 100)
+                elif num >= 20:
+                    i = num // 10
+                    if num % 10 == 0:
+                        s += tens[i - 2]
+                    else:
+                        s += tens[i - 2] + " " + ones[num % 10 - 1]
+                elif num >= 10:
+                    s += teens[num - 10]
+                else:
+                    s += ones[num - 1]
+            return s
+        return search(num)
+
+        
+```
+
+#### 560 子数组和为k的个数
+
+```python
+
+class Solution(object):
+    def subarraySum(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: int
+        """
+        pre_sum_cnt = dict()
+        pre_sum_cnt[0] = 1
+        cur_sum = 0
+        cnt = 0
+        for num in nums:
+            cur_sum += num
+            diff = cur_sum - k
+            if diff in pre_sum_cnt:
+                cnt += pre_sum_cnt[diff]
+            if cur_sum not in pre_sum_cnt:
+                pre_sum_cnt[cur_sum] = 0
+            pre_sum_cnt[cur_sum] += 1
+        return cnt
+```
+
+#### 314. Binary Tree Vertical Order Traversal
+
+```
+Given the root of a binary tree, return the vertical order traversal of its nodes' values. (i.e., from top to bottom, column by column).
+
+If two nodes are in the same row and column, the order should be from left to right.
+
+ 
+
+Example 1:
+
+
+Input: root = [3,9,20,null,null,15,7]
+Output: [[9],[3,15],[20],[7]]
+Example 2:
+
+
+Input: root = [3,9,8,4,0,1,7]
+Output: [[4],[9],[3,0,1],[8],[7]]
+Example 3:
+
+
+Input: root = [3,9,8,4,0,1,7,null,null,null,2,5]
+Output: [[4],[9,5],[3,0,1],[8,2],[7]]
+
+```
+
+```python
+
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def verticalOrder(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[List[int]]
+        """
+        if not root:
+            return []
+        d = deque()
+        d.append([root, 0])
+        loc_to_node_list = defaultdict(list)
+        min_loc = 0
+        while d:
+            cur, cur_loc = d.popleft()
+            loc_to_node_list[cur_loc].append(cur.val)
+            if cur.left:
+                d.append([cur.left, cur_loc - 1])
+            if cur.right:
+                d.append([cur.right, cur_loc + 1])
+            min_loc = min(cur_loc, min_loc)
+        res = []
+        for loc in range(min_loc, min_loc + len(loc_to_node_list)):
+            res.append(loc_to_node_list[loc])
+        return res
+```
+#### 125. Valid Palindrome
+
+```
+A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward. Alphanumeric characters include letters and numbers.
+
+Given a string s, return true if it is a palindrome, or false otherwise.
+
+ 
+
+Example 1:
+
+Input: s = "A man, a plan, a canal: Panama"
+Output: true
+Explanation: "amanaplanacanalpanama" is a palindrome.
+Example 2:
+
+Input: s = "race a car"
+Output: false
+Explanation: "raceacar" is not a palindrome.
+```
+
+```python
+class Solution(object):
+    def isPalindrome(self, s):
+        """
+        :type s: str
+        :rtype: bool
+        """
+        s_list = []
+        for i in range(len(s)):
+            if 'a'<=s[i]<='z' or 'A'<=s[i]<='Z' or '0'<=s[i]<='9':
+                s_list.append(s[i].lower())
+        # print('s_list:', s_list)
+        l, r = 0, len(s_list) - 1
+        while l < r:
+            if s_list[l] == s_list[r]:
+                l += 1
+                r -= 1
+            else:
+                return False
+        return True
+```
+
+#### 238. Product of Array Except Self
+
+```
+Given an integer array nums, return an array answer such that answer[i] is equal to the product of all the elements of nums except nums[i].
+
+The product of any prefix or suffix of nums is guaranteed to fit in a 32-bit integer.
+
+You must write an algorithm that runs in O(n) time and without using the division operation.
+
+ 
+
+Example 1:
+
+Input: nums = [1,2,3,4]
+Output: [24,12,8,6]
+Example 2:
+
+Input: nums = [-1,1,0,-3,3]
+Output: [0,0,9,0,0]
+```
+
+```python
+class Solution(object):
+    def productExceptSelf(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: List[int]
+        """
+
+        n = len(nums)
+        l = [1] * n
+        r = [1] * n
+
+        for i in range(n):
+            if i == 0:
+                l[i] = nums[i]
+                r[n-1-i] = nums[n-1-i]
+            else:
+                l[i] = l[i-1] * nums[i]
+                r[n-1-i] = r[n-i] * nums[n-i-1]
+
+        p = [0] * n
+        for i in range(n):
+            if i == 0:
+                p[i] = r[i+1]
+            elif i == n - 1:
+                p[i] = l[i-1]
+            else:
+                p[i] = l[i-1] * r[i+1]
+        return p
+
+```
+
+
+#### 938. Range Sum of BST
+
+```
+Given the root node of a binary search tree and two integers low and high, return the sum of values of all nodes with a value in the inclusive range [low, high].
+
+
+Example 1:
+
+
+Input: root = [10,5,15,3,7,null,18], low = 7, high = 15
+Output: 32
+Explanation: Nodes 7, 10, and 15 are in the range [7, 15]. 7 + 10 + 15 = 32.
+Example 2:
+
+
+Input: root = [10,5,15,3,7,13,18,1,null,6], low = 6, high = 10
+Output: 23
+Explanation: Nodes 6, 7, and 10 are in the range [6, 10]. 6 + 7 + 10 = 23.
+
+```
+
+```python
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def rangeSumBST(self, root, low, high):
+        """
+        :type root: TreeNode
+        :type low: int
+        :type high: int
+        :rtype: int
+        """
+        self.sum = 0
+        def search(node):
+            if not node:
+                return
+            if node.val < low:
+                search(node.right)
+            elif node.val > high:
+                search(node.left)
+            else:
+                self.sum += node.val
+                search(node.left)
+                search(node.right)
+        search(root)
+        return self.sum
+
+```
+
+#### 1762. Buildings With an Ocean View
+
+```
+There are n buildings in a line. You are given an integer array heights of size n that represents the heights of the buildings in the line.
+
+The ocean is to the right of the buildings. A building has an ocean view if the building can see the ocean without obstructions. Formally, a building has an ocean view if all the buildings to its right have a smaller height.
+
+Return a list of indices (0-indexed) of buildings that have an ocean view, sorted in increasing order.
+
+ 
+
+Example 1:
+
+Input: heights = [4,2,3,1]
+Output: [0,2,3]
+Explanation: Building 1 (0-indexed) does not have an ocean view because building 2 is taller.
+Example 2:
+
+Input: heights = [4,3,2,1]
+Output: [0,1,2,3]
+Explanation: All the buildings have an ocean view.
+Example 3:
+
+Input: heights = [1,3,2,4]
+Output: [3]
+Explanation: Only building 3 has an ocean view.
+
+```
+
+```python
+class Solution(object):
+    def findBuildings(self, h):
+        """
+        :type heights: List[int]
+        :rtype: List[int]
+
+        h=[2,2]
+        m=2
+        1
+        0
+        """
+        n = len(h)
+        m = h[-1] - 1
+        tmp = []
+        for i in range(n-1, -1, -1):
+            if h[i] > m:
+                tmp.append(i)
+                m = h[i]
+        res = []
+        while tmp:
+            res.append(tmp.pop())
+        return res
+
+```
+
+
+#### 215. Kth Largest Element in an Array
+
+```
+Given an integer array nums and an integer k, return the kth largest element in the array.
+
+Note that it is the kth largest element in the sorted order, not the kth distinct element.
+
+You must solve it in O(n) time complexity.
+
+ 
+
+Example 1:
+
+Input: nums = [3,2,1,5,6,4], k = 2
+Output: 5
+Example 2:
+
+Input: nums = [3,2,3,1,2,4,5,5,6], k = 4
+Output: 4
+```
+
+```python
+class Solution(object):
+    def findKthLargest(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: int
+        """
+
+        def search(l, r, k):
+            mid = l + r >> 1
+            nums[mid], nums[r] = nums[r], nums[mid]
+            k1, k2 = l - 1, l
+            while k2 < r:
+                if nums[k2] > nums[r]:
+                    k1 += 1
+                    nums[k1], nums[k2] = nums[k2], nums[k1]
+                k2 += 1
+            k1 += 1
+            nums[k1], nums[r] = nums[r], nums[k1]
+            if k1 - l + 1 == k:
+                return nums[k1]
+            elif k1 - l + 1 > k:
+                return search(l, k1 - 1, k)
+            else:
+                return search(k1 + 1, r, k - (k1 - l + 1))
+
+        return search(0, len(nums) - 1, k)
+
+
+```
+
+
+#### 199. Binary Tree Right Side View
+
+```
+Given the root of a binary tree, imagine yourself standing on the right side of it, return the values of the nodes you can see ordered from top to bottom.
+
+ 
+
+Example 1:
+
+
+Input: root = [1,2,3,null,5,null,4]
+Output: [1,3,4]
+Example 2:
+
+Input: root = [1,null,3]
+Output: [1,3]
+Example 3:
+
+Input: root = []
+Output: []
+```
+
+```python
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def rightSideView(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[int]
+        """
+        res = []
+        exist_layer = set()
+        def dfs(root, layer):
+            if not root:
+                return
+            if layer not in exist_layer:
+                exist_layer.add(layer)
+                res.append(root.val)
+            dfs(root.right, layer + 1)
+            dfs(root.left, layer + 1)
+        dfs(root, 0)
+        return res
+```
+
+#### 31. Next Permutation
+
+```
+A permutation of an array of integers is an arrangement of its members into a sequence or linear order.
+
+For example, for arr = [1,2,3], the following are all the permutations of arr: [1,2,3], [1,3,2], [2, 1, 3], [2, 3, 1], [3,1,2], [3,2,1].
+The next permutation of an array of integers is the next lexicographically greater permutation of its integer. More formally, if all the permutations of the array are sorted in one container according to their lexicographical order, then the next permutation of that array is the permutation that follows it in the sorted container. If such arrangement is not possible, the array must be rearranged as the lowest possible order (i.e., sorted in ascending order).
+
+For example, the next permutation of arr = [1,2,3] is [1,3,2].
+Similarly, the next permutation of arr = [2,3,1] is [3,1,2].
+While the next permutation of arr = [3,2,1] is [1,2,3] because [3,2,1] does not have a lexicographical larger rearrangement.
+Given an array of integers nums, find the next permutation of nums.
+
+The replacement must be in place and use only constant extra memory.
+
+ 
+
+Example 1:
+
+Input: nums = [1,2,3]
+Output: [1,3,2]
+Example 2:
+
+Input: nums = [3,2,1]
+Output: [1,2,3]
+Example 3:
+
+Input: nums = [1,1,5]
+Output: [1,5,1]
+```
+
+```python
+class Solution(object):
+    def nextPermutation(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: None Do not return anything, modify nums in-place instead.
+        """
+
+
+        """
+
+        l
+           r
+        3654321
+
+        4654321
+        """
+
+        n = len(nums)
+        if n == 1:
+            return
+        i = n - 2
+        find = False
+        while i >= 0:
+            if nums[i] < nums[i+1]:
+                find = True
+                break
+            i -= 1
+        
+        if not find:
+            nums.sort()
+            return
+        
+
+        def find_first_index_bigger_than_target(target, l, r):
+            """find target in num at range [l, r]"""
+            cand = l
+            while l <= r:
+                m = l + r >> 1
+                # print(target, l, r, m, nums[m])
+                if nums[m] > target:
+                    cand = m
+                    l = m + 1
+                elif nums[m] < target:
+                    r = m - 1
+                else:
+                    r = m - 1
+            return cand
+
+        first_index = find_first_index_bigger_than_target(nums[i], i+1, len(nums) - 1)
+        nums[i], nums[first_index] = nums[first_index], nums[i]
+        # print(nums)
+        l, r = i + 1, len(nums) - 1
+        while l < r:
+            nums[l], nums[r] = nums[r], nums[l]
+            l += 1
+            r -= 1
+        
+        return
+```
+
+#### 56. Merge Intervals
+```
+Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.
+
+ 
+
+Example 1:
+
+Input: intervals = [[1,3],[2,6],[8,10],[15,18]]
+Output: [[1,6],[8,10],[15,18]]
+Explanation: Since intervals [1,3] and [2,6] overlap, merge them into [1,6].
+Example 2:
+
+Input: intervals = [[1,4],[4,5]]
+Output: [[1,5]]
+Explanation: Intervals [1,4] and [4,5] are considered overlapping.
+```
+
+```python
+class Solution(object):
+    def merge(self, intervals):
+        """
+        :type intervals: List[List[int]]
+        :rtype: List[List[int]]
+        time: O(nlogn)
+        space:O(logn)
+        """
+        intervals.sort(key = lambda x:[x[0], -x[1]])
+        res = []
+        for i in range(len(intervals)):
+            if not res:
+                res.append(intervals[i])
+            else:
+                if intervals[i][0] > res[-1][1]:
+                    res.append(intervals[i])
+                else:
+                    res[-1][1] = max(res[-1][1], intervals[i][1])
+        return res
+
+```
+
+#### 1570. Dot Product of Two Sparse Vectors
+```
+Given two sparse vectors, compute their dot product.
+
+Implement class SparseVector:
+
+SparseVector(nums) Initializes the object with the vector nums
+dotProduct(vec) Compute the dot product between the instance of SparseVector and vec
+A sparse vector is a vector that has mostly zero values, you should store the sparse vector efficiently and compute the dot product between two SparseVector.
+
+Follow up: What if only one of the vectors is sparse?
+
+ 
+
+Example 1:
+
+Input: nums1 = [1,0,0,2,3], nums2 = [0,3,0,4,0]
+Output: 8
+Explanation: v1 = SparseVector(nums1) , v2 = SparseVector(nums2)
+v1.dotProduct(v2) = 1*0 + 0*3 + 0*0 + 2*4 + 3*0 = 8
+Example 2:
+
+Input: nums1 = [0,1,0,0,0], nums2 = [0,0,0,0,2]
+Output: 0
+Explanation: v1 = SparseVector(nums1) , v2 = SparseVector(nums2)
+v1.dotProduct(v2) = 0*0 + 1*0 + 0*0 + 0*0 + 0*2 = 0
+Example 3:
+
+Input: nums1 = [0,1,0,0,2,0,0], nums2 = [1,0,0,0,3,0,4]
+Output: 6
+```
+
+```python
+class SparseVector:
+    def __init__(self, nums):
+        """
+        :type nums: List[int]
+        """
+        data = list()
+        for i, num in enumerate(nums):
+            if num != 0:
+                data.append([i, num])
+        self.data = data
+        
+
+    # Return the dotProduct of two sparse vectors
+    def dotProduct(self, vec):
+        """
+        :type vec: 'SparseVector'
+        :rtype: int
+        """
+        s = 0
+        m, n = len(self.data), len(vec.data)
+        k1, k2 = 0, 0
+        while k1 < m and k2 < n:
+            if self.data[k1][0] == vec.data[k2][0]:
+                s += self.data[k1][1] * vec.data[k2][1]
+                k1 += 1
+                k2 += 1
+            elif self.data[k1][0] > vec.data[k2][0]:
+                k2 += 1
+            else:
+                k1 += 1
+        return s
+        
+
+# Your SparseVector object will be instantiated and called as such:
+# v1 = SparseVector(nums1)
+# v2 = SparseVector(nums2)
+# ans = v1.dotProduct(v2)
+```
+
 # 其他
 
 
@@ -1531,6 +2193,162 @@ class Solution(object):
 ## 其他资料
 
 1. https://leetcode.com/problem-list/top-facebook-questions/
-2. https://www.glassdoor.sg/Interview/Meta-Machine-Learning-Engineer-Interview-Questions-EI_IE40772.0,4_KO5,30.htm
-3. 记录我曾经面试 Facebook（Meta） 的经历：https://sichengingermay.com/facebook-interview/
-4. Meta面试经历，被拒，两次！https://zhuanlan.zhihu.com/p/499547331
+2. https://leetcode.cn/company/facebook/problemset/
+3. https://www.glassdoor.sg/Interview/Meta-Machine-Learning-Engineer-Interview-Questions-EI_IE40772.0,4_KO5,30.htm
+4. 记录我曾经面试 Facebook（Meta） 的经历：https://sichengingermay.com/facebook-interview/
+5. Meta面试经历，被拒，两次！https://zhuanlan.zhihu.com/p/499547331
+
+
+
+
+##
+
+
+```
+
+"""
+You are given an array of integers. Write an algorithm that brings all nonzero elements to the left of the array, and returns the number of nonzero elements. The algorithm should operate in place, i.e. shouldn't create a new array. The order of the nonzero elements does not matter. The numbers that remain in the right portion of the array can be anything. Example: given the array [ 1, 0, 2, 0, 0, 3, 4 ], a possible answer is [ 4, 1, 3, 2, ?, ?, ? ], 4 non-zero elements, where "?" can be any number. Code should have good complexity and minimize the number of writes to the array.
+
+
+input:
+
+
+           l=0
+                    r=0
+[ 1, 2, 3, 4, 0, 0, 0 ]
+
+
+[]
+
+
+return:[1, 2, 3, 4, 0,0,0]
+[1,2,3,4]
+
+solution:
+
+time: O(n)
+space: O(1)
+
+
+
+"""
+
+def move_zeroes(nums: List[int]) -> int:
+    """
+    l
+    r
+    [1,2,0]
+    l=2
+    r=2
+    n=3
+    nums[r]=2 != 0
+
+    nums[l], nums[r]
+    """
+    # l: means the no-zero index
+    # r: cur position
+    l, r = 0, 0
+    n = len(nums)
+    while r < n:
+        if nums[r] != 0:
+            nums[l], nums[r] = nums[r], nums[l]
+            l += 1
+        r += 1
+    return l
+
+
+"""
+Given a 2D board and a list of words, return all words in the board that could be found from sequentially adjacent cells. Each word can start with any position in the board and can go horizontally or vertically.
+
+List of words: ["face", "book", "good", "bug", "oooo....o"]
+
+[
+"bkdu", 
+"goob", 
+"face"
+]
+
+
+
+b
+g
+
+"bgbg"
+
+"googoogoog"
+
+["face", "book", "good"]
+
+1.
+2. words
+3. 
+
+
+[
+"bkdu", 
+"goob", 
+"face"
+]
+
+check face
+
+
+face
+
+bfs dfs
+
+
+2d board: k1 * k2
+list of words:n
+max_length: m
+
+time: n * m
+
+"""
+
+
+def search(word, cur_index, x, y, board):
+    """search word[cur_index:] in board, and we now at positon (x, y)""""
+    m, n = len(board), len(board[0])
+    if x < 0 or x >= m or y < 0 or y >= n:
+        return False
+    if cur_index >= len(word):
+        return True
+    if word[cur_index] != board[x][y]:
+        return False
+    for dx, dy in [[1, 0], [-1, 0], [0, 1], [0, -1]]:
+        if search(word, cur_index + 1, x + dx, y + dy, board):
+            return True
+    return False
+
+def find_words_in_2d_board(words, board):
+    if not board:
+        return []
+    m, n = len(board), len(board[0])
+    res = []
+    for word in words:
+        find_word_flag = False
+        for x in range(m):
+            for y in range(n):
+                if search(word, 0, x, y, board):
+                    find_word_flag = True
+                    break
+        if find_word_flag:
+            res.append(word)
+    return res
+
+
+"""
+words: ['a', 'a?', 'g*od', '']
+board:
+
+[
+"bkdu", 
+"goob", 
+"face"
+]
+
+"""
+
+
+```
