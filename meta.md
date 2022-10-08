@@ -1443,6 +1443,1013 @@ class Solution(object):
 ```
 #### todolist [273, 301, 314, 125, 238, 938, 56, 215, 1762, 1570, 31, 199]
 
+#### 273. Integer to English Words
+
+```python
+# Convert a non-negative integer num to its English words representation. 
+# 
+#  
+#  Example 1: 
+# 
+#  
+# Input: num = 123
+# Output: "One Hundred Twenty Three"
+#  
+# 
+#  Example 2: 
+# 
+#  
+# Input: num = 12345
+# Output: "Twelve Thousand Three Hundred Forty Five"
+#  
+# 
+#  Example 3: 
+# 
+#  
+# Input: num = 1234567
+# Output: "One Million Two Hundred Thirty Four Thousand Five Hundred Sixty 
+# Seven"
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  0 <= num <= 2³¹ - 1 
+#  
+# 
+#  Related Topics 递归 数学 字符串 👍 292 👎 0
+
+class Solution(object):
+    def numberToWords(self, num):
+        """
+        :type num: int
+        :rtype: str
+        """
+        if num == 0:
+            return "Zero"
+        ones = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
+        teens = ["Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"]
+        tens = ["Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"]
+        thousands = [" Thousand", " Million", " Billion"]
+        def search(num):
+            s = ""
+            # 1. if num biger than base, use recursion to get the result and return result,
+            # be careful when mode == 0
+            for i, base in enumerate([1000000000, 1000000, 1000]):
+                if num >= base:
+                    s += self.numberToWords(num // base) + thousands[2 - i]
+                    if num % base != 0:
+                        s += " " + self.numberToWords(num % base)
+                    return s
+            # 2. if num slower than 1000, check if it at range in [0, 10, 20, 100]
+            if num < 1000:
+                if num >= 100:
+                    if num % 100 == 0:
+                        s += self.numberToWords(num // 100) + " Hundred"
+                    else:
+                        s += self.numberToWords(num // 100) + " Hundred " + self.numberToWords(num % 100)
+                elif num >= 20:
+                    i = num // 10
+                    if num % 10 == 0:
+                        s += tens[i - 2]
+                    else:
+                        s += tens[i - 2] + " " + ones[num % 10 - 1]
+                elif num >= 10:
+                    s += teens[num - 10]
+                else:
+                    s += ones[num - 1]
+            return s
+        return search(num)
+
+        
+# runtime:24 ms
+# memory:13.2 MB
+
+```
+
+#### 301. Remove Invalid Parentheses
+
+```python
+# Given a string s that contains parentheses and letters, remove the minimum 
+# number of invalid parentheses to make the input string valid. 
+# 
+#  Return all the possible results. You may return the answer in any order. 
+# 
+#  
+#  Example 1: 
+# 
+#  
+# Input: s = "()())()"
+# Output: ["(())()","()()()"]
+#  
+# 
+#  Example 2: 
+# 
+#  
+# Input: s = "(a)())()"
+# Output: ["(a())()","(a)()()"]
+#  
+# 
+#  Example 3: 
+# 
+#  
+# Input: s = ")("
+# Output: [""]
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  1 <= s.length <= 25 
+#  s consists of lowercase English letters and parentheses '(' and ')'. 
+#  There will be at most 20 parentheses in s. 
+#  
+# 
+#  Related Topics 广度优先搜索 字符串 回溯 👍 779 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution(object):
+    
+    def calBracketNumNotMatched(self, s):
+        l = 0
+        r = 0
+        for i in range(len(s)):
+            if s[i] == ')':
+                if l > 0:
+                    l -= 1
+                else:
+                    r += 1
+            elif s[i] == '(':
+                l += 1
+        return l, r
+
+    def isValid(self, s):
+        l, r = self.calBracketNumNotMatched(s)
+        return l == 0 and r == 0
+    
+    def removeInvalidParentheses(self, s):
+        """
+        :type s: str
+        :rtype: List[str]
+        """
+
+
+        total_l_need_remove, total_r_need_remove = self.calBracketNumNotMatched(s)
+
+        res = []
+        def search(cur_s, l, r, start):
+            # print(cur_s, l, r, start)
+            if l == 0 and r == 0 and self.isValid(cur_s):
+                res.append(cur_s)
+                return
+            if r > 0:
+                for i in range(start, len(cur_s)):
+                    if i != start and cur_s[i] == cur_s[i-1]:
+                        continue
+                    if cur_s[i] == ')':
+                        search(cur_s[:i]+cur_s[i+1:], l, r - 1, i)
+            elif l > 0:
+                for i in range(start, len(cur_s)):
+                    if i != start and cur_s[i] == cur_s[i-1]:
+                        continue
+                    if cur_s[i] == '(':
+                        search(cur_s[:i]+cur_s[i+1:], l - 1, r, i)
+        search(s, total_l_need_remove, total_r_need_remove, 0)
+        return res
+# runtime:20 ms
+# memory:13 MB
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+#### 314. Binary Tree Vertical Order Traversal
+
+```python
+# Given the root of a binary tree, return the vertical order traversal of its 
+# nodes' values. (i.e., from top to bottom, column by column). 
+# 
+#  If two nodes are in the same row and column, the order should be from left 
+# to right. 
+# 
+#  
+#  Example 1: 
+#  
+#  
+# Input: root = [3,9,20,null,null,15,7]
+# Output: [[9],[3,15],[20],[7]]
+#  
+# 
+#  Example 2: 
+#  
+#  
+# Input: root = [3,9,8,4,0,1,7]
+# Output: [[4],[9],[3,0,1],[8],[7]]
+#  
+# 
+#  Example 3: 
+#  
+#  
+# Input: root = [3,9,8,4,0,1,7,null,null,null,2,5]
+# Output: [[4],[9,5],[3,0,1],[8,2],[7]]
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  The number of nodes in the tree is in the range [0, 100]. 
+#  -100 <= Node.val <= 100 
+#  
+# 
+#  Related Topics 树 深度优先搜索 广度优先搜索 哈希表 二叉树 👍 190 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def verticalOrder(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[List[int]]
+        """
+        if not root:
+            return []
+        d = deque()
+        d.append([root, 0])
+        loc_to_node_list = defaultdict(list)
+        min_loc = 0
+        while d:
+            cur, cur_loc = d.popleft()
+            loc_to_node_list[cur_loc].append(cur.val)
+            if cur.left:
+                d.append([cur.left, cur_loc - 1])
+            if cur.right:
+                d.append([cur.right, cur_loc + 1])
+            min_loc = min(cur_loc, min_loc)
+        res = []
+        for loc in range(min_loc, min_loc + len(loc_to_node_list)):
+            res.append(loc_to_node_list[loc])
+        return res
+# runtime:16 ms
+# memory:13.3 MB
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+
+```
+
+#### 125. Valid Palindrome
+
+```python
+# A phrase is a palindrome if, after converting all uppercase letters into 
+# lowercase letters and removing all non-alphanumeric characters, it reads the same 
+# forward and backward. Alphanumeric characters include letters and numbers. 
+# 
+#  Given a string s, return true if it is a palindrome, or false otherwise. 
+# 
+#  
+#  Example 1: 
+# 
+#  
+# Input: s = "A man, a plan, a canal: Panama"
+# Output: true
+# Explanation: "amanaplanacanalpanama" is a palindrome.
+#  
+# 
+#  Example 2: 
+# 
+#  
+# Input: s = "race a car"
+# Output: false
+# Explanation: "raceacar" is not a palindrome.
+#  
+# 
+#  Example 3: 
+# 
+#  
+# Input: s = " "
+# Output: true
+# Explanation: s is an empty string "" after removing non-alphanumeric 
+# characters.
+# Since an empty string reads the same forward and backward, it is a palindrome.
+# 
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  1 <= s.length <= 2 * 10⁵ 
+#  s consists only of printable ASCII characters. 
+#  
+# 
+#  Related Topics 双指针 字符串 👍 578 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution(object):
+    def isPalindrome(self, s):
+        """
+        :type s: str
+        :rtype: bool
+        """
+        s_list = []
+        for i in range(len(s)):
+            if 'a'<=s[i]<='z' or 'A'<=s[i]<='Z' or '0'<=s[i]<='9':
+                s_list.append(s[i].lower())
+        # print('s_list:', s_list)
+        l, r = 0, len(s_list) - 1
+        while l < r:
+            if s_list[l] == s_list[r]:
+                l += 1
+                r -= 1
+            else:
+                return False
+        return True
+        
+# runtime:44 ms
+# memory:17.9 MB
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+
+```
+
+#### [238]Product of Array Except Self
+
+```python
+# Given an integer array nums, return an array answer such that answer[i] is 
+# equal to the product of all the elements of nums except nums[i]. 
+# 
+#  The product of any prefix or suffix of nums is guaranteed to fit in a 32-bit 
+# integer. 
+# 
+#  You must write an algorithm that runs in O(n) time and without using the 
+# division operation. 
+# 
+#  
+#  Example 1: 
+#  Input: nums = [1,2,3,4]
+# Output: [24,12,8,6]
+#  
+#  Example 2: 
+#  Input: nums = [-1,1,0,-3,3]
+# Output: [0,0,9,0,0]
+#  
+#  
+#  Constraints: 
+# 
+#  
+#  2 <= nums.length <= 10⁵ 
+#  -30 <= nums[i] <= 30 
+#  The product of any prefix or suffix of nums is guaranteed to fit in a 32-bit 
+# integer. 
+#  
+# 
+#  
+#  Follow up: Can you solve the problem in O(1) extra space complexity? (The 
+# output array does not count as extra space for space complexity analysis.) 
+# 
+#  Related Topics 数组 前缀和 👍 1286 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution(object):
+    def productExceptSelf(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: List[int]
+        """
+
+        n = len(nums)
+        l = [1] * n
+        r = [1] * n
+
+        for i in range(n):
+            if i == 0:
+                l[i] = nums[i]
+                r[n-1-i] = nums[n-1-i]
+            else:
+                l[i] = l[i-1] * nums[i]
+                r[n-1-i] = r[n-i] * nums[n-i-1]
+
+        p = [0] * n
+        for i in range(n):
+            if i == 0:
+                p[i] = r[i+1]
+            elif i == n - 1:
+                p[i] = l[i-1]
+            else:
+                p[i] = l[i-1] * r[i+1]
+        return p
+# runtime:60 ms
+# memory:23.8 MB
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+
+```
+
+#### [938]Range Sum of BST
+
+```python
+# Given the root node of a binary search tree and two integers low and high, 
+# return the sum of values of all nodes with a value in the inclusive range [low, 
+# high]. 
+# 
+#  
+#  Example 1: 
+#  
+#  
+# Input: root = [10,5,15,3,7,null,18], low = 7, high = 15
+# Output: 32
+# Explanation: Nodes 7, 10, and 15 are in the range [7, 15]. 7 + 10 + 15 = 32.
+#  
+# 
+#  Example 2: 
+#  
+#  
+# Input: root = [10,5,15,3,7,13,18,1,null,6], low = 6, high = 10
+# Output: 23
+# Explanation: Nodes 6, 7, and 10 are in the range [6, 10]. 6 + 7 + 10 = 23.
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  The number of nodes in the tree is in the range [1, 2 * 10⁴]. 
+#  1 <= Node.val <= 10⁵ 
+#  1 <= low <= high <= 10⁵ 
+#  All Node.val are unique. 
+#  
+# 
+#  Related Topics 树 深度优先搜索 二叉搜索树 二叉树 👍 308 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def rangeSumBST(self, root, low, high):
+        """
+        :type root: TreeNode
+        :type low: int
+        :type high: int
+        :rtype: int
+        """
+        self.sum = 0
+        def search(node):
+            if not node:
+                return
+            if node.val < low:
+                search(node.right)
+            elif node.val > high:
+                search(node.left)
+            else:
+                self.sum += node.val
+                search(node.left)
+                search(node.right)
+        search(root)
+        return self.sum
+# runtime:192 ms
+# memory:28.9 MB
+
+        
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+#### [56]Merge Intervals
+```python
+# Given an array of intervals where intervals[i] = [starti, endi], merge all 
+# overlapping intervals, and return an array of the non-overlapping intervals that 
+# cover all the intervals in the input. 
+# 
+#  
+#  Example 1: 
+# 
+#  
+# Input: intervals = [[1,3],[2,6],[8,10],[15,18]]
+# Output: [[1,6],[8,10],[15,18]]
+# Explanation: Since intervals [1,3] and [2,6] overlap, merge them into [1,6].
+#  
+# 
+#  Example 2: 
+# 
+#  
+# Input: intervals = [[1,4],[4,5]]
+# Output: [[1,5]]
+# Explanation: Intervals [1,4] and [4,5] are considered overlapping.
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  1 <= intervals.length <= 10⁴ 
+#  intervals[i].length == 2 
+#  0 <= starti <= endi <= 10⁴ 
+#  
+# 
+#  Related Topics 数组 排序 👍 1672 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution(object):
+    def merge(self, intervals):
+        """
+        :type intervals: List[List[int]]
+        :rtype: List[List[int]]
+        """
+        intervals.sort(key = lambda x:[x[0], -x[1]])
+        res = []
+        for i in range(len(intervals)):
+            if not res:
+                res.append(intervals[i])
+            else:
+                if intervals[i][0] > res[-1][1]:
+                    res.append(intervals[i])
+                else:
+                    res[-1][1] = max(res[-1][1], intervals[i][1])
+        return res
+# runtime:36 ms
+# memory:17.5 MB
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+#### [215]Kth Largest Element in an Array
+
+```python
+# Given an integer array nums and an integer k, return the kᵗʰ largest element 
+# in the array. 
+# 
+#  Note that it is the kᵗʰ largest element in the sorted order, not the kᵗʰ 
+# distinct element. 
+# 
+#  You must solve it in O(n) time complexity. 
+# 
+#  
+#  Example 1: 
+#  Input: nums = [3,2,1,5,6,4], k = 2
+# Output: 5
+#  
+#  Example 2: 
+#  Input: nums = [3,2,3,1,2,4,5,5,6], k = 4
+# Output: 4
+#  
+#  
+#  Constraints: 
+# 
+#  
+#  1 <= k <= nums.length <= 10⁵ 
+#  -10⁴ <= nums[i] <= 10⁴ 
+#  
+# 
+#  Related Topics 数组 分治 快速选择 排序 堆（优先队列） 👍 1913 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution(object):
+    def findKthLargest(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: int
+        """
+
+        def search(l, r, k):
+            mid = l + r >> 1
+            nums[mid], nums[r] = nums[r], nums[mid]
+            k1, k2 = l - 1, l
+            while k2 < r:
+                if nums[k2] > nums[r]:
+                    k1 += 1
+                    nums[k1], nums[k2] = nums[k2], nums[k1]
+                k2 += 1
+            k1 += 1
+            nums[k1], nums[r] = nums[r], nums[k1]
+            if k1 - l + 1 == k:
+                return nums[k1]
+            elif k1 - l + 1 > k:
+                return search(l, k1 - 1, k)
+            else:
+                return search(k1 + 1, r, k - (k1 - l + 1))
+
+        return search(0, len(nums) - 1, k)
+
+# runtime:140 ms
+# memory:25.4 MB
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+#### [1762]Buildings With an Ocean View
+
+```python
+# There are n buildings in a line. You are given an integer array heights of 
+# size n that represents the heights of the buildings in the line. 
+# 
+#  The ocean is to the right of the buildings. A building has an ocean view if 
+# the building can see the ocean without obstructions. Formally, a building has an 
+# ocean view if all the buildings to its right have a smaller height. 
+# 
+#  Return a list of indices (0-indexed) of buildings that have an ocean view, 
+# sorted in increasing order. 
+# 
+#  
+#  Example 1: 
+# 
+#  
+# Input: heights = [4,2,3,1]
+# Output: [0,2,3]
+# Explanation: Building 1 (0-indexed) does not have an ocean view because 
+# building 2 is taller.
+#  
+# 
+#  Example 2: 
+# 
+#  
+# Input: heights = [4,3,2,1]
+# Output: [0,1,2,3]
+# Explanation: All the buildings have an ocean view.
+#  
+# 
+#  Example 3: 
+# 
+#  
+# Input: heights = [1,3,2,4]
+# Output: [3]
+# Explanation: Only building 3 has an ocean view.
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  1 <= heights.length <= 10⁵ 
+#  1 <= heights[i] <= 10⁹ 
+#  
+# 
+#  Related Topics 栈 数组 单调栈 👍 17 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution(object):
+    def findBuildings(self, h):
+        """
+        :type heights: List[int]
+        :rtype: List[int]
+
+        h=[2,2]
+        m=2
+        1
+        0
+        """
+        n = len(h)
+        m = h[-1] - 1
+        tmp = []
+        for i in range(n-1, -1, -1):
+            if h[i] > m:
+                tmp.append(i)
+                m = h[i]
+        res = []
+        while tmp:
+            res.append(tmp.pop())
+        return res
+# runtime:68 ms
+# memory:28.7 MB
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+#### [1570]Dot Product of Two Sparse Vectors
+
+```python
+# Given two sparse vectors, compute their dot product. 
+# 
+#  Implement class SparseVector: 
+# 
+#  
+#  SparseVector(nums) Initializes the object with the vector nums 
+#  dotProduct(vec) Compute the dot product between the instance of SparseVector 
+# and vec 
+#  
+# 
+#  A sparse vector is a vector that has mostly zero values, you should store 
+# the sparse vector efficiently and compute the dot product between two SparseVector.
+#  
+# 
+#  Follow up: What if only one of the vectors is sparse? 
+# 
+#  
+#  Example 1: 
+# 
+#  
+# Input: nums1 = [1,0,0,2,3], nums2 = [0,3,0,4,0]
+# Output: 8
+# Explanation: v1 = SparseVector(nums1) , v2 = SparseVector(nums2)
+# v1.dotProduct(v2) = 1*0 + 0*3 + 0*0 + 2*4 + 3*0 = 8
+#  
+# 
+#  Example 2: 
+# 
+#  
+# Input: nums1 = [0,1,0,0,0], nums2 = [0,0,0,0,2]
+# Output: 0
+# Explanation: v1 = SparseVector(nums1) , v2 = SparseVector(nums2)
+# v1.dotProduct(v2) = 0*0 + 1*0 + 0*0 + 0*0 + 0*2 = 0
+#  
+# 
+#  Example 3: 
+# 
+#  
+# Input: nums1 = [0,1,0,0,2,0,0], nums2 = [1,0,0,0,3,0,4]
+# Output: 6
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  n == nums1.length == nums2.length 
+#  1 <= n <= 10^5 
+#  0 <= nums1[i], nums2[i] <= 100 
+#  
+# 
+#  Related Topics 设计 数组 哈希表 双指针 👍 25 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class SparseVector:
+    def __init__(self, nums):
+        """
+        :type nums: List[int]
+        """
+        data = list()
+        for i, num in enumerate(nums):
+            if num != 0:
+                data.append([i, num])
+        self.data = data
+        
+
+    # Return the dotProduct of two sparse vectors
+    def dotProduct(self, vec):
+        """
+        :type vec: 'SparseVector'
+        :rtype: int
+        """
+        s = 0
+        m, n = len(self.data), len(vec.data)
+        k1, k2 = 0, 0
+        while k1 < m and k2 < n:
+            if self.data[k1][0] == vec.data[k2][0]:
+                s += self.data[k1][1] * vec.data[k2][1]
+                k1 += 1
+                k2 += 1
+            elif self.data[k1][0] > vec.data[k2][0]:
+                k2 += 1
+            else:
+                k1 += 1
+        return s
+        
+
+# Your SparseVector object will be instantiated and called as such:
+# v1 = SparseVector(nums1)
+# v2 = SparseVector(nums2)
+# ans = v1.dotProduct(v2)
+# runtime:1512 ms
+# memory:17.1 MB
+
+        
+
+# Your SparseVector object will be instantiated and called as such:
+# v1 = SparseVector(nums1)
+# v2 = SparseVector(nums2)
+# ans = v1.dotProduct(v2)
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+#### [31]Next Permutation
+
+```python
+# A permutation of an array of integers is an arrangement of its members into a 
+# sequence or linear order. 
+# 
+#  
+#  For example, for arr = [1,2,3], the following are all the permutations of 
+# arr: [1,2,3], [1,3,2], [2, 1, 3], [2, 3, 1], [3,1,2], [3,2,1]. 
+#  
+# 
+#  The next permutation of an array of integers is the next lexicographically 
+# greater permutation of its integer. More formally, if all the permutations of the 
+# array are sorted in one container according to their lexicographical order, 
+# then the next permutation of that array is the permutation that follows it in the 
+# sorted container. If such arrangement is not possible, the array must be 
+# rearranged as the lowest possible order (i.e., sorted in ascending order). 
+# 
+#  
+#  For example, the next permutation of arr = [1,2,3] is [1,3,2]. 
+#  Similarly, the next permutation of arr = [2,3,1] is [3,1,2]. 
+#  While the next permutation of arr = [3,2,1] is [1,2,3] because [3,2,1] does 
+# not have a lexicographical larger rearrangement. 
+#  
+# 
+#  Given an array of integers nums, find the next permutation of nums. 
+# 
+#  The replacement must be in place and use only constant extra memory. 
+# 
+#  
+#  Example 1: 
+# 
+#  
+# Input: nums = [1,2,3]
+# Output: [1,3,2]
+#  
+# 
+#  Example 2: 
+# 
+#  
+# Input: nums = [3,2,1]
+# Output: [1,2,3]
+#  
+# 
+#  Example 3: 
+# 
+#  
+# Input: nums = [1,1,5]
+# Output: [1,5,1]
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  1 <= nums.length <= 100 
+#  0 <= nums[i] <= 100 
+#  
+# 
+#  Related Topics 数组 双指针 👍 1937 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution(object):
+    def nextPermutation(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: None Do not return anything, modify nums in-place instead.
+        """
+
+
+        """
+
+        l
+           r
+        3654321
+
+        4654321
+        """
+
+        n = len(nums)
+        if n == 1:
+            return
+        i = n - 2
+        find = False
+        while i >= 0:
+            if nums[i] < nums[i+1]:
+                find = True
+                break
+            i -= 1
+        
+        if not find:
+            nums.sort()
+            return
+        
+
+        def find_first_index_bigger_than_target(target, l, r):
+            """find target in num at range [l, r]"""
+            cand = l
+            while l <= r:
+                m = l + r >> 1
+                # print(target, l, r, m, nums[m])
+                if nums[m] > target:
+                    cand = m
+                    l = m + 1
+                elif nums[m] < target:
+                    r = m - 1
+                else:
+                    r = m - 1
+            return cand
+
+        first_index = find_first_index_bigger_than_target(nums[i], i+1, len(nums) - 1)
+        nums[i], nums[first_index] = nums[first_index], nums[i]
+        # print(nums)
+        l, r = i + 1, len(nums) - 1
+        while l < r:
+            nums[l], nums[r] = nums[r], nums[l]
+            l += 1
+            r -= 1
+        
+        return
+
+# runtime:20 ms
+# memory:12.9 MB
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+#### [199]Binary Tree Right Side View
+
+```python
+
+# Given the root of a binary tree, imagine yourself standing on the right side 
+# of it, return the values of the nodes you can see ordered from top to bottom. 
+# 
+#  
+#  Example 1: 
+#  
+#  
+# Input: root = [1,2,3,null,5,null,4]
+# Output: [1,3,4]
+#  
+# 
+#  Example 2: 
+# 
+#  
+# Input: root = [1,null,3]
+# Output: [1,3]
+#  
+# 
+#  Example 3: 
+# 
+#  
+# Input: root = []
+# Output: []
+#  
+# 
+#  
+#  Constraints: 
+# 
+#  
+#  The number of nodes in the tree is in the range [0, 100]. 
+#  -100 <= Node.val <= 100 
+#  
+# 
+#  Related Topics 树 深度优先搜索 广度优先搜索 二叉树 👍 765 👎 0
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def rightSideView(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[int]
+        """
+        res = []
+        exist_layer = set()
+        def dfs(root, layer):
+            if not root:
+                return
+            if layer not in exist_layer:
+                exist_layer.add(layer)
+                res.append(root.val)
+            dfs(root.right, layer + 1)
+            dfs(root.left, layer + 1)
+        dfs(root, 0)
+        return res
+# runtime:24 ms
+# memory:13.1 MB
+
+        
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
 #### todolist [528, 173, 415, 1, 29, 297, 278, 236, 253, 621, 91, 88, 543, 71, 50, 124, 10, 1650, 227, 138, 426, 133, 15, 158, 1428]
 
 #### 528. Random Pick with Weight
