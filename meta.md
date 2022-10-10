@@ -15,6 +15,8 @@
 | 2. META ML RS过经及timeline |  on-site1-Coding 3  |2022.01| Basic Calculator II: 计算无括号的加减乘初的结果|栈 or 优化版本|中等|1. 只需要记录ans(上个位置之前的结果)，pre_val(上一个位置结果)，cur_val(当前位置结果)这三个数，可以将空间复杂度优化到O(1). 2.遇到+-*/符号或者到结束位置就计算结果|
 | 2. META ML RS过经及timeline |  on-site2-Coding 1  |2022.07| 65. Valid Number: 是否为有效的float数的字符串，可能包含.+-eE等符号| 字符串 | 中等 |注意很多badcase|
 | 2. META ML RS过经及timeline |  on-site2-Coding 1  |2022.07| 670. Maximum Swap：返回只可以swap一次后最大的数| 数组 | 中等 |从后往前遍历并记录最大值，对每个位置，与替换最大值替换可以取得该位置swap后的最大值，与最前面一个位置swap可以取得全局最大值|
+| mock |  mock2  |2022.10| [691]Stickers to Spell Word: 返回最小的使用stickers组合成target的数量 | dfs+缓存+状态压缩 or bfs | 困难 | 1. 可以用dfs从target开始搜索，每次搜索的时候，尝试使用stickers中的每个结果，最终取最小的。2. 状态比较多，用11111代表每个位置是否已经收集到，这种效率要高一点，相当于利用位运算做了压缩。3. 可以加缓存优化速度。|
+
 
 ## 高频题总结
 |类别|类型|  题号 | 难度  | 题目 | 题解 | 
@@ -1195,7 +1197,87 @@ Output: -1
 Explanation:
 We cannot form the target "basicbasic" from cutting letters from the given stickers.
 ```
+- dfs+缓存(易于理解+超时)
 
+```python
+class Solution(object):
+    def minStickers(self, stickers, target):
+        """
+        :type stickers: List[str]
+        :type target: str
+        :rtype: int
+        """
+        best = dict()
+        def convert(s):
+            res = [0] * 26
+            for i in range(len(s)):
+                res[ord(s[i]) - ord('a')] += 1
+            return res
+        
+        stickers_list = [convert(_) for _ in stickers]
+        target_list = convert(target)
+
+        def sub(a_list, b_list):
+            res = [0] * 26
+            for i in range(26):
+                res[i] = max(0, a_list[i] - b_list[i])
+            return res
+        
+        def get_key(target_list):
+            return ','.join([str(_) for _ in target_list])
+
+        def dfs(target_list):
+            if sum(target_list) == 0:
+                return 0
+            key = get_key(target_list)
+            if key in best:
+                return best[key]
+            best[key] = float('inf')
+            for sticker_list in stickers_list:
+                sub_res = sub(target_list, sticker_list)
+                best[key] = min(dfs(sub_res) + 1, best[key])
+            return best[key]
+
+        res = dfs(target_list)
+        return -1 if res >= float('inf') else res
+```
+
+- dfs+缓存+状态压缩优化版本
+
+```python
+class Solution(object):
+    def minStickers(self, stickers, target):
+        """
+        :type stickers: List[str]
+        :type target: str
+        :rtype: int
+
+        time: O((m+n)*n*2^m)
+        space:O(2^m)
+        """
+        best = dict()
+        def search(cur):
+            if not cur:
+                return 0
+            if cur in best:
+                return best[cur]
+            best[cur] = float('inf')
+            for sticker in stickers:
+                letter_cnt = Counter(sticker)
+                base = cur
+                for i in range(len(target)):
+                    letter = target[i]
+                    if letter_cnt[letter] > 0 and base & (1 << i) != 0:
+                        letter_cnt[letter] -= 1
+                        base ^= (1 << i) # 取反，标记该位置已经有了
+                if base < cur:
+                    best[cur] = min(best[cur], search(base) + 1)
+            return best[cur]
+        res = search((1 << len(target)) - 1)
+        return -1 if res >= float('inf') else res
+```
+
+- 状态压缩+dp
 ```python
 
 # leetcode submit region begin(Prohibit modification and deletion)
@@ -1258,11 +1340,148 @@ class Solution:
                     dp[total_num_of_status - 1] and dp[total_num_of_status - 1] != float('inf')) else - 1
 # runtime:3432 ms
 # memory:15.3 MB
-
-
 # leetcode submit region end(Prohibit modification and deletion)
+```
+
+
+
+
+
+
+
+
+
+# meta-店面 2021.
+https://www.1point3acres.com/bbs/thread-814892-1-1.html
+## 店面
+```
+第一题 三幺四第二题 unsorted array 找是否有三个number, a,b,c 满足 a**2 + b**2 = c**2
+```
+### 314. Binary Tree Vertical Order Traversal
+
+```python
+
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def verticalOrder(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[List[int]]
+        """
+        if not root:
+            return []
+        d = deque()
+        d.append([root, 0])
+        loc_to_node_list = defaultdict(list)
+        min_loc = 0
+        while d:
+            cur, cur_loc = d.popleft()
+            loc_to_node_list[cur_loc].append(cur.val)
+            if cur.left:
+                d.append([cur.left, cur_loc - 1])
+            if cur.right:
+                d.append([cur.right, cur_loc + 1])
+            min_loc = min(cur_loc, min_loc)
+        res = []
+        for loc in range(min_loc, min_loc + len(loc_to_node_list)):
+            res.append(loc_to_node_list[loc])
+        return res
+```
+
+### TODO:unsorted array 找是否有三个number, a,b,c 满足 a**2 + b**2 = c**2
+- 思路
+```
+这里是OP，第二题可以有负数，我是按照three sum的思路做的，先map成平方的形式，再sort，然后for loop+two pointers
 
 ```
+```python
+
+def find_three_nums(arr):
+    arr = [_**2 for _ in arr]
+    arr.sort()
+    for k3 in range(len(arr) - 1, 1, -1):
+        if k3 != len(arr) - 1 and arr[k3] == arr[k3] + 1:
+            continue
+        c = arr[k3]
+        # a + b = c
+        k1, k2 = 0, k3 - 1
+        while k1 < k2:
+            if arr[k1] + arr[k2] == c:
+                return True
+            elif arr[k1] + arr[k2] < c:
+                k1 += 1
+            else:
+                k2 -= 1
+```
+- 三数之和题解
+
+```python
+class Solution(object):
+    def threeSum(self, nums):
+        """找出所有三数之和为0的数字, 注意要去重
+        :type nums: List[int]
+        :rtype: List[List[int]]
+        Example:
+            #  Example 1:
+            #  Input: nums = [-1,0,1,2,-1,-4]
+            #  Output: [[-1,-1,2],[-1,0,1]]
+        Solution:
+            O(n**2)
+        """
+        n = len(nums)
+        if n < 3:
+            return []
+        nums.sort() # [0,0,0,0,0]
+        result = []
+        for i in range(n):
+            if i >= 1 and nums[i] == nums[i-1]:
+                continue
+            target = -nums[i]
+            l = i + 1
+            r = n - 1
+            while l < r:
+                # 跳过相同数字
+                if l > i + 1 and nums[l] == nums[l - 1]:
+                    l += 1
+                else:
+                    # 缩小范围
+                    while l < r and nums[l] + nums[r] > target:
+                        r -= 1
+                    if l == r:
+                        break
+                    if nums[l] + nums[r] == target:
+                        result.append([nums[i], nums[l], nums[r]])
+                    l += 1
+        return result
+```
+
+# meta-店面 2022.1
+https://www.1point3acres.com/bbs/thread-843295-1-1.html
+## onsite
+```
+一月中旬面试的Meta，感觉还不错。
+1轮System Design， 1轮ML Infra Design，2轮Coding，1轮Behavior
+System： 爬虫， ML：Ads CTR prediction，Coding： 1. N（很大的数）个排好序的找有多少unique 数字。2. Walls and Gates 变‍‌‍‌‍‍‌‌‍‍‍‍‍‍‍‍‌‌‌‌种。3. 二叉树中距离为K的node。 4. 忘了，但是是一个非常Easy的题目。
+```
+### TODO:N（很大的数）个排好序的找有多少unique 数字
+### TODO:Walls and Gates 变‍‌‍‌‍‍‌‌‍‍‍‍‍‍‍‍‌‌‌‌种
+### TODO:二叉树中距离为K的node。 
+
+
+# meta MLE 店面 2022.10
+https://www.1point3acres.com/bbs/thread-932740-1-1.html
+## 店面
+```
+臼捌跂 follow up 问保持原来字符串不在给定序列里的顺序
+壹珋弍变体求最小 follow up 问如果第一个和最后一个没有相邻也算满足条件求结果
+```
+### TODO：987
+### TODO：192变体
 
 
 # Meta高频
@@ -4065,6 +4284,43 @@ class Solution(object):
 
 ```
 
+#### 10. Regular Expression Matching 简化版本
+
+```python
+class Solution(object):
+    def isMatch(self, s, p):
+        """
+        :type s: str
+        :type p: str
+        :rtype: bool
+
+
+        ab a.
+        a a* dp[i][j] = True if dp[i][j-1]
+        aa a* dp[i][j] = True if dp[i-1][j] and p[j-2] == s[i-1]
+        aaa a*
+        """
+        m, n = len(s), len(p)
+        dp = [[False] * (n+1) for _ in range(m+1)]
+        dp[0][0] = True
+        for j in range(2, n + 1):
+            if p[j-1] == '*':
+                dp[0][j] = dp[0][j-2]
+        for i in range(1, m+1):
+            for j in range(1, n+1):
+                if s[i-1] == p[j-1] or p[j-1] == '.':
+                    dp[i][j] = dp[i-1][j-1]
+                elif p[j-1] == '*':
+                    if j >= 2 and s[i-1] != p[j-2] and p[j-2] != '.':
+                        dp[i][j] = dp[i][j-2]
+                    elif j >= 2:
+                        dp[i][j] = dp[i][j-2] | dp[i][j-2] | dp[i-1][j]
+        # for dpi in dp:
+        #     print(dpi)
+        return dp[m][n]
+
+```
+
 #### todolist [76, 269, 139, 523, 23, 200, 283, 65, 211, 347, 34, 721, 42, 339, 2, 987, 636, 121, 146, 162, 282, 17, 986, 43, 140]
 
 
@@ -4163,3 +4419,6 @@ class Solution(object):
 2. https://www.glassdoor.sg/Interview/Meta-Machine-Learning-Engineer-Interview-Questions-EI_IE40772.0,4_KO5,30.htm
 3. 记录我曾经面试 Facebook（Meta） 的经历：https://sichengingermay.com/facebook-interview/
 4. Meta面试经历，被拒，两次！https://zhuanlan.zhihu.com/p/499547331
+5. 发一下之前面过的FB E5面经吧：https://www.uscardforum.com/t/topic/28625
+6. How I cracked my MLE interview at Facebook：https://towardsdatascience.com/how-i-cracked-my-mle-interview-at-facebook-fe55726f0096
+7. 整理最近3个月Facebook面筋(2020):https://www.1point3acres.com/bbs/forum.php?mod=viewthread&tid=698494&ctid=230547
