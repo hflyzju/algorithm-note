@@ -3555,6 +3555,268 @@ print(s.merge(a, m, b, n))
 
 ```
 
+#### 543. Diameter of Binary Tree
+
+```
+Given the root of a binary tree, return the length of the diameter of the tree.
+
+The diameter of a binary tree is the length of the longest path between any two nodes in a tree. This path may or may not pass through the root.
+
+The length of a path between two nodes is represented by the number of edges between them.
+
+ 
+
+Example 1:
+
+
+Input: root = [1,2,3,4,5]
+Output: 3
+Explanation: 3 is the length of the path [4,2,1,3] or [5,2,1,3].
+Example 2:
+
+Input: root = [1,2]
+Output: 1
+```
+
+```python
+
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def diameterOfBinaryTree(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+        """
+
+        self.diameter = 0
+
+        def search(node):
+            """return the depth of the node
+            """
+            if not node:
+                return 0
+            l = search(node.left)
+            r = search(node.right)
+            self.diameter = max(self.diameter, l + r)
+            return max(l, r) + 1
+
+        search(root)
+        return self.diameter
+```
+
+
+#### 50. Pow(x, n)
+
+```
+Implement pow(x, n), which calculates x raised to the power n (i.e., xn).
+
+ 
+
+Example 1:
+
+Input: x = 2.00000, n = 10
+Output: 1024.00000
+Example 2:
+
+Input: x = 2.10000, n = 3
+Output: 9.26100
+Example 3:
+
+Input: x = 2.00000, n = -2
+Output: 0.25000
+Explanation: 2-2 = 1/22 = 1/4 = 0.25
+
+```
+
+```python
+class Solution(object):
+    def myPow(self, x, n):
+        """
+        :type x: float
+        :type n: int
+        :rtype: float
+        2**(10) = 2 ** (1010)
+        1  2.      4            8
+        2, 2*2=4, 2*2*2*2=16, (2*2*2*2)*(2*2*2*2)=16*16
+        """
+        if n < 0:
+            return 1.0 / self.myPow(x, -n)
+        i = 0
+        s = 1
+        while (1 << i) <= n:
+            # print('x:',x,"1<<i:",1<<i)
+            if (1 << i) & n:
+                s *= x
+            x *= x
+            i += 1
+        return s
+```
+
+#### 71. Simplify Path
+
+```
+Given a string path, which is an absolute path (starting with a slash '/') to a file or directory in a Unix-style file system, convert it to the simplified canonical path.
+
+In a Unix-style file system, a period '.' refers to the current directory, a double period '..' refers to the directory up a level, and any multiple consecutive slashes (i.e. '//') are treated as a single slash '/'. For this problem, any other format of periods such as '...' are treated as file/directory names.
+
+The canonical path should have the following format:
+
+The path starts with a single slash '/'.
+Any two directories are separated by a single slash '/'.
+The path does not end with a trailing '/'.
+The path only contains the directories on the path from the root directory to the target file or directory (i.e., no period '.' or double period '..')
+Return the simplified canonical path.
+
+ 
+
+Example 1:
+
+Input: path = "/home/"
+Output: "/home"
+Explanation: Note that there is no trailing slash after the last directory name.
+Example 2:
+
+Input: path = "/../"
+Output: "/"
+Explanation: Going one level up from the root directory is a no-op, as the root level is the highest level you can go.
+Example 3:
+
+Input: path = "/home//foo/"
+Output: "/home/foo"
+Explanation: In the canonical path, multiple consecutive slashes are replaced by a single one.
+
+```
+
+```python
+
+class Solution(object):
+    def simplifyPath(self, path):
+        """
+        :type path: str
+        :rtype: str
+        """
+        path = path.split('/')
+        stack = []
+        for val in path:
+            if val:
+                if val == '..':
+                    if stack:
+                        stack.pop()
+                elif val != '.':
+                    stack.append(val)
+        return '/' + '/'.join(stack)
+```
+
+#### 10. Regular Expression Matching 错误解法
+
+```python
+class Solution(object):
+    def isMatch(self, s, p):
+        """
+        :type s: str
+        :type p: str
+        :rtype: bool
+
+
+        ab a.
+        a a* dp[i][j] = True if dp[i][j-1]
+        aa a* dp[i][j] = True if dp[i-1][j] and p[j-2] == s[i-1]
+        aaa a*
+        """
+        m, n = len(s), len(p)
+        dp = [[False] * (n+1) for _ in range(m+1)]
+        dp[0][0] = True
+        if n >= 2 and p[1] == '*':
+            dp[0][1] = True
+        for j in range(3, n+1):
+            if dp[0][j-2] and p[j-1] == '*':
+                dp[0][j] = True
+            # else:
+                # break
+        for i in range(1, m+1):
+            for j in range(1, n+1):
+                if s[i-1] == p[j-1] or p[j-1] == '.':
+                    if dp[i-1][j-1]:
+                        dp[i][j] = True
+                elif p[j-1] == '*':
+                    if j >= 2 and dp[i][j-2]:
+                        dp[i][j] = True
+                    if dp[i][j-1]:
+                        dp[i][j] = True
+                    if j >= 2 and dp[i-1][j] and (p[j-2] == s[i-1] or p[j-2] == '.'):
+                        dp[i][j] = True
+
+        for dpi in dp:
+            print(dpi)
+        return dp[m][n]
+
+```
+
+#### 10. Regular Expression Matching 正确解法
+
+```python
+class Solution(object):
+    def isMatch(self, s, p):
+        """正则表达式匹配
+        :type s: str
+        :type p: str
+        :rtype: bool
+        Example:
+            Input: s = "ab", p = ".*"
+            Output: true
+        Solution:
+            1. 完全相等或者遇到.往下匹配
+            2. 没有*不可以匹配了，遇到*，考虑匹配一次或者两次，所以遇到*，还是要看前面的字母
+            3. 总体框架，
+                1. 是否等价或者为.
+                2. 为*
+                    匹配0个
+                    匹配1个
+                    匹配多个
+        """
+
+        m = len(s)
+        n = len(p)
+        dp = [[False] * (n + 1) for _ in range(m + 1)]
+        # 初始化
+        dp[0][0] = True
+        for j in range(1, n+1):
+            if j-2 >= 0 and p[j-1] == '*' and dp[0][j-2]:
+                dp[0][j] = True
+
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                if s[i-1] == p[j-1] or p[j-1] == '.':
+                    dp[i][j] = dp[i-1][j-1]
+                else:
+                    if p[j-1] == "*":
+                        # 匹配0个：b -> ba*
+                        if j-2 >= 0 and dp[i][j-2]:
+                            dp[i][j] = True
+                        # 1个：a -> a*
+                        if j-1 >= 0 and dp[i][j-1]:
+                            dp[i][j] = True
+                        # 匹配1个或者多个, 需要前面的相等
+                        # baa vs ba*
+                        # baaa vs ba*
+                        if j-2>=0 and (p[j-2] == s[i-1] or p[j-2] == '.') \
+                            and dp[i-1][j]:
+                            dp[i][j] = True
+
+
+
+        # for dpi in dp:
+        #     print(dpi)
+
+        return dp[m][n]
+
+```
+
 #### todolist [76, 269, 139, 523, 23, 200, 283, 65, 211, 347, 34, 721, 42, 339, 2, 987, 636, 121, 146, 162, 282, 17, 986, 43, 140]
 
 
