@@ -1017,6 +1017,254 @@ class Solution(object):
 ### Round3(BQ)
 
 
+# meta-店面 2022.10
+https://www.1point3acres.com/bbs/thread-935367-1-1.html
+## 店面
+### 题目1: 339. Nested List Weight Sum
+```
+Input  [1, [2, 3], 4, [5, [6, [7, 8, 9]]]] 求和。 但是每多一个【】， 里面的数字的权重加一。 我就直接写了个recursive function， 把权重带pass 进去。
+```
+
+- 伪代码
+
+```python
+def get_weight_sum(arr):
+
+    w = 1
+    s = 0
+    def search(arr):
+        for ele in arr:
+            if ele.isInterger():
+                s += w * ele.val
+            else:
+                w += 1
+                search(ele)
+                w -= 1
+    return s
+```
+
+- 正式代码
+
+```python
+class Solution(object):
+    def depthSum(self, nestedList):
+        """
+        :type nestedList: List[NestedInteger]
+        :rtype: int
+        """
+        self.depth = 1
+        def search(curNestedList):
+            s = 0
+            for i in range(len(curNestedList)):
+                val = curNestedList[i]
+                if val.isInteger():
+                    s += val.getInteger() * self.depth
+                else:
+                    self.depth += 1
+                    s += search(val.getList())
+                    self.depth -= 1
+            return s
+
+        return search(nestedList)
+
+```
+
+### 题目2: [347]Top K Frequent Elements
+
+- 题目
+```
+给一个list of integers， 找前K frequent的数.  应该有很快的linear 算法吧。 我用了Tree跟Hash。
+
+[1,1,1, ]
+```
+
+- topk问题
+
+```python
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution(object):
+    def topKFrequent(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: List[int]
+        """
+        from collections import defaultdict
+        freq_of_num = defaultdict(int)
+        for num in nums:
+            freq_of_num[num] += 1
+        num_freq_list = []
+        for num, freq in freq_of_num.items():
+            num_freq_list.append([num, freq])
+        # print(num_freq_list)
+        def select_topk_freq_nums(num_freq_list, l, r, k):
+            k1 = l - 1
+            base = num_freq_list[r][1]
+            for i in range(l, r):
+                if num_freq_list[i][1] > base:
+                    k1 += 1
+                    num_freq_list[k1], num_freq_list[i] = num_freq_list[i], num_freq_list[k1]
+            k1 += 1
+            num_freq_list[k1], num_freq_list[r] = num_freq_list[r], num_freq_list[k1]
+            if k1 - l + 1 == k:
+                return
+            elif k1 - l + 1 > k:
+                select_topk_freq_nums(num_freq_list, l, k1 - 1, k)
+            else:
+                select_topk_freq_nums(num_freq_list, k1 + 1, r, k - (k1 - l + 1))
+        select_topk_freq_nums(num_freq_list, 0, len(num_freq_list) - 1, k)
+        res = []
+        for i in range(k):
+            res.append(num_freq_list[i][0])
+        return res
+# leetcode submit region end(Prohibit modification and deletion)
+
+s = Solution()
+s.topKFrequent(nums=[1,1,1,2,2,3], k=2)
+
+```
+
+# meta-店面 2022.10.06 mock
+## mock
+2道题：尔凌凌，刘久以
+
+### 题目1: [200]Number of Islands
+
+```python
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution(object):
+    def numIslands(self, grid):
+        """
+        :type grid: List[List[str]]
+        :rtype: int
+        """
+        visited = set()
+        m, n = len(grid), len(grid[0])
+        def dfs(x, y):
+            for dx, dy in [[-1, 0], [1, 0], [0, 1], [0, -1]]:
+                nx, ny = x + dx, y + dy
+                new_index = nx * n + ny
+                if 0 <= nx < m and 0 <= ny < n and grid[nx][ny] == '1' and new_index not in visited:
+                    visited.add(new_index)
+                    dfs(nx, ny)
+
+        num_of_islands = 0
+        for i in range(m):
+            for j in range(n):
+                index = i * n + j
+                if grid[i][j] == '1' and index not in visited:
+                    # print(i, j)
+                    visited.add(index)
+                    dfs(i, j)
+                    num_of_islands += 1
+
+        return num_of_islands
+
+a = [["1","0","1","1","1"],["1","0","1","0","1"],["1","1","1","0","1"]]
+s = Solution()
+print(s.numIslands(a))
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+### 题目2:[691]Stickers to Spell Word 【未搞懂】
+
+```
+We are given n different types of stickers. Each sticker has a lowercase English word on it.
+
+You would like to spell out the given string target by cutting individual letters from your collection of stickers and rearranging them. You can use each sticker more than once if you want, and you have infinite quantities of each sticker.
+
+Return the minimum number of stickers that you need to spell out target. If the task is impossible, return -1.
+
+Note: In all test cases, all words were chosen randomly from the 1000 most common US English words, and target was chosen as a concatenation of two random words.
+
+Example 1:
+
+Input: stickers = ["with","example","science"], target = "thehat"
+Output: 3
+Explanation:
+We can use 2 "with" stickers, and 1 "example" sticker.
+After cutting and rearrange the letters of those stickers, we can form the target "thehat".
+Also, this is the minimum number of stickers necessary to form the target string.
+Example 2:
+
+Input: stickers = ["notice","possible"], target = "basicbasic"
+Output: -1
+Explanation:
+We cannot form the target "basicbasic" from cutting letters from the given stickers.
+```
+
+```python
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution:
+    def minStickers(self, stickers: List[str], target: str) -> int:
+        """
+        :type stickers: List[str]
+        :type target: str
+        :rtype: int
+        """
+        """
+        题目：用stickers来凑target里面的字母，求所需要的最小的stickers的数量
+        解法：状态压缩+动态规划
+        1. 状态压缩：对于target里面的每个字符相当于一位，每一位都完成了，就代表target完成了。
+        2. target的状态共有 1<<len(target)种，对于每种状态，分析添加一个sticker能够到达哪个状态，这样这个状态的个数可以由前一个得来。
+        3. 加入一个sticker，可以遍历每一位状态，检查该sticker能不能补充这个状态。
+        """
+        n = len(target)
+        m = len(stickers)
+        # 记录每个sticker有多少可用的字符
+        sticker2charcnt = [[0] * 26 for _ in range(m)]
+        # 每一位对应一个状态
+        for i in range(m):
+            sticker = stickers[i]
+            for c in sticker:
+                sticker2charcnt[i][ord(c) - ord('a')] += 1
+        # 定义dp，dp[i]代表完成状态i最小需要多少个stickers
+        total_num_of_status = (1 << n)
+        dp = [float('inf')] * (1 << 15)
+        # print("total_num_of_status:", total_num_of_status)
+        dp[0] = 0
+        # 遍历每一位状态
+        for i in range(total_num_of_status):
+            # 这个代表这个状态还没搞定，那么也没法演变成其他状态
+            if dp[i] == float('inf'):
+                continue
+            # 添加sticker，看能转移到哪个状态
+            for sticker_index, sticker in enumerate(stickers):
+                # print('sticker:',sticker)
+                # 每个sticker都单独查看一遍
+                next_v = i
+                # 遍历每一位状态，检查是否需要这个状态，以及sticker是否包含这个状态
+                # 注意python这里要copy一下list
+                cur_sticker_charcnt = sticker2charcnt[sticker_index].copy()
+                for cand_statu_index in range(n):
+                    # 代表i已经有这个位了
+                    if next_v & (1 << cand_statu_index) != 0:
+                        continue
+                    # 原来没有这个位，则检查sticker能不能提供这个位
+                    need_char = target[cand_statu_index]
+                    need_char_index = ord(need_char) - ord('a')
+                    if cur_sticker_charcnt[need_char_index] > 0:
+                        # print("need_char:", need_char)
+                        next_v += (1 << cand_statu_index)
+                        # print("next_v:", next_v)
+                        cur_sticker_charcnt[need_char_index] -= 1
+                dp[next_v] = min(dp[next_v], dp[i] + 1) # dp[i] + 1代表多加了一个sticker可以转移到状态next_v，取最小值。
+        # print(dp)
+        return dp[total_num_of_status - 1] if (
+                    dp[total_num_of_status - 1] and dp[total_num_of_status - 1] != float('inf')) else - 1
+# runtime:3432 ms
+# memory:15.3 MB
+
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+
 # Meta高频
 ## 分类与总结
 
