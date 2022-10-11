@@ -1740,7 +1740,7 @@ class Solution(object):
 ```
 
 
-### TODO：192变体
+### 192变体
 
 ```shell
 cat words.txt | tr -s ' ' '\n' | sort | uniq -c | sort -r | awk '{ print $2, $1 }'
@@ -1810,6 +1810,108 @@ the 4
 is 3
 sunny 2
 ```
+
+### todo162？
+
+
+# meta 店面 2022.10.1
+https://www.1point3acres.com/bbs/thread-932811-1-1.html
+```
+面试外国小哥，整体很简单，就是慢慢做别表现得太明显题都见过有点难，之前面过店面做了3道半，这次故意写的慢，做了俩道蠡扣 五菱 耳散（k=3)
+店面三周前约的了，也不知道on site 会不会直接取消毕竟h‍‌‍‌‍‍‌‌‍‍‍‍‍‍‍‍‌‌‌‌ire freeze， 回头update
+```
+## 店面
+
+### TODO:50
+### TODO:23 k=3
+
+
+
+
+# meta MLE 店面 2022.09.30
+https://www.1point3acres.com/bbs/thread-932733-1-1.html
+```
+MLE 店面
+污柳凌
+杉衣肆，附加题，舅爸欺
+```
+## META MLE 店面
+
+### TODO:560
+### TODO:314
+### TODO:987
+
+
+# META 店面 2022.09.30
+https://www.1point3acres.com/bbs/thread-932562-1-1.html
+```
+life is hard. 干了三年多公司 us office shut down。从头再来
+这是第一场面试
+第一题，随机选取整数array里面最大值的index。我先用hashmap写了o（n)，需要space O(1), 琢磨了一会儿才写出来，惊出一身汗
+第二题以前刷过，要散吧 但是我忘了省空间的解法，但是他说可以，就是解释case解释了挺久。
+‍‌‍‌‍‍‌‌‍‍‍‍‍‍‍‍‌‌‌‌最后只剩下三分钟，还算可以吧
+跟小哥聊了两下，虽然我是sde，ml的岗位。
+求过
+```
+## 店面
+
+### TODO: 随机选取整数array里面最大值的index
+### TODO:138
+
+
+
+# 买他MLE面经 2022.09.29
+https://www.1point3acres.com/bbs/thread-932251-1-1.html
+```
+今天收到了据信。感觉挺失落的， 求安慰。
+1st coding round:
+1. find the first and last position of a target number in an array.
+2. given an array of size n, return true if it has numbers 0, 1,...n-1, otherwise return false. (要求O(n) time and O(1) space)
+2nd coding:
+1. 一丝留
+2. 九儿要
+3rd coding:
+1. 三意思
+2. 柳棋龄
+system design: design a biding system
+ml design: video recommendation
+面完后自我感觉不错， coding都是最优解秒过， 唯一担心的是sys design 。 但recruiter said, "For next time I would prepare more around the coding rounds." 没有告诉我具体的feedback.  只说“I shared the feedback from your technical interview with the engineering leaders, and while we are impressed with your experience and accomplishments, un‍‌‍‌‍‍‌‌‍‍‍‍‍‍‍‍‌‌‌‌fortunately, we have made the difficult decision not to move forward at this time.”
+他还提到， ”The volume of interviews we have been conducting combined with the quality of candidates that have surfaced often force us into making difficult decisions。“
+感觉最近僧多粥少，所以标准也很高。
+```
+## 1st coding round
+
+
+### TODO: find the first and last position of a target number in an array.
+### TODO: given an array of size n, return true if it has numbers 0, 1,...n-1, otherwise return false. (要求O(n) time and O(1) space)
+```
+1st round的第2题，如果不是0到n-1的数字，那有可能是重复数字，还是说超出range的数字？
+超出range
+```
+
+## 2nd coding
+### TODO:149
+### TODO:921
+
+## 3nd coding
+### TODO:314
+### TODO:670
+
+
+# 买它 超低频 店面 2022.09.27
+https://www.1point3acres.com/bbs/thread-931709-1-1.html
+```
+版上看了很多“只刷高频就够”的思路，给大家提供一个另类体验参考一下。
+两题都没在LC上找到原题。第一题是找出数列里所有递增和递减的序列。第二题有点像七九，但是不是直接给你矩阵里的数值，要边移动边发掘新数值。
+面试官是欧洲部门的，所以可能面试文化跟总部不同。‍‌‍‌‍‍‌‌‍‍‍‍‍‍‍‍‌‌‌‌
+粗暴建议：只刷了高频题的同学们可以安排一下西海岸的面试时间。
+干货建议，求加米！（不会减少你的米！）
+```
+## 店面
+
+### TODO: 随机选取整数array里面最大值的index
+### TODO:138
+
 
 
 # Meta高频
@@ -4750,3 +4852,4 @@ class Solution(object):
 5. 发一下之前面过的FB E5面经吧：https://www.uscardforum.com/t/topic/28625
 6. How I cracked my MLE interview at Facebook：https://towardsdatascience.com/how-i-cracked-my-mle-interview-at-facebook-fe55726f0096
 7. 整理最近3个月Facebook面筋(2020):https://www.1point3acres.com/bbs/forum.php?mod=viewthread&tid=698494&ctid=230547
+8. 买它 ML design 近期题目汇总:https://www.1point3acres.com/bbs/thread-931605-1-1.html
