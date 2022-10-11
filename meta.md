@@ -16,6 +16,17 @@
 | 2. META ML RS过经及timeline |  on-site2-Coding 1  |2022.07| 65. Valid Number: 是否为有效的float数的字符串，可能包含.+-eE等符号| 字符串 | 中等 |注意很多badcase|
 | 2. META ML RS过经及timeline |  on-site2-Coding 1  |2022.07| 670. Maximum Swap：返回只可以swap一次后最大的数| 数组 | 中等 |从后往前遍历并记录最大值，对每个位置，与替换最大值替换可以取得该位置swap后的最大值，与最前面一个位置swap可以取得全局最大值|
 | mock |  mock2  |2022.10| [691]Stickers to Spell Word: 返回最小的使用stickers组合成target的数量 | dfs+缓存+状态压缩 or bfs | 困难 | 1. 可以用dfs从target开始搜索，每次搜索的时候，尝试使用stickers中的每个结果，最终取最小的。2. 状态比较多，用11111代表每个位置是否已经收集到，这种效率要高一点，相当于利用位运算做了压缩。3. 可以加缓存优化速度。|
+| 店面 |  店面  |2022.10| unsorted array 找是否有三个number, a,b,c 满足 a**2 + b**2 = c**2 | 三数之和 | 中等 | 1. 三数之和，先排序，然后双指针。2.c为target，然后利用a+b=c找rarget。|
+| 店面 |  店面-onsite1  |2022.1| N（很大的数）个排好序的找有多少unique 数字 | 指针 | 中等 | 比较pre和cur的值是否有有变化，变化计数+1，否则不变，注意pre可以设置为nums[0]|
+| 店面 |  店面-onsite2  |2022.1| 286 Walls and Gates 变‍‌‍‌‍‍‌‌‍‍‍‍‍‍‍‍‌‌‌‌种 题目：有墙：-1，门：0，空：INF，给所有空打上离门最近的距离 | bfs | 中等 | bfs先收集门，然后往外拓展|
+| 店面 |  店面-onsite3  |2022.1| [863]All Nodes Distance K in Binary Tree：给出root，target，k，找出所有离target距离为k的节点 | bfs | 中等 | 1. 先建图，然后用bfs查找|
+| 店面 |  店面-题目1  |2022.10| [987]Vertical Order Traversal of a Binary Tree: 垂直并排序输出结果 | dfs+哈希 | 困难 | 先dfs+hash收集每一列的数字，记录他的位置信息，然后排序输出|
+| 店面 |  店面-题目1  |2022.10| [987]Vertical Order Traversal of a Binary Tree: 垂直并排序输出结果 | dfs+哈希 | 困难 | 先dfs+hash收集每一列的数字，记录他的位置信息，然后排序输出|
+
+
+
+
+
 
 
 ## 高频题总结
@@ -1393,7 +1404,7 @@ class Solution(object):
         return res
 ```
 
-### TODO:unsorted array 找是否有三个number, a,b,c 满足 a**2 + b**2 = c**2
+### unsorted array 找是否有三个number, a,b,c 满足 a**2 + b**2 = c**2
 - 思路
 ```
 这里是OP，第二题可以有负数，我是按照three sum的思路做的，先map成平方的形式，再sort，然后for loop+two pointers
@@ -1468,9 +1479,172 @@ https://www.1point3acres.com/bbs/thread-843295-1-1.html
 1轮System Design， 1轮ML Infra Design，2轮Coding，1轮Behavior
 System： 爬虫， ML：Ads CTR prediction，Coding： 1. N（很大的数）个排好序的找有多少unique 数字。2. Walls and Gates 变‍‌‍‌‍‍‌‌‍‍‍‍‍‍‍‍‌‌‌‌种。3. 二叉树中距离为K的node。 4. 忘了，但是是一个非常Easy的题目。
 ```
-### TODO:N（很大的数）个排好序的找有多少unique 数字
-### TODO:Walls and Gates 变‍‌‍‌‍‍‌‌‍‍‍‍‍‍‍‍‌‌‌‌种
-### TODO:二叉树中距离为K的node。 
+### N（很大的数）个排好序的找有多少unique 数字
+
+"""
+pre=1
+          l
+cnt=2
+
+1,1,1,1,1,2
+1,1,2,2
+
+pre=1
+ l
+cnt=2
+1,2
+
+pre=3
+cnt=3
+       l
+1,1,2,3,3
+"""
+
+```python
+def num_of_unique_numbers(nums):
+    n = len(nums)
+    if n <= 0:
+        return 0
+    pre = nums[0]
+    i = 0
+    cnt = 1
+    while i < m:
+        if nums[i] != pre:
+            cnt += 1
+        pre = nums[i]
+    return cnt
+```
+
+
+### 286 Walls and Gates 变‍‌‍‌‍‍‌‌‍‍‍‍‍‍‍‍‌‌‌‌种
+
+```
+You are given an m x n grid rooms initialized with these three possible values.
+
+-1 A wall or an obstacle.
+0 A gate.
+INF Infinity means an empty room. We use the value 231 - 1 = 2147483647 to represent INF as you may assume that the distance to a gate is less than 2147483647.
+Fill each empty room with the distance to its nearest gate. If it is impossible to reach a gate, it should be filled with INF
+
+Input: rooms = [[2147483647,-1,0,2147483647],[2147483647,2147483647,2147483647,-1],[2147483647,-1,2147483647,-1],[0,-1,2147483647,2147483647]]
+Output: [[3,-1,0,1],[2,2,1,-1],[1,-1,2,-1],[0,-1,3,4]]
+Example 2:
+
+Input: rooms = [[-1]]
+Output: [[-1]]
+```
+
+```python
+
+
+# leetcode submit region begin(Prohibit modification and deletion)
+class Solution(object):
+    def wallsAndGates(self, rooms):
+        """
+        :type rooms: List[List[int]]
+        :rtype: None Do not return anything, modify rooms in-place instead.
+        -1 A wall or an obstacle.
+        0 A gate.
+        INF Infinity means an empty room. We use the value 231 - 1 = 2147483647 to represent INF as you may assume that the distance to a gate is less than 2147483647.
+        """
+        INF = (1 << 31) - 1
+        m, n = len(rooms), len(rooms[0])
+        visited = set()
+        d = deque()
+        for i in range(m):
+            for j in range(n):
+                if rooms[i][j] == 0:
+                    d.append([i, j, 0])
+        while d:
+            size = len(d)
+            for i in range(size):
+                x, y, dis = d.popleft()
+                rooms[x][y] = dis
+                for dx, dy in [[-1, 0], [1, 0], [0, -1], [0, 1]]:
+                    nx, ny = dx + x, dy + y
+                    if 0 <= nx < m and 0 <= ny < n and (nx, ny) not in visited and rooms[nx][ny] >= INF:
+                        visited.add((nx, ny))
+                        d.append([nx, ny, dis + 1])
+```
+
+
+### [863]All Nodes Distance K in Binary Tree
+
+```
+Given the root of a binary tree, the value of a target node target, and an integer k, return an array of the values of all nodes that have a distance k from the target node.
+
+You can return the answer in any order.
+
+Example 1:
+
+Input: root = [3,5,1,6,2,0,8,null,null,7,4], target = 5, k = 2
+Output: [7,4,1]
+Explanation: The nodes that are a distance 2 from the target node (with value 5) have values 7, 4, and 1.
+Example 2:
+
+Input: root = [1], target = 1, k = 3
+Output: []
+```
+
+```python
+
+# leetcode submit region begin(Prohibit modification and deletion)
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution(object):
+    def distanceK(self, root, target, k):
+        """
+        :type root: TreeNode
+        :type target: TreeNode
+        :type k: int
+        :rtype: List[int]
+            0
+             1
+               2
+                 3
+
+                 1
+                 2
+        """
+        child_to_parent = dict()
+        def dfs(node):
+            if node.left:
+                child_to_parent[node.left] = node
+                dfs(node.left)
+            if node.right:
+                child_to_parent[node.right] = node
+                dfs(node.right)
+        dfs(root)
+        d = deque()
+        d.append([target, 0])
+        visited = set()
+        visited.add(target)
+        res = []
+        while d:
+            n = len(d)
+            for i in range(n):
+                cur, dis = d.popleft()
+                if dis == k:
+                    res.append(cur.val)
+                elif dis < k:
+                    if cur.left and cur.left not in visited:
+                        visited.add(cur.left)
+                        d.append([cur.left, dis + 1])
+                    if cur.right and cur.right not in visited:
+                        visited.add(cur.right)
+                        d.append([cur.right, dis + 1])
+                    if cur in child_to_parent:
+                        parent = child_to_parent[cur]
+                        if parent not in visited:
+                            visited.add(parent)
+                            d.append([parent, dis + 1])
+        return res
+```
 
 
 # meta MLE 店面 2022.10
@@ -1480,8 +1654,162 @@ https://www.1point3acres.com/bbs/thread-932740-1-1.html
 臼捌跂 follow up 问保持原来字符串不在给定序列里的顺序
 壹珋弍变体求最小 follow up 问如果第一个和最后一个没有相邻也算满足条件求结果
 ```
-### TODO：987
+### [987]Vertical Order Traversal of a Binary Tree
+
+```
+Given the root of a binary tree, calculate the vertical order traversal of the binary tree.
+
+For each node at position (row, col), its left and right children will be at positions (row + 1, col - 1) and (row + 1, col + 1) respectively. The root of the tree is at (0, 0).
+
+The vertical order traversal of a binary tree is a list of top-to-bottom orderings for each column index starting from the leftmost column and ending on the rightmost column. There may be multiple nodes in the same row and same column. In such a case, sort these nodes by their values.
+
+Return the vertical order traversal of the binary tree.
+
+Example 1:
+
+
+Input: root = [3,9,20,null,null,15,7]
+Output: [[9],[3,15],[20],[7]]
+Explanation:
+Column -1: Only node 9 is in this column.
+Column 0: Nodes 3 and 15 are in this column in that order from top to bottom.
+Column 1: Only node 20 is in this column.
+Column 2: Only node 7 is in this column.
+Example 2:
+
+
+Input: root = [1,2,3,4,5,6,7]
+Output: [[4],[2],[1,5,6],[3],[7]]
+Explanation:
+Column -2: Only node 4 is in this column.
+Column -1: Only node 2 is in this column.
+Column 0: Nodes 1, 5, and 6 are in this column.
+          1 is at the top, so it comes first.
+          5 and 6 are at the same position (2, 0), so we order them by their value, 5 before 6.
+Column 1: Only node 3 is in this column.
+Column 2: Only node 7 is in this column.
+Example 3:
+
+
+Input: root = [1,2,3,4,6,5,7]
+Output: [[4],[2],[1,5,6],[3],[7]]
+Explanation:
+This case is the exact same as example 2, but with nodes 5 and 6 swapped.
+Note that the solution remains the same since 5 and 6 are in the same location and should be ordered by their values.
+```
+
+```python
+
+# leetcode submit region begin(Prohibit modification and deletion)
+# Definition for a binary tree node.
+# class TreeNode(object):
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution(object):
+    def verticalTraversal(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[List[int]]
+        """
+        col_to_nodes = defaultdict(list)
+        self.min_col, self.max_col = 0, 0
+        def search(node, row, col):
+            if not node:
+                return
+            if col < self.min_col:
+                self.min_col = col
+            if col > self.max_col:
+                self.max_col = col
+            col_to_nodes[col].append([node.val, row, col])
+            search(node.left, row + 1, col - 1)
+            search(node.right, row + 1, col + 1)
+
+        search(root, 0, 0)
+        res = []
+        for col in range(self.min_col, self.max_col + 1):
+            col_list = col_to_nodes[col]
+            if col_list:
+                col_list.sort(key = lambda x:[x[1], x[0]])
+                res.append([_[0] for _ in col_list])
+        return res
+
+# leetcode submit region end(Prohibit modification and deletion)
+
+```
+
+
 ### TODO：192变体
+
+```shell
+cat words.txt | tr -s ' ' '\n' | sort | uniq -c | sort -r | awk '{ print $2, $1 }'
+```
+
+- 解析
+
+```
+
+1 切割
+tr 命令用于转换或删除文件中的字符
+-s：缩减连续重复的字符成指定的单个字符
+
+[]
+cat Words.txt| tr -s ' ' '\n'
+
+the
+day
+is
+sunny
+the
+the
+the
+sunny
+is
+is
+2 排序单词
+[]
+cat Words.txt| tr -s ' ' '\n' | sort
+
+day
+is
+is
+is
+sunny
+sunny
+the
+the
+the
+the
+3 统计单词出现次数
+uniq 命令用于检查及删除文本文件中重复出现的行列，一般与 sort 命令结合使用。
+-c：在每列旁边显示该行重复出现的次数。
+
+[]
+cat Words.txt| tr -s ' ' '\n' | sort | uniq -c
+
+1 day
+3 is
+2 sunny
+4 the
+4 排序单词出现次数
+-r：以相反的顺序来排序
+
+[]
+cat Words.txt| tr -s ' ' '\n' | sort | uniq -c | sort -r
+
+4 the
+3 is
+2 sunny
+1 day
+5 打印
+[]
+cat Words.txt| tr -s ' ' '\n' | sort | uniq -c | sort -r | awk '{print $2, $1}'
+
+the 4
+is 3
+sunny 2
+```
 
 
 # Meta高频
