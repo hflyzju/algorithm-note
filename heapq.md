@@ -62,13 +62,15 @@ class Solution:
     def trapRainWater(self, heightMap: List[List[int]]) -> int:
         """二维接雨水
 
-输入: heightMap = [[1,4,3,1,3,2],[3,2,1,3,2,4],[2,3,3,2,3,1]]
-输出: 4
-解释: 下雨后，雨水将会被上图蓝色的方块中。总的接雨水量为1+2+1=4。
+        输入: heightMap = [[1,4,3,1,3,2],
+                          [3,2,1,3,2,4],
+                          [2,3,3,2,3,1]]
+        输出: 4
+        解释: 下雨后，雨水将会被上图蓝色的方块中。总的接雨水量为1+2+1=4。
 
-来源：力扣（LeetCode）
-链接：https://leetcode.cn/problems/trapping-rain-water-ii
-著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+        来源：力扣（LeetCode）
+        链接：https://leetcode.cn/problems/trapping-rain-water-ii
+        著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
 
         题解：
         1. 利用优先队列，从最外圈往里面搜索，找到外圈最小的桶，然后计算相邻内部的最大盛水体积。
