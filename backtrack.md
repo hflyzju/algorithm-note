@@ -142,9 +142,9 @@ class Solution(object):
         :rtype: bool
         """
         """
-输入: matchsticks = [1,1,2,2,2]
-输出: true
-解释: 能拼成一个边长为2的正方形，每边两根火柴。
+        输入: matchsticks = [1,1,2,2,2]
+        输出: true
+        解释: 能拼成一个边长为2的正方形，每边两根火柴。
         """
         # 方法2：时间复杂度2**n
         s = sum(matchsticks)
