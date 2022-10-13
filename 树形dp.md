@@ -17,6 +17,9 @@ class Solution(object):
 
 337. 打家劫舍 III
 输入: root = [3,2,3,null,3,null,1]
+       3
+   2      3
+ null 3  null 1
 输出: 7 
 解释: 小偷一晚能够盗取的最高金额 3 + 3 + 1 = 7
 
