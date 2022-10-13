@@ -13,7 +13,6 @@
 from typing import List
 
 class Node:
-
     def __init__(self, left, right, val):
         """构建[left, right]的树"""
         self.left = left
@@ -23,12 +22,10 @@ class Node:
         self.left_node = None
         self.right_node = None
 
-
 class NumArray:
 
     def __init__(self, nums: List[int]):
         self.root = self.build_tree(nums, 0, len(nums ) -1)
-
 
     def build_tree(self, nums, left, right):
         if left > right:
@@ -44,7 +41,6 @@ class NumArray:
         cur_node.right_node = self.build_tree(nums, mid + 1, right)
         cur_node.sum = cur_node.left_node.sum + cur_node.right_node.sum
         return cur_node
-
 
     def update_node(self, node, index, val):
         """跟新左右孩子中当前节点的值，并根据左右孩子的sum更新当前sum"""
@@ -65,7 +61,6 @@ class NumArray:
         """更新index下节点的值"""
         self.update_node(self.root, index, val)
 
-
     def query(self, node, left, right):
         """查询某节点[node.left, node.right]下的[left, right]之间的区域和"""
         # node包括在范围内，直接向上输出
@@ -77,9 +72,6 @@ class NumArray:
         left_acc = self.query(node.left_node, left, right)
         right_acc = self.query(node.right_node, left, right)
         return left_acc + right_acc
-
-
-
 
     def sumRange(self, left: int, right: int) -> int:
         """求区域和"""
