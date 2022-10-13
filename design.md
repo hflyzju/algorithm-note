@@ -26,7 +26,6 @@ class RandomizedCollection(object):
         return len(self.val_to_indexlist[val]) == 1
 
 
-
     def remove(self, val):
         """
         :type val: int
